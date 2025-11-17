@@ -52,7 +52,7 @@ $globalErrors  = [];
 <?php if ( empty( $foldersConfigData ) || empty( $templatesByName ) ) : ?>
 	<div id="folders-view" class="visible" aria-labelledby="folders-view-heading">
 		<div class="heading">
-			<?= renderHeadingTooltip( 'document_folders', $tooltips, $defaultTooltipMessage, 'h2', 'Document Folders' ) ?>
+			<?= renderHeadingTooltip( 'document_folders', $tooltips, $defaultTooltipMessage, 'h2', 'Document Folders', false, false, true ) ?>
 		</div>
 		<div class="columns max-md">
 			<div class="column">
@@ -73,7 +73,7 @@ $globalErrors  = [];
 	<div id="folders-view" class="visible">
 		<?= renderWidthControls( 'width_columns', 'Column', 'column-controls' ); ?>
 		<div class="heading">
-			<?= renderHeadingTooltip( 'document_folders', $tooltips, $defaultTooltipMessage, 'h2', 'Document Folders' ) ?>
+			<?= renderHeadingTooltip( 'document_folders', $tooltips, $defaultTooltipMessage, 'h2', 'Document Folders', false, false, true ) ?>
 		</div>
 		<div class="columns width-resizable" role="list" data-width-key="width_columns">
 			<?php foreach ( $foldersConfigData as $column ): ?>
@@ -110,9 +110,9 @@ $globalErrors  = [];
 					<ul>
 						<?php
 						if ( ! $dir || ! is_dir( $dir ) ) {
-							echo "<li class='invalid'>Error: The directory '" . htmlspecialchars( $dir ?: '(unset)' ) . "' does not exist.</li>";
+							echo "<li class='invalid'><strong>Error:</strong> The directory <code>'" . htmlspecialchars( $dir ?: '(unset)' ) . "'</code> does not exist.</li>";
 						} elseif ( empty( $folders ) ) {
-							echo "<li class='empty'>No projects found in '" . htmlspecialchars( $dir ) . "'.</li>";
+							echo "<li class='empty'><strong>Warning:</strong> No projects found in <code>'" . htmlspecialchars( $dir ) . "'</code>.</li>";
 						} else {
 							$templateHtml = resolve_template_html( $template, $templatesByName );
 

@@ -358,7 +358,7 @@ if ( $action ) {
 		<?php echo render_versioned_assets_with_base(); ?>
 
 		<div class="heading">
-			<?= renderHeadingTooltip( 'export', $tooltips, $defaultTooltipMessage, 'h2', 'Export Files & Database' ) ?>
+			<?= renderHeadingTooltip( 'export', $tooltips, $defaultTooltipMessage, 'h2', 'Export Files & Database', false, false, true ) ?>
 		</div>
 	<?php endif; ?>
 

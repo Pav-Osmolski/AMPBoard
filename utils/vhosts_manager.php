@@ -33,7 +33,7 @@ $pageClasses = buildPageViewClasses( $settingsView ?? null );
 		<?php echo render_versioned_assets_with_base(); ?>
 
 		<div class="heading">
-			<?= renderHeadingTooltip( 'vhosts_manager', $tooltips, $defaultTooltipMessage, 'h2', 'Virtual Hosts Manager' ) ?>
+			<?= renderHeadingTooltip( 'vhosts_manager', $tooltips, $defaultTooltipMessage, 'h2', 'Virtual Hosts Manager', false, false, true ) ?>
 		</div>
 	<?php endif; ?>
 	<?php

@@ -40,7 +40,7 @@ $start = microtime( true );
 
 echo '
 <div class="heading">
-    ' . renderHeadingTooltip( 'mysql_inspector', $tooltips, $defaultTooltipMessage, 'h2', 'MySQL Inspector' ) . '
+    ' . renderHeadingTooltip( 'mysql_inspector', $tooltips, $defaultTooltipMessage, 'h2', 'MySQL Inspector', false, false, true ) . '
 </div>
 <pre>';
 

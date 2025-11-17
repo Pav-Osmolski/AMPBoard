@@ -40,7 +40,7 @@ $arch = ( PHP_INT_SIZE === 8 ) ? '64-bit' : '32-bit';
 
 echo '
 <div class="heading">
-    ' . renderHeadingTooltip( 'apache_inspector', $tooltips, $defaultTooltipMessage, 'h2', 'Apache Inspector' ) . '
+    ' . renderHeadingTooltip( 'apache_inspector', $tooltips, $defaultTooltipMessage, 'h2', 'Apache Inspector', false, false, true ) . '
 </div>
 <pre>';
 echo "🖥️ Operating System: $os ($arch)\n";

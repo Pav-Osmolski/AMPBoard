@@ -85,7 +85,7 @@ require_once __DIR__ . '/../config/config.php';
 <div id="settings-view">
 	<!-- User Settings -->
 	<div class="heading">
-		<?= renderHeadingTooltip( 'user_config', $tooltips, $defaultTooltipMessage, 'h2', 'User Configuration' ) ?>
+		<?= renderHeadingTooltip( 'user_config', $tooltips, $defaultTooltipMessage, 'h2', 'User Configuration', false, false, true ) ?>
 	</div>
 	<?= renderWidthControls( 'width_settings', 'Accordion', 'accordion-controls' ); ?>
 	<?php if ( defined( 'DEMO_MODE' ) && DEMO_MODE ): ?>

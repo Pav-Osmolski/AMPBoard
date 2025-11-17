@@ -13,7 +13,6 @@
 	&::after {
 		content: attr(data-tooltip);
 		position: absolute;
-		bottom: 125%;
 		left: 0;
 		transform: translateX(0);
 		background-color: var(--header-background-color);
@@ -30,6 +29,18 @@
 		z-index: 10;
 	}
 
+	&.above {
+		&::after {
+			bottom: 125%;
+		}
+	}
+
+	&.below {
+		&::after {
+			top: 125%;
+		}
+	}
+
 	&:hover::after, &:focus::after {
 		opacity: 1;
 	}
@@ -37,8 +48,16 @@
 
 .heading {
 	.tooltip-icon {
-		&::after {
-			bottom: 90%;
+		&.above {
+			&::after {
+				bottom: 90%;
+			}
+		}
+
+		&.below {
+			&::after {
+				top: 90%;
+			}
 		}
 	}
 }
