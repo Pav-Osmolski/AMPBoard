@@ -35,7 +35,7 @@
  * - Sensitive values are obfuscated for display via `obfuscate_value()`
  *
  * @author  Pawel Osmolski
- * @version 2.7
+ * @version 2.8
  */
 
 /**
@@ -55,6 +55,9 @@
  * @var bool $apachePathValid Validation state for Apache path
  * @var bool $htdocsPathValid Validation state for HTDocs path
  * @var bool $phpPathValid Validation state for PHP path
+ * @var bool $mySqlHostValid Validation state for MySQL Host
+ * @var bool $mySqlUserValid Validation state for MySQL Username
+ * @var bool $mySqlPassValid Validation state for MySQL Password
  * @var array $themeTypes Theme type metadata for client-side use
  * @var array $tooltips Tooltip copy map
  * @var array $themeOptions Theme options for the select box
@@ -118,16 +121,16 @@ require_once __DIR__ . '/../config/config.php';
 			<div class="user-settings">
 				<label>DB Host:&nbsp;
 					<input type="text" name="DB_HOST" value="<?= obfuscate_value( DB_HOST ) ?>">
-					<?= checkMysqlCredentialsStatus( 'host' ) ? '✔️' : '❌' ?>
+					<?= $mySqlHostValid ? '✔️' : '❌' ?>
 				</label>
 				<label>DB User:&nbsp;
 					<input type="text" name="DB_USER" value="<?= obfuscate_value( htmlspecialchars( $dbUser ) ) ?>">
-					<?= checkMysqlCredentialsStatus( 'user' ) ? '✔️' : '❌' ?>
+					<?= $mySqlUserValid ? '✔️' : '❌' ?>
 				</label>
 				<label>DB Password:&nbsp;
 					<input type="password" name="DB_PASSWORD"
 					       value="<?= obfuscate_value( htmlspecialchars( $dbPass ) ) ?>">
-					<?= checkMysqlCredentialsStatus( 'pass' ) ? '✔️' : '❌' ?>
+					<?= $mySqlPassValid ? '✔️' : '❌' ?>
 				</label>
 
 				<label>Apache Path:&nbsp;
