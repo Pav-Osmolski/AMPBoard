@@ -12,6 +12,7 @@
 /** @var bool $displayHeader */
 /** @var bool $displayFooter */
 /** @var bool $useAjaxForStats */
+/** @var bool $useAjaxForErrorLog */
 /** @var string $bodyClasses */
 
 require_once __DIR__ . '/config/bootstrap.php';
@@ -26,6 +27,7 @@ require_once __DIR__ . '/config/bootstrap.php';
 	<meta name="robots" content="noindex, nofollow">
 	<meta name="color-scheme" content="<?php echo htmlspecialchars( getThemeColorScheme( $theme ) ); ?>">
 	<title><?php echo htmlspecialchars( $user ); ?>'s AMPBoard — Modern Localhost and Remote Dashboard for Apache, MySQL & PHP</title>
+	<meta id="page-title-prefix" data-prefix="<?php echo htmlspecialchars( $user ); ?>'s AMPBoard — ">
 	<link rel="icon" type="image/x-icon" href="assets/favicon/AMPBoard.ico">
 	<link rel="icon" type="image/png" sizes="512x512" href="assets/favicon/AMPBoard.png">
 	<link rel="apple-touch-icon" sizes="512x512" href="assets/favicon/AMPBoard.png">

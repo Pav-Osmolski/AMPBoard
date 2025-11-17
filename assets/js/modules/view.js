@@ -30,12 +30,32 @@ export function initViewToggles() {
 			return params.get( 'view' ) || 'index';
 		}
 
+		function updatePageTitle( routeKey ) {
+			const prefixEl = document.getElementById( 'page-title-prefix' );
+			if ( !prefixEl ) return;
+
+			const prefix = prefixEl.dataset.prefix || '';
+
+			const titles = {
+				'index': 'Modern Localhost and Remote Dashboard for Apache, MySQL & PHP',
+				'settings': 'Settings',
+				'phpinfo': 'PHP Info',
+				'apache-inspector': 'Apache Inspector',
+				'mysql-inspector': 'MySQL Inspector',
+			};
+
+			const subtitle = titles[routeKey] || titles.index;
+			document.title = prefix + subtitle;
+		}
+
 		function showView( routeKey, push = false ) {
 			const key = pathMap[routeKey] || 'index';
 
 			Object.entries( views ).forEach( ( [ k, el ] ) => {
 				if ( el ) el.classList.toggle( 'visible', k === key );
 			} );
+
+			updatePageTitle( routeKey );
 
 			// Lazy load for Apache and MySQL views
 			if ( key === 'apache' || key === 'mysql' ) {
