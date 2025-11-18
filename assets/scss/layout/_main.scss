@@ -140,12 +140,14 @@ table {
 	align-items: center;
 }
 
-#folders-view,
-#settings-view,
-#phpinfo-view,
-#apache-view,
-#mysql-view {
-	display: none;
+.folders {
+	#folders-view,
+	#settings-view,
+	#phpinfo-view,
+	#apache-view,
+	#mysql-view {
+		display: none;
+	}
 }
 
 .separator-line {

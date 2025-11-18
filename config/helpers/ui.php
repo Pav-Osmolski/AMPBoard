@@ -277,6 +277,7 @@ function getDefaultTooltips(): array {
 		'export'           => 'Create an archive of site files or a database. Pick a subfolder, optionally include or export only wp-content/uploads, and apply your exclude list.',
 		'apache_inspector' => 'Inspect your Apache setup, including loaded modules, configuration files, environment details, ports in use, and the current runtime status.',
 		'mysql_inspector'  => 'Check your MySQL server status, active databases, connection settings, and environment details to diagnose connectivity or configuration issues.',
+		'phpinfo'          => 'View detailed information about your PHP environment, including extensions, configuration settings, and server variables.',
 		'clear_storage'    => 'This will reset saved UI settings (theme, Column Order and Column Size etc.) stored in your browser’s local storage.'
 	];
 }

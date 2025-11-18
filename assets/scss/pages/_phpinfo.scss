@@ -1,41 +1,43 @@
 /* PHP Info */
 #phpinfo-view {
-	max-width: 1080px;
-	margin: 0 auto;
+	.phpinfo {
+		max-width: 1080px;
+		margin: 0 auto;
 
-	table {
-		width: 100%;
-		margin-bottom: 1.5rem;
-		table-layout: fixed;
-		word-wrap: break-word;
-	}
+		table {
+			width: 100%;
+			margin-bottom: 1.5rem;
+			table-layout: fixed;
+			word-wrap: break-word;
+		}
 
-	th,
-	td {
-		vertical-align: top;
-		font-size: .85rem;
-	}
+		th,
+		td {
+			vertical-align: top;
+			font-size: .85rem;
+		}
 
-	h1,
-	h2 {
-		margin-top: 2rem;
-		margin-bottom: .75rem;
-	}
+		h1,
+		h2 {
+			margin-top: 2rem;
+			margin-bottom: .75rem;
+		}
 
-	h1 {
-		font-size: 1.5rem;
-	}
+		h1 {
+			font-size: 1.5rem;
+		}
 
-	h2 {
-		font-size: 1.2rem;
-	}
+		h2 {
+			font-size: 1.2rem;
+		}
 
-	p {
-		margin: .5rem 0;
-	}
+		p {
+			margin: .5rem 0;
+		}
 
-	a {
-		text-decoration: underline;
-		word-break: break-word;
+		a {
+			text-decoration: underline;
+			word-break: break-word;
+		}
 	}
 }
