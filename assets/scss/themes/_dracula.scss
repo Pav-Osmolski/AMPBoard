@@ -2,11 +2,11 @@ $theme-name: 'Dracula';
 $theme-type: 'Dark';
 
 :root.dracula-theme {
-	--background-color: #282a36e8;
-	--background-overlay: #44475aa9;
 	--bg-hue-angle: 25deg;
 	--logo-hue-angle: -40deg;
 	--logo-grayscale: 10%;
+	--background-color: #282a36e8;
+	--background-overlay: #44475aa9;
 	--text-color: #f8f8f2;
 	--header-background-color: #44475ae8;
 	--border-color: #6272a4;

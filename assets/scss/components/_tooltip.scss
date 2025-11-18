@@ -7,7 +7,7 @@
 	svg {
 		width: 17px;
 		height: 17px;
-		transition: color .3s;
+		transition: color var(--transition-ease);
 	}
 
 	&::after {

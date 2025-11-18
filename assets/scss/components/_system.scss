@@ -30,7 +30,7 @@ body.error-log-active {
 			background: none;
 			border: none;
 			color: inherit;
-			transition: color .3s;
+			transition: color var(--transition-ease);
 
 			svg {
 				margin-right: 5px;

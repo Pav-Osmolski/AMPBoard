@@ -23,7 +23,7 @@ h3 {
 }
 
 p {
-	transition: color .3s;
+	transition: color var(--transition-ease);
 
 	&.description {
 		width: fit-content;
@@ -67,7 +67,7 @@ code {
 	background-color: var(--header-background-color);
 	padding: 2px 4px;
 	border-radius: var(--input-border-radius);
-	transition: background-color .3s, color .3s;
+	transition: background-color var(--transition-ease), color var(--transition-ease);
 }
 
 hr {
@@ -84,19 +84,19 @@ main {
 
 body.header-active.footer-active {
 	main {
-		min-height: calc(100vh - 181px); //Minus header + footer height
+		min-height: calc(100vh - var(--header-footer-height));
 	}
 }
 
 body.header-inactive.footer-active {
 	main {
-		min-height: calc(100vh - 93px);
+		min-height: calc(100vh - var(--footer-height));
 	}
 }
 
 body.header-active.footer-inactive {
 	main {
-		min-height: calc(100vh - 88px);
+		min-height: calc(100vh - var(--header-height));
 	}
 }
 
@@ -180,7 +180,7 @@ table {
 	margin: 0 auto;
 	width: 100%;
 	max-width: 2000px;
-	transition: max-width .3s ease;
+	transition: max-width var(--transition-ease);
 }
 
 /* Unique theme type settings */

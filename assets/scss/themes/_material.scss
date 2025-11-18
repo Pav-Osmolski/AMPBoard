@@ -2,11 +2,11 @@ $theme-name: 'Material';
 $theme-type: 'Dark';
 
 :root.material-theme {
-	--background-color: #263238e8;
-	--background-overlay: #32373bd9;
 	--bg-hue-angle: 320deg;
 	--logo-hue-angle: -60deg;
 	--logo-grayscale: 60%;
+	--background-color: #263238e8;
+	--background-overlay: #32373bd9;
 	--text-color: #CCD4E7;
 	--header-background-color: #314349e8;
 	--border-color: #455a64;

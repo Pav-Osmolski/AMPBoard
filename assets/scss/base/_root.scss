@@ -3,15 +3,34 @@ $theme-name: 'Default';
 $theme-type: 'Dark';
 
 :root {
+	// Typography
 	--font-main: 'Ubuntu', sans-serif; /* Main body font */
 	--font-editor: 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace; /* <code>, <pre> and HTML Editor font */
-	--background-image: url(../../assets/images/background.webp);
-	--background-color: #121212e8;
-	--light-mode-bg-overlay: #e7e6f0d9;
+
+	// Measurements
+	--header-height: 88px;
+	--footer-height: 93px;
+	--header-footer-height: calc(var(--header-height) + var(--footer-height));
+	--border-width: 1px;
+	--container-border-radius: 10px;
+	--button-border-radius: 7px;
+	--input-border-radius: 5px;
+
+	// Filters
 	--bg-hue-angle: 0deg;
 	--bg-grayscale: 0%;
 	--logo-hue-angle: -7deg;
 	--logo-grayscale: 0%;
+
+	// Transitions
+	--transition-ease: .3s ease;
+
+	// Image Paths
+	--background-image: url(../../assets/images/background.webp);
+
+	// Colours
+	--background-color: #121212e8;
+	--light-mode-bg-overlay: #e7e6f0d9;
 	--text-color: #e0dde8;
 	--header-background-color: #1d1c1fe8;
 	--border-color: #444;
@@ -24,12 +43,11 @@ $theme-type: 'Dark';
 	--button-text: #e0dde8;
 	--error-text: #ff0046;
 	--error-bg: #5f162a;
-	--container-border-radius: 10px;
-	--button-border-radius: 7px;
-	--input-border-radius: 5px;
 	--box-shadow: rgba(0, 0, 0, 0.2);
 	--scrollbar-primary: #4672c9;
 	--scrollbar-secondary: #1d1c1f;
+
+	// Syntax Editor Colours
     --syntax-text: #b8bcb6; /* Text - HTML Editor */
     --syntax-pun: #949494; /* Punctuation - HTML Editor */
     --syntax-tag: #149ad4; /* Tag - HTML Editor */

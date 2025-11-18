@@ -2,12 +2,12 @@ $theme-name: 'Monokai';
 $theme-type: 'Dark';
 
 :root.monokai-theme {
-	--background-color: #272822e8;
-	--background-overlay: #3e3d32a9;
 	--bg-hue-angle: 320deg;
 	--bg-grayscale: 80%;
 	--logo-hue-angle: -160deg;
 	--logo-grayscale: 80%;
+	--background-color: #272822e8;
+	--background-overlay: #3e3d32a9;
 	--text-color: #f8f8f2;
 	--header-background-color: #3e3d32e8;
 	--border-color: #75715e;

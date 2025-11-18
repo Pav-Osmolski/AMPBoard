@@ -1,11 +1,11 @@
 /* Accordion Toggle */
 .toggle-content-container {
     background: var(--header-background-color);
-    border: 1px solid var(--border-color);
+    border: var(--border-width) solid var(--border-color);
     border-radius: var(--container-border-radius);
     padding: 0 15px;
     box-shadow: 0 4px 12px var(--box-shadow);
-    transition: background-color .3s ease;
+    transition: background-color var(--transition-ease);
 
     &.open {
         .toggle-accordion .icon > svg {
@@ -46,7 +46,7 @@
         user-select: none;
 
         h3 {
-            transition: color .3s;
+            transition: color var(--transition-ease);
         }
 
         .icon > svg {
@@ -58,7 +58,7 @@
             padding: 5px;
             fill: var(--text-color);
             z-index: 1;
-            transition: transform .3s ease, fill .3s;
+            transition: transform var(--transition-ease), fill var(--transition-ease);
         }
 
         &:hover {
@@ -76,6 +76,6 @@
         position: relative;
         height: 0px;
         overflow: hidden;
-        transition: height .3s ease;
+        transition: height var(--transition-ease);
     }
 }

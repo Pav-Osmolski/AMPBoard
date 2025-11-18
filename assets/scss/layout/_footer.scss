@@ -9,7 +9,7 @@ footer {
 	left: 0;
 	right: 0;
 	padding: 15px;
-	height: 93px;
+	height: var(--footer-height);
 	line-height: 1.6;
 	background-color: var(--header-background-color);
 	border-top: 1px solid var(--border-color);

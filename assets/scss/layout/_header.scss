@@ -7,7 +7,7 @@ header {
 	align-items: center;
 	gap: 20px;
 	border-bottom: 1px solid var(--border-color);
-	height: 88px;
+	height: var(--header-height);
 	box-shadow: 0 4px 12px var(--box-shadow);
 	animation: slideInDown 1s ease-out;
 	position: -webkit-sticky;

@@ -23,7 +23,7 @@ input[type="text"], input[type="password"], select, textarea {
 	width: 100%;
 	min-height: 36px;
 	padding: 5px;
-	border: 1px solid var(--border-color);
+	border: var(--border-width) solid var(--border-color);
 	border-radius: var(--input-border-radius);
 	background-color: var(--input-bg);
 
@@ -34,13 +34,13 @@ input[type="text"], input[type="password"], select, textarea {
 
 input[type="text"], input[type="password"], select {
 	max-width: 300px;
-	transition: all .3s;
+	transition: all var(--transition-ease);
 }
 
 textarea {
 	height: 115px;
 	resize: vertical;
-	transition: color .3s, width .3s, border .3s, background .3s;
+	transition: color var(--transition-ease), width var(--transition-ease), border var(--transition-ease), background var(--transition-ease);
 }
 
 input[type="checkbox"] {
@@ -54,7 +54,7 @@ select {
 
 fieldset {
 	width: fit-content;
-	border: 1px solid var(--border-color);
+	border: var(--border-width) solid var(--border-color);
 	border-radius: var(--container-border-radius);
 	padding: 0 15px 15px;
 
@@ -66,12 +66,12 @@ fieldset {
 button {
 	padding: 10px;
 	background: var(--header-background-color);
-	border: 1px var(--border-color) solid;
+	border: var(--border-width) var(--border-color) solid;
 	border-radius: var(--button-border-radius);
 	color: var(--text-color);
 	line-height: 1;
 	cursor: pointer;
-	transition: all .3s;
+	transition: all var(--transition-ease);
 	user-select: none;
 
 	&.reset { //Reset button style for non-form related buttons

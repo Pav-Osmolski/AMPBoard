@@ -11,7 +11,7 @@
 		tab-size: 2;
 		white-space: pre-wrap;
 		padding: 5px;
-		border: 1px solid var(--border-color);
+		border: var(--border-width) solid var(--border-color);
 		border-radius: var(--input-border-radius);
 		background: var(--input-bg);
 		color: var(--syntax-text);
@@ -35,7 +35,7 @@
 /* Syntax colours */
 .syntax-highlight {
 	.pun, .tag, .attr, .value {
-		transition: color .3s;
+		transition: color var(--transition-ease);
 	}
 
 	.pun {
