@@ -10,7 +10,7 @@ export function initSearch() {
 
 export function searchProjects() {
 	const input = document.querySelector( '.search-bar' )?.value.toLowerCase() || '';
-	const items = document.querySelectorAll( '.folders li' );
+	const items = document.querySelectorAll( '#folders-view .columns li' );
 
 	items.forEach( item => {
 		const text = item.textContent.toLowerCase();

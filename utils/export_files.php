@@ -374,12 +374,12 @@ if ( $action ) {
 			<fieldset class="radio-group" aria-describedby="export-engine-help">
 				<legend>Archive engine</legend>
 				<label>
-					<input type="radio" name="archiveEngine" value="php" checked>
-					PHP ZipArchive / Phar
+					<input type="radio" name="archiveEngine" value="external" checked>
+					External 7-Zip / system archiver
 				</label>
 				<label>
-					<input type="radio" name="archiveEngine" value="external">
-					External 7-Zip / system archiver
+					<input type="radio" name="archiveEngine" value="php">
+					PHP ZipArchive / Phar
 				</label>
 			</fieldset>
 			<?php renderSeparatorLine( 'small' ) ?>
