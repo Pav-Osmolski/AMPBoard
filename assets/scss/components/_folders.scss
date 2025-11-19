@@ -1,38 +1,22 @@
 /* Folders and Columns */
 .folders {
-	display: flex;
-	flex-direction: column;
-	position: relative;
-	z-index: 0;
-
-	h2 {
+	.columns {
 		position: relative;
-		margin: 15px 0 15px;
-	}
+		display: flex;
+		flex-flow: wrap;
+		gap: 1.875rem;
 
-	a {
-		color: var(--link-color);
-		text-decoration: none;
-		font-weight: bold;
-	}
+		ul {
+			list-style: none;
+			padding: 0;
+			line-height: 1.2;
 
-	.columns ul {
-		list-style: none;
-		padding: 0;
-		line-height: 1.2;
+			li {
+				margin: 5px 0;
+				gap: 1.25rem;
+			}
+		}
 	}
-
-	li {
-		margin: 5px 0;
-		gap: 20px;
-	}
-}
-
-.columns {
-	position: relative;
-	display: flex;
-	flex-flow: wrap;
-	gap: 30px;
 }
 
 .column {
@@ -91,7 +75,7 @@
 
 	.url-container {
 		display: flex;
-		gap: 10px;
+		gap: .625rem;
 	}
 
 	.invalid, .empty {

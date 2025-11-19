@@ -1,8 +1,11 @@
+// webpack.config.js
 const path = require('path');
 const WebpackBar = require('webpackbar');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
+
+const isProd = process.env.NODE_ENV === 'production';
 
 module.exports = {
   entry: './assets/js/main.js',
@@ -20,8 +23,8 @@ module.exports = {
           {
             loader: 'css-loader',
             options: {
-              url: false, // Keeps your original asset URLs
-              sourceMap: true
+              url: false,
+              sourceMap: isProd // Change to !isProd to disable sourceMap in Prod
             }
           },
           {
@@ -30,13 +33,15 @@ module.exports = {
               implementation: require('sass-embedded'),
               sassOptions: {
                 quietDeps: true
-              }
+              },
+              sourceMap: isProd // Change to !isProd to disable sourceMap in Prod
             }
           }
         ],
       },
       {
         test: /\.js$/,
+        include: path.resolve(__dirname, 'assets/js'),
         exclude: /node_modules/,
         use: {
           loader: 'babel-loader',
@@ -54,23 +59,22 @@ module.exports = {
     }),
   ],
   optimization: {
-    minimize: true,
+    minimize: isProd,
     minimizer: [
       new TerserPlugin({
-        extractComments: false,
+        extractComments: false
       }),
-      new CssMinimizerPlugin(),
+      new CssMinimizerPlugin()
     ],
   },
-  devtool: 'source-map',
-  mode: 'production'
-};
-
-module.exports.stats = {
-  assets: true,
-  modules: true,
-  entrypoints: true,
-  colors: true,
-  reasons: true,
-  errorDetails: true,
+  devtool: isProd ? 'source-map' : 'cheap-module-source-map',
+  mode: isProd ? 'production' : 'development',
+  stats: {
+    assets: true,
+    modules: true,
+    entrypoints: true,
+    colors: true,
+    reasons: true,
+    errorDetails: true,
+  }
 };

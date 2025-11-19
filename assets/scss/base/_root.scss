@@ -54,3 +54,15 @@ $theme-type: 'Dark';
     --syntax-attr: #2777b0; /* Attribute - HTML Editor */
     --syntax-value: #5084ea; /* Value - HTML Editor */
 }
+
+/* Unique theme type settings */
+.light-mode {
+	.emoji {
+		filter: none;
+	}
+
+	.system-monitor {
+		background: none !important;
+		box-shadow: none !important;
+	}
+}

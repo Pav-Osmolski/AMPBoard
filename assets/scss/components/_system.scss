@@ -13,7 +13,6 @@ body.error-log-active {
 		display: flex !important;
 		flex: 0;
 		flex-direction: column;
-		animation: fadeIn 1.5s ease-in;
 		padding-top: 0;
 		margin-top: -123px;
 		z-index: 1;
@@ -72,7 +71,7 @@ body.system-monitor-active {
 			display: flex;
 			justify-content: space-between;
 			margin: 0;
-			gap: 5px;
+			gap: .3125rem;
 			align-items: center;
 
 			span {

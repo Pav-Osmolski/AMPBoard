@@ -5,7 +5,7 @@ header {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	gap: 20px;
+	gap: 1.25rem;
 	border-bottom: 1px solid var(--border-color);
 	height: var(--header-height);
 	box-shadow: 0 4px 12px var(--box-shadow);
@@ -18,7 +18,7 @@ header {
 	h1 {
 		display: flex;
 		align-items: center;
-		gap: 5px;
+		gap: .3125rem;
 		color: var(--link-color);
 		margin: 0;
 		font-family: var(--font-main);

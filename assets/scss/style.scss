@@ -30,14 +30,16 @@
 @use 'components/accordion';
 @use 'components/apache';
 @use 'components/dock';
+@use 'components/export';
 @use 'components/folders';
 @use 'components/forms';
 @use 'components/htmlSyntaxEditor';
 @use 'components/loader';
-@use 'components/export';
 @use 'components/system';
+@use 'components/tables';
 @use 'components/tooltip';
 @use 'components/vhosts';
+@use 'components/widthControls';
 
 /* =====================
    📄 Pages
