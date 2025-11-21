@@ -594,3 +594,43 @@ function render_versioned_assets_with_base(
 
 	return $html;
 }
+
+/**
+ * Render a vHost filtering badge for a folders column.
+ *
+ * This is used in folders.php to show when a column is filtering entries by
+ * valid Apache vHosts, and to warn if Apache path is invalid.
+ *
+ * Output is a small span badge with appropriate text, title, ARIA label,
+ * and role.
+ *
+ * @param bool $requireVhost     Whether this column is configured to require vHosts.
+ * @param bool $apachePathValid  Whether Apache path is valid/detected.
+ *
+ * @return string HTML badge markup, or empty string if not required.
+ */
+function renderFoldersVhostBadge( bool $requireVhost, bool $apachePathValid ): string {
+	if ( ! $requireVhost ) {
+		return '';
+	}
+
+	if ( $apachePathValid ) {
+		return '
+			<span class="legend-badge legend-badge-vhost"
+			      title="This column only lists folders that have a valid Apache vHost configured."
+			      aria-label="Column filtered by valid Apache vHost configuration"
+			      role="note">
+				vHost
+			</span>
+		';
+	}
+
+	return '
+		<span class="legend-badge legend-badge-error"
+		      title="Apache vHost not detected. Please confirm that your Apache path is valid."
+		      aria-label="Apache vHost not detected"
+		      role="note">
+			vHost Error
+		</span>
+	';
+}
