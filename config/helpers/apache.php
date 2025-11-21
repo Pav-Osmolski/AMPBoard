@@ -6,7 +6,7 @@
  * virtual hosts, environment variables, and related diagnostics.
  *
  * @author  Pawel Osmolski
- * @version 1.0
+ * @version 1.1
  */
 
 /**
@@ -16,7 +16,7 @@
  *
  * @return string|null
  */
-function tryShell( $cmd ) {
+function tryShell( $cmd ): ?string {
 	if ( function_exists( 'shell_exec' ) && ! in_array( 'shell_exec', explode( ',', ini_get( 'disable_functions' ) ?? '' ) ) ) {
 		return safe_shell_exec( "$cmd 2>&1" );
 	}
@@ -40,7 +40,7 @@ function tryShell( $cmd ) {
  *
  * @return bool
  */
-function isApache() {
+function isApache(): bool {
 	return (
 		strpos( $_SERVER['SERVER_SOFTWARE'] ?? '', 'Apache' ) !== false ||
 		php_sapi_name() === 'apache2handler' ||
@@ -53,7 +53,7 @@ function isApache() {
  *
  * @return string
  */
-function getApacheVersion() {
+function getApacheVersion(): string {
 	if ( function_exists( 'apache_get_version' ) ) {
 		return "via apache_get_version: " . apache_get_version();
 	}
@@ -75,7 +75,7 @@ function getApacheVersion() {
  *
  * @return string|null
  */
-function detectApacheBinary() {
+function detectApacheBinary(): ?string {
 	$paths = [
 		// User defined
 		APACHE_PATH,
@@ -136,7 +136,7 @@ function detectApacheBinary() {
  *
  * @return string|null
  */
-function getApacheConfigPath( $binary ) {
+function getApacheConfigPath( $binary ): ?string {
 	$out = tryShell( "$binary -V" );
 	if ( preg_match( '/SERVER_CONFIG_FILE="([^"]+)"/', $out, $conf ) ) {
 		$file = $conf[1];
@@ -157,7 +157,7 @@ function getApacheConfigPath( $binary ) {
  *
  * @return array<int, string>
  */
-function getIncludes( $conf ) {
+function getIncludes( $conf ): array {
 	if ( ! file_exists( $conf ) ) {
 		return [];
 	}
@@ -222,7 +222,7 @@ function formatDuration( int $seconds ): string {
  *
  * @return string|null
  */
-function getVirtualHosts( $binary ) {
+function getVirtualHosts( $binary ): ?string {
 	foreach ( [ $binary, 'apachectl', 'httpd' ] as $tool ) {
 		$out = tryShell( "$tool -S" );
 		if ( $out && stripos( $out, 'VirtualHost' ) !== false ) {
@@ -238,7 +238,7 @@ function getVirtualHosts( $binary ) {
  *
  * @return string|null
  */
-function detectApacheSAPI() {
+function detectApacheSAPI(): ?string {
 	ob_start();
 	phpinfo( INFO_MODULES );
 	$data = ob_get_clean();
@@ -254,7 +254,7 @@ function detectApacheSAPI() {
  *
  * @return array<string, string>
  */
-function getApacheEnvVars() {
+function getApacheEnvVars(): array {
 	$envVars = [];
 	foreach ( [ 'APACHE_RUN_DIR', 'APACHE_PID_FILE', 'APACHE_LOCK_DIR', 'INVOCATION_ID' ] as $var ) {
 		$val = getenv( $var );
@@ -284,7 +284,7 @@ function getApacheEnvVars() {
  *
  * @return array<string, string>
  */
-function getIniFilesInfo() {
+function getIniFilesInfo(): array {
 	return [
 		'Loaded php.ini'     => obfuscate_value( php_ini_loaded_file() ) ?: 'N/A',
 		'Scanned .ini files' => php_ini_scanned_files() ?: 'N/A'
@@ -305,7 +305,7 @@ function getIniFilesInfo() {
  *                                           - output: combined output from the command
  *                                           - success: true if the command returned exit code 0
  */
-function runCommand( $cmd ) {
+function runCommand( $cmd ): array {
 	exec( $cmd . ' 2>&1', $output, $return_var );
 
 	return [ 'output' => implode( "\n", $output ), 'success' => $return_var === 0 ];
@@ -329,7 +329,7 @@ function runCommand( $cmd ) {
  *
  * @return string A restart command appropriate for the environment, or an empty string if none found.
  */
-function findDefaultCommand( $action, $os, $apachePath ) {
+function findDefaultCommand( $action, $os, $apachePath ): string {
 	switch ( $os ) {
 		case 'Windows':
 		{
@@ -436,4 +436,125 @@ function collectServerBlock( array &$serverData, ?array $block ): void {
 		'certValid' => true,
 		'docRoot'   => '',
 	], $block );
+}
+
+/**
+ * Get a map of valid virtual host names discovered in httpd-vhosts.conf
+ * that also appear in the system hosts file.
+ *
+ * Keys are lowercased hostnames, values are boolean true.
+ *
+ * This is intentionally lightweight and cached for repeated calls.
+ *
+ * @return array<string,bool>
+ */
+function getValidVhostHostnames(): array {
+	static $cache = null;
+
+	if ( $cache !== null ) {
+		return $cache;
+	}
+
+	$cache = [];
+
+	if ( ! defined( 'APACHE_PATH' ) || ! APACHE_PATH ) {
+		return $cache;
+	}
+
+	$vhostsPath = APACHE_PATH . '/conf/extra/httpd-vhosts.conf';
+	if ( ! file_exists( $vhostsPath ) ) {
+		return $cache;
+	}
+
+	// Parse <VirtualHost> blocks and collect ServerName entries.
+	$serverNames  = [];
+	$lines        = @file( $vhostsPath ) ?: [];
+	$currentBlock = null;
+
+	foreach ( $lines as $line ) {
+		$line = trim( $line );
+
+		if ( preg_match( '#^<VirtualHost\b#i', $line ) ) {
+			$currentBlock = [];
+		} elseif ( preg_match( '#^</VirtualHost>#i', $line ) ) {
+			if ( is_array( $currentBlock ) && ! empty( $currentBlock['name'] ) ) {
+				$serverNames[] = strtolower( trim( (string) $currentBlock['name'] ) );
+			}
+			$currentBlock = null;
+		} elseif ( is_array( $currentBlock ) && preg_match( '/^\s*ServerName\s+(.+)/i', $line, $m ) ) {
+			$currentBlock['name'] = $m[1];
+		}
+	}
+
+	// Catch final block if the file does not end with </VirtualHost>
+	if ( is_array( $currentBlock ) && ! empty( $currentBlock['name'] ) ) {
+		$serverNames[] = strtolower( trim( (string) $currentBlock['name'] ) );
+	}
+
+	if ( empty( $serverNames ) ) {
+		return $cache;
+	}
+
+	// Parse hosts file(s) and collect hostnames.
+	$hostsFiles = [
+		'Windows' => getenv( 'WINDIR' ) ? getenv( 'WINDIR' ) . '/System32/drivers/etc/hosts' : '',
+		'Linux'   => '/etc/hosts',
+		'Mac'     => '/etc/hosts',
+	];
+
+	$hostsEntries = [];
+
+	foreach ( $hostsFiles as $path ) {
+		if ( ! $path || ! file_exists( $path ) ) {
+			continue;
+		}
+
+		foreach ( @file( $path ) ?: [] as $line ) {
+			$line = trim( $line );
+			if ( $line === '' || strpos( $line, '#' ) === 0 ) {
+				continue;
+			}
+			$parts = preg_split( '/\s+/', $line );
+			if ( ! is_array( $parts ) || count( $parts ) < 2 ) {
+				continue;
+			}
+			for ( $i = 1; $i < count( $parts ); $i ++ ) {
+				$host = strtolower( trim( (string) $parts[ $i ] ) );
+				if ( $host !== '' ) {
+					$hostsEntries[] = $host;
+				}
+			}
+		}
+	}
+
+	if ( empty( $hostsEntries ) ) {
+		return $cache;
+	}
+
+	// Keep only vhosts that have a corresponding hosts entry.
+	foreach ( $serverNames as $name ) {
+		if ( in_array( $name, $hostsEntries, true ) ) {
+			$cache[ $name ] = true;
+		}
+	}
+
+	return $cache;
+}
+
+/**
+ * Check if a given hostname appears as a valid vhost + hosts entry.
+ *
+ * @param string $hostname Hostname (no scheme; e.g. "local.example.com").
+ *
+ * @return bool
+ */
+function isValidVhostHost( string $hostname ): bool {
+	$hostname = strtolower( trim( $hostname ) );
+	if ( $hostname === '' ) {
+		return false;
+	}
+
+	$valid = getValidVhostHostnames();
+
+	return isset( $valid[ $hostname ] );
 }

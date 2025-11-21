@@ -2,10 +2,10 @@
 /**
  * Template helpers
  *
- * build_url_name(), resolve_template_html(), render_item_html()
+ * build_url_name(), resolve_template_html(), render_item_html(), extract_template_hosts_for_url()
  *
  * @author  Pawel Osmolski
- * @version 1.0
+ * @version 1.1
  */
 
 /**
@@ -17,7 +17,7 @@
  *
  * @return string The transformed name, or "__SKIP__" sentinel if excluded.
  */
-function build_url_name( $folderName, array $column, array &$errors ) {
+function build_url_name( $folderName, array $column, array &$errors ): string {
 	$urlName = $folderName;
 	if ( isset( $column['urlRules'] ) && is_array( $column['urlRules'] ) ) {
 		$match       = isset( $column['urlRules']['match'] ) ? (string) $column['urlRules']['match'] : '';
@@ -69,7 +69,7 @@ function build_url_name( $folderName, array $column, array &$errors ) {
  *
  * @return string
  */
-function resolve_template_html( $templateName, array $templatesByName ) {
+function resolve_template_html( $templateName, array $templatesByName ): string {
 	if ( isset( $templatesByName[ $templateName ]['html'] ) ) {
 		return (string) $templatesByName[ $templateName ]['html'];
 	}
@@ -89,7 +89,7 @@ function resolve_template_html( $templateName, array $templatesByName ) {
  *
  * @return string
  */
-function render_item_html( $templateHtml, $urlName, $disableLinks ) {
+function render_item_html( $templateHtml, $urlName, $disableLinks ): string {
 	$safe = htmlspecialchars( $urlName, ENT_QUOTES, 'UTF-8' );
 	$html = str_replace( '{urlName}', $safe, $templateHtml );
 	if ( $disableLinks ) {
@@ -97,4 +97,39 @@ function render_item_html( $templateHtml, $urlName, $disableLinks ) {
 	}
 
 	return $html;
+}
+
+/**
+ * Extract all hostnames used in href attributes for a given urlName
+ * and link template HTML.
+ *
+ * This allows consumer code (e.g. folders.php) to cross-check the
+ * hosts against valid vhost entries.
+ *
+ * @param string $templateHtml The raw link template HTML with {urlName} placeholder.
+ * @param string $urlName The resolved URL name for the folder item.
+ *
+ * @return array<int,string> A unique, lowercased list of hostnames.
+ */
+function extract_template_hosts_for_url( string $templateHtml, string $urlName ): array {
+	$rendered = str_replace( '{urlName}', $urlName, $templateHtml );
+	$hosts    = [];
+
+	if ( preg_match_all( '/href\s*=\s*[\'"]([^\'"]+)[\'"]/i', $rendered, $matches ) ) {
+		foreach ( $matches[1] as $href ) {
+			$href   = (string) $href;
+			$parsed = parse_url( $href );
+			if ( ! is_array( $parsed ) ) {
+				continue;
+			}
+			if ( isset( $parsed['host'] ) && $parsed['host'] !== '' ) {
+				$host = strtolower( trim( (string) $parsed['host'] ) );
+				if ( $host !== '' ) {
+					$hosts[] = $host;
+				}
+			}
+		}
+	}
+
+	return array_values( array_unique( $hosts ) );
 }

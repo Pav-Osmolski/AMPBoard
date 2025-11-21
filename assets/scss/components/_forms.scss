@@ -1,10 +1,20 @@
 /* Form Elements */
-label, legend {
+label, legend, .uid-container span {
 	display: flex;
 	align-items: center;
 	flex-direction: row;
 	gap: .3125rem;
 	margin-bottom: 10px;
+}
+
+.grouped-labels {
+	align-self: center;
+	display: flex;
+	flex-direction: column;
+	background: var(--input-bg);
+	border: var(--border-width) solid var(--border-color);
+	border-radius: var(--input-border-radius);
+	padding: .5rem;
 }
 
 label {

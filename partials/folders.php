@@ -19,7 +19,7 @@
  * - Error or warning messages for invalid or empty directories
  *
  * @author  Pawel Osmolski
- * @version 1.5
+ * @version 1.6
  */
 
 /** @var string[] $tooltips */
@@ -45,8 +45,9 @@ $hamburgerSvg     = is_file( $hamburgerSvgPath )
 	? injectSvgWithUniqueIds( $hamburgerSvgPath, 'drag-' . bin2hex( random_bytes( 3 ) ) )
 	: '';
 
-$columnCounter = 0;
-$globalErrors  = [];
+$columnCounter           = 0;
+$globalErrors            = [];
+$hasVhostFilteredColumns = false;
 ?>
 
 <?php if ( empty( $foldersConfigData ) || empty( $templatesByName ) ) : ?>
@@ -83,11 +84,16 @@ $globalErrors  = [];
 					continue;
 				}
 
-				$title       = isset( $column['title'] ) ? (string) $column['title'] : 'Untitled';
-				$href        = isset( $column['href'] ) ? (string) $column['href'] : '';
-				$template    = isset( $column['linkTemplate'] ) ? (string) $column['linkTemplate'] : 'basic';
-				$excludeList = isset( $column['excludeList'] ) && is_array( $column['excludeList'] ) ? $column['excludeList'] : [];
-				$disable     = ! empty( $column['disableLinks'] );
+				$title        = isset( $column['title'] ) ? (string) $column['title'] : 'Untitled';
+				$href         = isset( $column['href'] ) ? (string) $column['href'] : '';
+				$template     = isset( $column['linkTemplate'] ) ? (string) $column['linkTemplate'] : 'basic';
+				$excludeList  = isset( $column['excludeList'] ) && is_array( $column['excludeList'] ) ? $column['excludeList'] : [];
+				$disable      = ! empty( $column['disableLinks'] );
+				$requireVhost = ! empty( $column['requireVhost'] );
+
+				if ( $requireVhost ) {
+					$hasVhostFilteredColumns = true;
+				}
 
 				$norm = normalise_subdir( $column['dir'] ?? '' );
 				$dir  = $norm['dir'];
@@ -100,11 +106,20 @@ $globalErrors  = [];
 				<div class="column" id="<?php echo 'column_' . ( ++ $columnCounter ); ?>" role="listitem">
 					<button class="drag-handle reset" aria-label="Reorder column <?= htmlspecialchars( $title ) ?>"
 					        aria-describedby="drag-help" data-drag-allow><?php echo $hamburgerSvg; ?></button>
-					<h3>
+					<h3 class="<?php if ( $requireVhost ): ?>with-badges<?php endif; ?>">
 						<?php if ( $href !== '' ): ?>
 							<a href="<?= htmlspecialchars( $href ) ?>"><?= htmlspecialchars( $title ) ?></a>
 						<?php else: ?>
 							<?= htmlspecialchars( $title ) ?>
+						<?php endif; ?>
+
+						<?php if ( $requireVhost ): ?>
+							<span class="legend-badge legend-badge-vhost"
+							      title="This column only lists folders that have a valid Apache vHost configured."
+							      aria-label="Column filtered by valid Apache vHost configuration"
+							      role="note">
+								vHost
+							</span>
 						<?php endif; ?>
 					</h3>
 					<ul>
@@ -130,6 +145,26 @@ $globalErrors  = [];
 
 								foreach ( $errors as $e ) {
 									$globalErrors[] = $e;
+								}
+
+								// If this column is configured to only show entries with a valid vhost,
+								// check the hosts used in the template for this urlName against the
+								// parsed vhost + hosts data.
+								if ( $requireVhost ) {
+									$hostsForItem = extract_template_hosts_for_url( $templateHtml, $urlName );
+									$hasValidHost = false;
+
+									foreach ( $hostsForItem as $host ) {
+										if ( isValidVhostHost( $host ) ) {
+											$hasValidHost = true;
+											break;
+										}
+									}
+
+									// No matching vhost-backed host? Skip this item.
+									if ( ! $hasValidHost ) {
+										continue;
+									}
 								}
 
 								echo render_item_html( $templateHtml, $urlName, $disable );

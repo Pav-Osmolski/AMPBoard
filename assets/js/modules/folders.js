@@ -83,27 +83,61 @@ export function initFoldersConfig() {
 		function folderItemHtml( item = {} ) {
 			const casesHtml = mapToRows( item.specialCases ).map( specialCaseRowHtml ).join( '' );
 			const selected = item.linkTemplate || '';
+			const uid = `uid-${ Math.random().toString( 36 ).slice( 2 ) }`;
 
 			return `
 				<li class="folder-config-item">
-					<input type="text" data-key="title" placeholder="Title" value="${ item.title || '' }">
-					<input type="text" data-key="href" placeholder="Href (optional)" value="${ item.href || '' }">
-					<input type="text" data-key="dir" placeholder="Dir (relative to HTDOCS_PATH)" value="${ item.dir || '' }">
-					<input type="text" data-key="excludeList" placeholder="Exclude List (comma-separated)" value="${ (item.excludeList || []).join( ',' ) }">
-					<input type="text" data-key="match" placeholder="Match Regex" value="${ item.urlRules?.match ?? '' }">
-					<input type="text" data-key="replace" placeholder="Replace Regex" value="${ item.urlRules?.replace ?? '' }">
+					<input type="text" data-key="title"
+					       placeholder="Title"
+					       aria-label="Column title"
+					       value="${ item.title || '' }">
+
+					<input type="text" data-key="href"
+					       placeholder="Href (optional)"
+					       aria-label="Column href (optional)"
+					       value="${ item.href || '' }">
+
+					<input type="text" data-key="dir"
+					       placeholder="Dir (relative to HTDOCS_PATH)"
+					       aria-label="Directory relative to htdocs"
+					       value="${ item.dir || '' }">
+
+					<input type="text" data-key="excludeList"
+					       placeholder="Exclude list (comma-separated)"
+					       aria-label="Exclude list, comma separated"
+					       value="${ (item.excludeList || []).join( ',' ) }">
+
+					<input type="text" data-key="match"
+					       placeholder="Match Regex"
+					       aria-label="Match regex"
+					       value="${ item.urlRules?.match ?? '' }">
+
+					<input type="text" data-key="replace"
+					       placeholder="Replace Regex"
+					       aria-label="Replace regex"
+					       value="${ item.urlRules?.replace ?? '' }">
 					<label>Link Template:
 						<select class="link-template-select" name="linkTemplate">${ templateOptionsHtml }</select>
 					</label>
-					<label><input type="checkbox" class="disable-links"${ item.disableLinks ? ' checked' : '' }> Disable Links</label>
-
-					<div class="special-cases-wrapper">
-						<label>Special Cases:</label>
-						<div class="special-cases">${ casesHtml }</div>
-						<button type="button" class="add-special">➕ Add Rule</button>
+					<div class="uid-container grouped-labels" role="group" aria-labelledby="folder-behaviour-${ uid }">
+					  <span id="folder-behaviour-${ uid }">Folder Behaviour:</span>
+					  <label>
+					    <input type="checkbox" class="disable-links"${ item.disableLinks ? ' checked' : '' }>
+					    Disable links
+					  </label>
+					  <label>
+					    <input type="checkbox" class="require-vhost"${ item.requireVhost ? ' checked' : '' }>
+					    Valid vHost only
+					  </label>
 					</div>
 
-					<button type="button" class="remove-folder-column">❌</button>
+					<div class="uid-container special-cases-wrapper" aria-labelledby="special-cases-${ uid }">
+						<span id="special-cases-${ uid }">Special Cases:</span>
+						<div class="special-cases">${ casesHtml }</div>
+						<button type="button" class="add-special" aria-label="Add special case rule">➕ Add Rule</button>
+					</div>
+
+					<button type="button" class="remove-folder-column" aria-label="Remove this folder column">❌</button>
 				</li>
 			`;
 		}
@@ -174,6 +208,7 @@ export function initFoldersConfig() {
 				const replace = get( 'input[data-key="replace"]' )?.value || '';
 				const linkTemplate = li.querySelector( '.link-template-select' )?.value || '';
 				const disableLinks = !!li.querySelector( '.disable-links' )?.checked;
+				const requireVhost = !!li.querySelector( '.require-vhost' )?.checked;
 
 				// Collect specialCases from rows and convert back to an object map
 				const scRows = [];
@@ -194,12 +229,22 @@ export function initFoldersConfig() {
 					urlRules: {match, replace},
 					linkTemplate,
 					disableLinks,
+					requireVhost,
 					specialCases
 				};
 
 				// Skip fully empty rows
 				const hasValue =
-					title || href || dir || excludeList.length || match || replace || linkTemplate || disableLinks || Object.keys( specialCases ).length;
+					title ||
+					href ||
+					dir ||
+					excludeList.length ||
+					match ||
+					replace ||
+					linkTemplate ||
+					disableLinks ||
+					requireVhost ||
+					Object.keys( specialCases ).length;
 				if ( hasValue ) items.push( record );
 			} );
 			return items;

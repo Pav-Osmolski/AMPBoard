@@ -26,6 +26,24 @@
 	padding: 16px 13px;
 	border-radius: var(--container-border-radius);
 
+	.legend-badge {
+		position: relative;
+		top: -6px;
+		font-size: small;
+		font-weight: lighter;
+		align-content: center;
+		padding: 2px 10px;
+		color: var(--input-placeholder);
+		border: var(--border-width) solid var(--input-placeholder);
+		border-radius: var(--container-border-radius);
+		opacity: .4;
+
+		&-vhost {
+			color: var(--link-color);
+			border: var(--border-width) solid var(--link-color);
+		}
+	}
+
 	.drag-handle {
 		position: absolute;
 		width: 40px;
@@ -51,9 +69,11 @@
 	}
 
 	h3 {
+		display: flex;
+		justify-content: space-between;
+		margin: 0 35px 15px 0;
 		position: relative;
 		height: 25px;
-		margin-bottom: 15px;
 		user-select: none;
 
 		a {
@@ -114,7 +134,7 @@
 			margin-bottom: auto;
 		}
 
-		label {
+		> label {
 			margin: 10px 0 10px 5px;
 		}
 
