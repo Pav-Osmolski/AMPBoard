@@ -106,20 +106,29 @@ $hasVhostFilteredColumns = false;
 				<div class="column" id="<?php echo 'column_' . ( ++ $columnCounter ); ?>" role="listitem">
 					<button class="drag-handle reset" aria-label="Reorder column <?= htmlspecialchars( $title ) ?>"
 					        aria-describedby="drag-help" data-drag-allow><?php echo $hamburgerSvg; ?></button>
-					<h3 class="<?php if ( $requireVhost ): ?>with-badges<?php endif; ?>">
+					<h3 class="<?= $requireVhost ? 'with-badges' : '' ?><?= $apachePathValid ? ' valid-apache-path' : ' invalid-apache-path' ?>">
 						<?php if ( $href !== '' ): ?>
 							<a href="<?= htmlspecialchars( $href ) ?>"><?= htmlspecialchars( $title ) ?></a>
 						<?php else: ?>
 							<?= htmlspecialchars( $title ) ?>
 						<?php endif; ?>
 
+						<?php if ( $disable ): ?>
+							<?= renderBadge(
+								'default',
+								'No Links',
+								'This column only lists folders that contain no link entries.',
+								'Column filtered to folders without links'
+							); ?>
+						<?php endif; ?>
 						<?php if ( $requireVhost ): ?>
-							<span class="legend-badge legend-badge-vhost"
-							      title="This column only lists folders that have a valid Apache vHost configured."
-							      aria-label="Column filtered by valid Apache vHost configuration"
-							      role="note">
-								vHost
-							</span>
+							<?= renderBadge(
+								'vhost',
+								'vHost',
+								'This column only lists folders with valid Apache vHosts.',
+								'Column filtered by valid Apache vHost configuration',
+								$apachePathValid
+							); ?>
 						<?php endif; ?>
 					</h3>
 					<ul>

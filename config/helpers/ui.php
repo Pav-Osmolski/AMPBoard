@@ -594,3 +594,64 @@ function render_versioned_assets_with_base(
 
 	return $html;
 }
+
+/**
+ * Render a generic legend badge with optional Apache validity check.
+ *
+ * @param string $type CSS/identifier type (e.g. "vhost", "error", "info").
+ * @param string|null $label Visible badge text. If null, defaults to $type exactly.
+ * @param string|null $title Optional title attribute.
+ * @param string|null $aria Optional aria-label.
+ * @param bool|null $apachePathValid Used when $type === 'vhost' to show the error state.
+ *
+ * @return string HTML badge markup.
+ */
+function renderBadge(
+	string $type = '',
+	?string $label = null,
+	?string $title = null,
+	?string $aria = null,
+	?bool $apachePathValid = null
+): string {
+	$type = trim( $type ) !== '' ? strtolower( $type ) : 'default';
+
+	// Special case: vHost badge error
+	if ( $type === 'vhost' && $apachePathValid === false ) {
+		$class = 'legend-badge legend-badge-error';
+		$label = 'vHost Error';
+		$title = 'Apache vHost not detected. Please confirm that your Apache path is valid.';
+		$aria  = 'Apache vHost not detected';
+
+		return '
+			<span class="' . htmlspecialchars( $class, ENT_QUOTES, 'UTF-8' ) . '"
+				 title="' . htmlspecialchars( $title, ENT_QUOTES, 'UTF-8' ) . '"
+				 aria-label="' . htmlspecialchars( $aria, ENT_QUOTES, 'UTF-8' ) . '"
+				 role="note">
+				' . htmlspecialchars( $label, ENT_QUOTES, 'UTF-8' )
+		       . '</span>
+		';
+	}
+
+	// Standard badge
+	$class = "legend-badge legend-badge-{$type}";
+	$label = $label ?? $type;
+
+	if ( $title === null ) {
+		$title = $type === 'default'
+			? 'Default badge'
+			: "Badge type: {$label}";
+	}
+
+	if ( $aria === null ) {
+		$aria = $label;
+	}
+
+	return '
+		<span class="' . htmlspecialchars( $class, ENT_QUOTES, 'UTF-8' ) . '"
+			 title="' . htmlspecialchars( $title, ENT_QUOTES, 'UTF-8' ) . '"
+			 aria-label="' . htmlspecialchars( $aria, ENT_QUOTES, 'UTF-8' ) . '"
+			 role="note">
+			' . htmlspecialchars( $label, ENT_QUOTES, 'UTF-8' )
+	       . '</span>
+	';
+}

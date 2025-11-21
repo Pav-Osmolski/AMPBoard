@@ -71,11 +71,26 @@ export function initFoldersConfig() {
 		function specialCaseRowHtml( sc = {} ) {
 			const matchVal = sc.match || '';
 			const replaceVal = sc.replace || '';
+
 			return `
 				<div class="special-case">
-					<input type="text" class="sc-match" placeholder="Match Regex" value="${ matchVal }">
-					<input type="text" class="sc-replace" placeholder="Replace Regex" value="${ replaceVal }">
-					<button type="button" class="remove-special">✖</button>
+					<input type="text"
+					       class="sc-match"
+					       placeholder="Match Regex"
+					       aria-label="Special case match regex"
+					       value="${ matchVal }">
+
+					<input type="text"
+					       class="sc-replace"
+					       placeholder="Replace Regex"
+					       aria-label="Special case replace regex"
+					       value="${ replaceVal }">
+
+					<button type="button"
+					        class="remove-special"
+					        aria-label="Remove this special case">
+						✖
+					</button>
 				</div>
 			`;
 		}
@@ -83,52 +98,89 @@ export function initFoldersConfig() {
 		function folderItemHtml( item = {} ) {
 			const casesHtml = mapToRows( item.specialCases ).map( specialCaseRowHtml ).join( '' );
 			const selected = item.linkTemplate || '';
-			const uid = `uid-${ Math.random().toString( 36 ).slice( 2 ) }`;
+			const uid = `${ Math.random().toString( 36 ).slice( 2 ) }`;
 
 			return `
 				<li class="folder-config-item">
-					<input type="text" data-key="title"
-					       placeholder="Title"
-					       aria-label="Column title"
-					       value="${ item.title || '' }">
+					<div class="uid-container">
+						<label for="title-${ uid }">Title:</label>
+						<input id="title-${ uid }"
+							   type="text"
+							   data-key="title"
+							   placeholder="Title"
+							   value="${ item.title || '' }">
+					</div>
 
-					<input type="text" data-key="href"
-					       placeholder="Href (optional)"
-					       aria-label="Column href (optional)"
-					       value="${ item.href || '' }">
+					<div class="uid-container">
+						<label for="href-${ uid }">Href (optional):</label>
+						<input id="href-${ uid }"
+							   type="text"
+							   data-key="href"
+							   placeholder="Href (optional)"
+							   value="${ item.href || '' }">
+					</div>
 
-					<input type="text" data-key="dir"
-					       placeholder="Dir (relative to HTDOCS_PATH)"
-					       aria-label="Directory relative to htdocs"
-					       value="${ item.dir || '' }">
+					<div class="uid-container">
+						<label for="dir-${ uid }">Dir (relative to HTDOCS_PATH):</label>
+						<input id="dir-${ uid }"
+							   type="text"
+							   data-key="dir"
+							   placeholder="Dir (relative to HTDOCS_PATH)"
+							   value="${ item.dir || '' }">
+					</div>
 
-					<input type="text" data-key="excludeList"
-					       placeholder="Exclude list (comma-separated)"
-					       aria-label="Exclude list, comma separated"
-					       value="${ (item.excludeList || []).join( ',' ) }">
+					<div class="uid-container">
+						<label for="excludeList-${ uid }">Exclude list (comma-separated):</label>
+						<input id="excludeList-${ uid }"
+							   type="text"
+							   data-key="excludeList"
+							   placeholder="Exclude list (comma-separated)"
+							   value="${ (item.excludeList || []).join( ',' ) }">
+					</div>
 
-					<input type="text" data-key="match"
-					       placeholder="Match Regex"
-					       aria-label="Match regex"
-					       value="${ item.urlRules?.match ?? '' }">
+					<div class="uid-container grouped-labels">
+						<label for="match-${ uid }">Match Regex:</label>
+						<input id="match-${ uid }"
+							   type="text"
+							   data-key="match"
+							   placeholder="Match Regex"
+							   value="${ item.urlRules?.match ?? '' }">
+					</div>
 
-					<input type="text" data-key="replace"
-					       placeholder="Replace Regex"
-					       aria-label="Replace regex"
-					       value="${ item.urlRules?.replace ?? '' }">
-					<label>Link Template:
-						<select class="link-template-select" name="linkTemplate">${ templateOptionsHtml }</select>
-					</label>
-					<div class="uid-container grouped-labels" role="group" aria-labelledby="folder-behaviour-${ uid }">
-					  <span id="folder-behaviour-${ uid }">Folder Behaviour:</span>
-					  <label>
-					    <input type="checkbox" class="disable-links"${ item.disableLinks ? ' checked' : '' }>
-					    Disable links
-					  </label>
-					  <label>
-					    <input type="checkbox" class="require-vhost"${ item.requireVhost ? ' checked' : '' }>
-					    Valid vHost only
-					  </label>
+					<div class="uid-container grouped-labels">
+						<label for="replace-${ uid }">Replace Regex:</label>
+						<input id="replace-${ uid }"
+							   type="text"
+							   data-key="replace"
+							   placeholder="Replace Regex"
+							   value="${ item.urlRules?.replace ?? '' }">
+					</div>
+
+					<div class="uid-container grouped-labels">
+						<label for="linkTemplate-${ uid }">Link Template:</label>
+						<select id="linkTemplate-${ uid }"
+							    class="link-template-select"
+							    name="linkTemplate">
+							${ templateOptionsHtml }
+						</select>
+					</div>
+
+					<div class="uid-container grouped-container grouped-labels" role="group" aria-labelledby="folder-behaviour-${ uid }">
+						<label id="folder-behaviour-${ uid }">Folder Behaviour:</label>
+
+						<label for="disable-links-${ uid }">
+							<input id="disable-links-${ uid }"
+							       type="checkbox"
+							       class="disable-links"${ item.disableLinks ? ' checked' : '' }>
+							Disable links
+						</label>
+
+						<label for="require-vhost-${ uid }">
+							<input id="require-vhost-${ uid }"
+							       type="checkbox"
+							       class="require-vhost"${ item.requireVhost ? ' checked' : '' }>
+							Valid vHost only
+						</label>
 					</div>
 
 					<div class="uid-container special-cases-wrapper" aria-labelledby="special-cases-${ uid }">

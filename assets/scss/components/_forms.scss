@@ -7,14 +7,24 @@ label, legend, .uid-container span {
 	margin-bottom: 10px;
 }
 
-.grouped-labels {
-	align-self: center;
-	display: flex;
-	flex-direction: column;
-	background: var(--input-bg);
-	border: var(--border-width) solid var(--border-color);
-	border-radius: var(--input-border-radius);
-	padding: .5rem;
+.grouped {
+	&-container {
+		max-width: 300px;
+		background: var(--input-bg);
+		border: var(--border-width) solid var(--border-color);
+		border-radius: var(--input-border-radius);
+		padding: .5rem;
+	}
+
+	&-labels {
+		align-self: center;
+		display: flex;
+		flex-direction: column;
+
+		select {
+			width: 100%;
+		}
+	}
 }
 
 label {
@@ -31,7 +41,6 @@ input[type="text"], input[type="password"], select, textarea {
 	font-family: var(--font-main);
 	color: var(--input-text);
 	width: 100%;
-	min-height: 36px;
 	padding: 5px;
 	border: var(--border-width) solid var(--border-color);
 	border-radius: var(--input-border-radius);
@@ -44,10 +53,12 @@ input[type="text"], input[type="password"], select, textarea {
 
 input[type="text"], input[type="password"], select {
 	max-width: 300px;
+	height: 36px;
 	transition: all var(--transition-ease);
 }
 
 textarea {
+	min-height: 36px;
 	height: 115px;
 	resize: vertical;
 	transition: color var(--transition-ease), width var(--transition-ease), border var(--transition-ease), background var(--transition-ease);
@@ -59,7 +70,6 @@ input[type="checkbox"] {
 
 select {
 	width: auto;
-	margin-left: 5px;
 }
 
 fieldset {
