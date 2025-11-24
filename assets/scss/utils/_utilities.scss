@@ -8,6 +8,24 @@
   }
 }
 
+.separator-line {
+  &.xs {
+    height: .5rem;
+  }
+  &.sm {
+    height: 1rem;
+  }
+  &.md{
+    height: 1.5rem;
+  }
+  &.lg {
+    height: 2rem;
+  }
+  &.xl {
+    height: 2.5rem;
+  }
+}
+
 .visible {
   display: flex !important;
   flex-direction: column;

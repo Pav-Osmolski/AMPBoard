@@ -14,22 +14,43 @@
 	}
 }
 
-#clear-settings-wrapper {
-	position: relative;
-}
+.settings {
+	&-container {
+		position: relative;
+		margin-top: 5px;
+	}
 
-.user-settings {
-	position: relative;
-	margin-top: 5px;
-}
+	&-features {
+		max-width: 525px;
 
-.ui-features {
-	display: flex;
-	max-width: 450px;
-	flex-wrap: wrap;
-	flex-direction: row;
-	gap: 0 1.875rem;
-	margin-top: 5px;
+		&-group {
+			width: auto;
+			display: grid;
+			grid-auto-flow: row;
+			gap: .6rem 1.5rem;
+
+			&.autofit {
+				grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+			}
+
+			.settings-row {
+				display: flex;
+				gap: .6rem;
+
+				&.full {
+					width: 100%;
+				}
+
+				label {
+					margin-bottom: 0;
+				}
+
+				select {
+					flex-grow: 1;
+				}
+			}
+		}
+	}
 }
 
 #link-templates-list {

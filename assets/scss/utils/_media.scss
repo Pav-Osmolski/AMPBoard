@@ -26,14 +26,6 @@
 	table code {
 		font-size: .8rem;
 	}
-	fieldset {
-		width: auto;
-	}
-	p {
-		&.description {
-			width: auto;
-		}
-	}
 	.columns {
 		flex-direction: column;
 		max-width: none !important;
@@ -136,6 +128,18 @@
 }
 
 @include respond($break-md) {
+	p {
+		&.description {
+			width: auto;
+		}
+	}
+	fieldset {
+		width: auto;
+	}
+	.settings-features {
+		max-width: none;
+	}
+
 	.server-info {
 		&:before {
 			content: '';

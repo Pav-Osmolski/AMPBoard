@@ -15,7 +15,7 @@
  *
  * @package AMPBoard
  * @author  Pawel Osmolski
- * @version 1.1
+ * @version 1.2
  * @license GPL-3.0-or-later https://www.gnu.org/licenses/gpl-3.0.html
  */
 
@@ -370,7 +370,7 @@ if ( $action ) {
 				If using <strong>External 7-Zip / system archiver</strong>, ensure <code>7z</code>, <code>7za</code>,
 				<code>7zz</code>, or <code>zip</code> is available on your system <code>PATH</code>.
 			</p>
-			<?php renderSeparatorLine( 'small' ) ?>
+			<?php renderSeparatorLine( 'sm' ) ?>
 			<fieldset class="radio-group" aria-describedby="export-engine-help">
 				<legend>Archive engine</legend>
 				<label>
@@ -382,7 +382,7 @@ if ( $action ) {
 					PHP ZipArchive / Phar
 				</label>
 			</fieldset>
-			<?php renderSeparatorLine( 'small' ) ?>
+			<?php renderSeparatorLine( 'sm' ) ?>
 		</div>
 		<div class="export-grid">
 			<!-- Files export -->
@@ -392,7 +392,7 @@ if ( $action ) {
 					compressed archive. WordPress
 					uploads are excluded by
 					default.</p>
-				<?php renderSeparatorLine( 'small' ) ?>
+				<?php renderSeparatorLine( 'sm' ) ?>
 				<form id="export-files-form" method="post" aria-describedby="export-files-help export-files-status"
 				      novalidate>
 					<input type="hidden" name="csrf" value="<?= htmlspecialchars( csrf_get_token(), ENT_QUOTES ) ?>">
@@ -437,11 +437,14 @@ if ( $action ) {
 							</label>
 						</fieldset>
 					</div>
-					<?php renderSeparatorLine( 'small' ) ?>
+					<?php renderSeparatorLine( 'sm' ) ?>
 					<div>
-						<button class="button" type="submit" aria-describedby="export-files-submit-desc">Create
-							Archive
-						</button>
+						<?php renderButtonBlock( [
+							'label'      => 'Create Archive',
+							'class'      => 'button',
+							'type'       => 'submit',
+							'attributes' => [ 'aria-describedby' => 'export-files-submit-desc' ]
+						], [ 'top' => false, 'bottom' => false, ] ); ?>
 						<span id="export-files-submit-desc" class="sr-only">This will create a compressed archive based on your selections.</span>
 						<small
 								id="export-files-status"
@@ -460,7 +463,7 @@ if ( $action ) {
 				<h3 id="export-db-title">Database</h3>
 				<p id="export-db-help" class="description small">Choose a database to dump into a compressed
 					archive.</p>
-				<?php renderSeparatorLine( 'small' ) ?>
+				<?php renderSeparatorLine( 'sm' ) ?>
 				<form id="export-db-form" method="post" aria-describedby="export-db-help export-db-status" novalidate>
 					<input type="hidden" name="csrf" value="<?= htmlspecialchars( csrf_get_token(), ENT_QUOTES ) ?>">
 					<div class="row">
@@ -474,10 +477,14 @@ if ( $action ) {
 							<option value="">Loading…</option>
 						</select>
 					</div>
-					<?php renderSeparatorLine( 'small' ) ?>
+					<?php renderSeparatorLine( 'sm' ) ?>
 					<div>
-						<button class="button" type="submit" aria-describedby="export-db-submit-desc">Export Database
-						</button>
+						<?php renderButtonBlock( [
+							'label'      => 'Export Database',
+							'class'      => 'button',
+							'type'       => 'submit',
+							'attributes' => [ 'aria-describedby' => 'export-db-submit-desc' ]
+						], [ 'top' => false, 'bottom' => false, ] ); ?>
 						<span id="export-db-submit-desc" class="sr-only">This will create a compressed dump of the selected database.</span>
 
 						<small
@@ -488,7 +495,7 @@ if ( $action ) {
 								aria-atomic="true"
 						></small>
 					</div>
-					<?php renderSeparatorLine( 'small' ) ?>
+					<?php renderSeparatorLine( 'sm' ) ?>
 				</form>
 			</div>
 		</div>

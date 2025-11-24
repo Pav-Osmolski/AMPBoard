@@ -3,7 +3,7 @@
  * UI helpers
  *
  * @author  Pawel Osmolski
- * @version 1.7
+ * @version 1.8
  */
 
 /**
@@ -418,12 +418,12 @@ function injectSvgWithUniqueIds( string $svgPath, string $prefix ): string {
 /**
  * Render a visual separator line for UI sections.
  *
- * @param string $extraClass Optional CSS class(es) to append. Defaults to 'medium'.
+ * @param string $extraClass Optional CSS class(es) to append. Defaults to 'md'.
  *
  * @return void
  */
 function renderSeparatorLine( string $extraClass = '' ): void {
-	$class = 'separator-line' . ( $extraClass ? ' ' . $extraClass : ' medium' );
+	$class = 'separator-line' . ( $extraClass ? ' ' . $extraClass : ' md' );
 	echo '<div class="' . $class . '" aria-hidden="true"></div>';
 }
 
@@ -675,4 +675,123 @@ function renderBadge(
 	       . ' role="note">'
 	       . htmlspecialchars( $label, ENT_QUOTES, 'UTF-8' )
 	       . '</span>';
+}
+
+/**
+ * Render a button with optional separator lines above and below.
+ *
+ * Button config (all optional, except "label"):
+ * - label      string  Visible text of the button.
+ * - id         string  Button id attribute.
+ * - class      string  Space separated class list.
+ * - type       string  Button type attribute (e.g. "button", "submit", "reset"). Defaults to "button".
+ * - disabled   bool    Whether the button should be rendered as disabled.
+ * - attributes array   Extra attributes as key => value, or numeric array for valueless attributes.
+ *
+ * Separators config (all optional):
+ * - top bool|string true for default separator, string for size (e.g. "sm"), false to skip.
+ * - bottom bool|string true for default separator, string for size, false to skip.
+ *
+ * Examples:
+ * - ['top' => true, 'bottom' => true] Default separators above and below.
+ * - ['top' => 'sm', 'bottom' => true] Small top separator, normal bottom.
+ * - ['top' => false, 'bottom' => false] No separators at all.
+ *
+ * This helper expects a global function renderSeparatorLine( ?string $size = null ) to exist.
+ *
+ * @param array<string,mixed> $button Button configuration options.
+ * @param array<string,mixed> $separators Separator configuration options.
+ *
+ * @return void
+ */
+function renderButtonBlock( array $button = [], array $separators = [] ): void {
+	$buttonDefaults = [
+		'label'      => '',
+		'id'         => '',
+		'class'      => '',
+		'type'       => 'button',
+		'disabled'   => false,
+		'attributes' => [],
+	];
+
+	$separatorDefaults = [
+		'top'    => true,
+		'bottom' => true,
+	];
+
+	$button     = array_merge( $buttonDefaults, $button );
+	$separators = array_merge( $separatorDefaults, $separators );
+
+	// Nothing sensible to render.
+	if ( $button['label'] === '' ) {
+		return;
+	}
+
+	// Render top separator.
+	if ( $separators['top'] ) {
+		if ( is_string( $separators['top'] ) ) {
+			renderSeparatorLine( $separators['top'] );
+		} else {
+			renderSeparatorLine();
+		}
+	}
+
+	// Build attribute list.
+	$attributes = [];
+
+	if ( $button['id'] !== '' ) {
+		$attributes[] = sprintf(
+			'id="%s"',
+			htmlspecialchars( (string) $button['id'], ENT_QUOTES, 'UTF-8' )
+		);
+	}
+
+	$class = trim( (string) $button['class'] );
+	if ( $class !== '' ) {
+		$attributes[] = sprintf(
+			'class="%s"',
+			htmlspecialchars( $class, ENT_QUOTES, 'UTF-8' )
+		);
+	}
+
+	$type         = $button['type'] ?: 'button';
+	$attributes[] = sprintf(
+		'type="%s"',
+		htmlspecialchars( (string) $type, ENT_QUOTES, 'UTF-8' )
+	);
+
+	if ( ! empty( $button['disabled'] ) ) {
+		$attributes[] = 'disabled';
+	}
+
+	if ( ! empty( $button['attributes'] ) && is_array( $button['attributes'] ) ) {
+		foreach ( $button['attributes'] as $attrName => $attrValue ) {
+			if ( is_int( $attrName ) ) {
+				// Valueless / boolean attributes.
+				$attributes[] = htmlspecialchars( (string) $attrValue, ENT_QUOTES, 'UTF-8' );
+			} else {
+				$attributes[] = sprintf(
+					'%s="%s"',
+					htmlspecialchars( (string) $attrName, ENT_QUOTES, 'UTF-8' ),
+					htmlspecialchars( (string) $attrValue, ENT_QUOTES, 'UTF-8' )
+				);
+			}
+		}
+	}
+
+	$attrString = $attributes ? ' ' . implode( ' ', $attributes ) : '';
+
+	// Render button.
+	echo '<button' . $attrString . '>';
+	echo htmlspecialchars( (string) $button['label'], ENT_QUOTES, 'UTF-8' );
+	echo '</button>';
+
+	// Render bottom separator.
+	if ( $separators['bottom'] ) {
+		if ( is_string( $separators['bottom'] ) ) {
+			renderSeparatorLine( $separators['bottom'] );
+		} else {
+			renderSeparatorLine();
+		}
+	}
 }

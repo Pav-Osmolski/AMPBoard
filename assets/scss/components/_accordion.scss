@@ -76,6 +76,8 @@
     .toggle-content {
         position: relative;
         height: 0px;
+        margin: 0 -4px; // Prevent focus outline from being clipped
+        padding: 0 4px; // Prevent focus outline from being clipped
         overflow: hidden;
         transition: height var(--transition-ease);
     }

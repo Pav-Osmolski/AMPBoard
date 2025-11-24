@@ -35,7 +35,7 @@
  * - Sensitive values are obfuscated for display via `obfuscate_value()`
  *
  * @author  Pawel Osmolski
- * @version 3.0
+ * @version 3.1
  */
 
 /**
@@ -119,50 +119,52 @@ require_once __DIR__ . '/../config/config.php';
 				<?php echo injectSvgWithUniqueIds( __DIR__ . '/../assets/images/MariaDB.svg', 'MariaDB1' ); ?>
 				<?php echo injectSvgWithUniqueIds( __DIR__ . '/../assets/images/PHP.svg', 'PHP2' ); ?>
 			</div>
-			<div class="user-settings">
-				<label>DB Host:&nbsp;
+			<div class="settings-container">
+				<label>DB Host:
 					<input type="text" name="DB_HOST" value="<?= obfuscate_value( DB_HOST ) ?>">
 					<?= $mySqlHostValid ? '✔️' : '❌' ?>
 				</label>
-				<label>DB User:&nbsp;
+				<label>DB User:
 					<input type="text" name="DB_USER" value="<?= obfuscate_value( htmlspecialchars( $dbUser ) ) ?>">
 					<?= $mySqlUserValid ? '✔️' : '❌' ?>
 				</label>
-				<label>DB Password:&nbsp;
+				<label>DB Password:
 					<input type="password" name="DB_PASSWORD"
 					       value="<?= obfuscate_value( htmlspecialchars( $dbPass ) ) ?>">
 					<?= $mySqlPassValid ? '✔️' : '❌' ?>
 				</label>
 
-				<label>Apache Path:&nbsp;
+				<label>Apache Path:
 					<input type="text" name="APACHE_PATH" value="<?= obfuscate_value( APACHE_PATH ) ?>">
 					<?= $apachePathValid ? '✔️' : '❌' ?>
 				</label>
 
-				<label>HTDocs Path:&nbsp;
+				<label>HTDocs Path:
 					<input type="text" name="HTDOCS_PATH" value="<?= obfuscate_value( HTDOCS_PATH ) ?>">
 					<?= $htdocsPathValid ? '✔️' : '❌' ?>
 				</label>
 
-				<label>PHP Path:&nbsp;
+				<label>PHP Path:
 					<input type="text" name="PHP_PATH" value="<?= obfuscate_value( PHP_PATH ) ?>">
 					<?= $phpPathValid ? '✔️' : '❌' ?>
 				</label>
+				<?php renderSeparatorLine( 'xs' ); ?>
+				<fieldset>
+					<legend>Inspector settings</legend>
 
-				<label>
-					<input type="checkbox"
-					       name="apacheFastMode" <?= isset( $apacheFastMode ) && $apacheFastMode ? 'checked' : '' ?>>
-					Fast Mode for Apache Inspector
-				</label>
+					<label>
+						<input type="checkbox"
+						       name="apacheFastMode" <?= isset( $apacheFastMode ) && $apacheFastMode ? 'checked' : '' ?>>
+						Fast Mode for Apache Inspector
+					</label>
 
-				<label>
-					<input type="checkbox"
-					       name="mysqlFastMode" <?= isset( $mysqlFastMode ) && $mysqlFastMode ? 'checked' : '' ?>>
-					Fast Mode for MySQL Inspector
-				</label><br>
-
-				<button type="submit">Save Settings</button>
-				<br><br>
+					<label>
+						<input type="checkbox"
+						       name="mysqlFastMode" <?= isset( $mysqlFastMode ) && $mysqlFastMode ? 'checked' : '' ?>>
+						Fast Mode for MySQL Inspector
+					</label>
+				</fieldset>
+				<?php renderButtonBlock( [ 'label' => 'Save Settings', 'type' => 'submit' ] ); ?>
 			</div>
 			<?php renderAccordionSectionEnd(); ?>
 
@@ -179,64 +181,112 @@ require_once __DIR__ . '/../config/config.php';
 				]
 			);
 			?>
-			<div class="ui-features">
-				<label class="select">Theme:
-					<select id="theme-selector" name="theme" aria-label="Select Theme">
-						<?php foreach ( $themeOptions as $id => $label ) : ?>
-							<option value="<?= $id ?>" <?= $currentTheme === $id ? 'selected="selected"' : '' ?>>
-								<?= htmlspecialchars( $label ) ?>
-							</option>
-						<?php endforeach; ?>
-					</select>
-				</label>
+			<div class="settings-container settings-features">
+				<div class="settings-features-group">
+					<div class="settings-row">
+						<label class="select" for="theme-selector">Theme:</label>
+						<select id="theme-selector" name="theme">
+							<?php foreach ( $themeOptions as $id => $label ) : ?>
+								<option value="<?= htmlspecialchars( $id, ENT_QUOTES, 'UTF-8' ) ?>"
+									<?= $currentTheme === $id ? 'selected="selected"' : '' ?>>
+									<?= htmlspecialchars( $label, ENT_QUOTES, 'UTF-8' ) ?>
+								</option>
+							<?php endforeach; ?>
+						</select>
+					</div>
+				</div>
+				<?php renderSeparatorLine( 'sm' ); ?>
+				<fieldset class="settings-features-group autofit">
+					<legend>Interface settings</legend>
 
-				<label>Display Header:
-					<input type="checkbox" name="displayHeader" <?= $displayHeader ? 'checked' : '' ?>>
-				</label>
+					<div class="settings-row">
+						<label>
+							Display Header:
+							<input type="checkbox" name="displayHeader" <?= $displayHeader ? 'checked' : '' ?>>
+						</label>
+					</div>
 
-				<label>Display Footer:
-					<input type="checkbox" name="displayFooter" <?= $displayFooter ? 'checked' : '' ?>>
-				</label>
+					<div class="settings-row">
+						<label>
+							Display Footer:
+							<input type="checkbox" name="displayFooter" <?= $displayFooter ? 'checked' : '' ?>>
+						</label>
+					</div>
 
-				<label>Display Clock:
-					<input type="checkbox" name="displayClock" <?= $displayClock ? 'checked' : '' ?>>
-				</label>
+					<div class="settings-row">
+						<label>
+							Display Clock:
+							<input type="checkbox" name="displayClock" <?= $displayClock ? 'checked' : '' ?>>
+						</label>
+					</div>
 
-				<label>Display Search:
-					<input type="checkbox" name="displaySearch" <?= $displaySearch ? 'checked' : '' ?>>
-				</label>
+					<div class="settings-row">
+						<label>
+							Display Search:
+							<input type="checkbox" name="displaySearch" <?= $displaySearch ? 'checked' : '' ?>>
+						</label>
+					</div>
 
-				<label>Display Tooltips:
-					<input type="checkbox" name="displayTooltips" <?= $displayTooltips ? 'checked' : '' ?>>
-				</label>
+					<div class="settings-row">
+						<label>
+							Display Tooltips:
+							<input type="checkbox" name="displayTooltips" <?= $displayTooltips ? 'checked' : '' ?>>
+						</label>
+					</div>
 
-				<label>Display Folder Badges:
-					<input type="checkbox" name="displayFolderBadges" <?= $displayFolderBadges ? 'checked' : '' ?>>
-				</label>
+					<div class="settings-row">
+						<label>
+							Display Folder Badges:
+							<input type="checkbox"
+							       name="displayFolderBadges" <?= $displayFolderBadges ? 'checked' : '' ?>>
+						</label>
+					</div>
 
-				<label>Display System Stats:
-					<input type="checkbox" name="displaySystemStats" <?= $displaySystemStats ? 'checked' : '' ?>>
-				</label>
+					<div class="settings-row">
+						<label>
+							Display System Stats:
+							<input type="checkbox"
+							       name="displaySystemStats" <?= $displaySystemStats ? 'checked' : '' ?>>
+						</label>
+					</div>
 
-				<label>Display Apache Error Log:
-					<input type="checkbox" name="displayApacheErrorLog" <?= $displayApacheErrorLog ? 'checked' : '' ?>>
-				</label>
+					<div class="settings-row">
+						<label>
+							Display Apache Error Log:
+							<input type="checkbox"
+							       name="displayApacheErrorLog" <?= $displayApacheErrorLog ? 'checked' : '' ?>>
+						</label>
+					</div>
 
-				<label>Display PHP Error Log:
-					<input type="checkbox" name="displayPhpErrorLog" <?= $displayPhpErrorLog ? 'checked' : '' ?>>
-				</label>
+					<div class="settings-row">
+						<label>
+							Display PHP Error Log:
+							<input type="checkbox"
+							       name="displayPhpErrorLog" <?= $displayPhpErrorLog ? 'checked' : '' ?>>
+						</label>
+					</div>
 
-				<label>Use AJAX for Stats:
-					<input type="checkbox" name="useAjaxForStats" <?= $useAjaxForStats ? 'checked' : '' ?>>
-				</label>
+					<div class="settings-row">
+						<label>
+							Use AJAX for Stats:
+							<input type="checkbox" name="useAjaxForStats" <?= $useAjaxForStats ? 'checked' : '' ?>>
+							<span class="sr-only">Loads stats in the background without reloading the page</span>
+						</label>
+					</div>
 
-				<label>Use AJAX for Error log:
-					<input type="checkbox" name="useAjaxForErrorLog" <?= $useAjaxForErrorLog ? 'checked' : '' ?>>
-				</label><br>
+					<div class="settings-row">
+						<label>
+							Use AJAX for Error Log:
+							<input type="checkbox"
+							       name="useAjaxForErrorLog" <?= $useAjaxForErrorLog ? 'checked' : '' ?>>
+							<span class="sr-only">Loads the error log in the background without reloading the page</span>
+						</label>
+					</div>
+
+				</fieldset>
 			</div>
-			<br>
-			<button type="submit">Save Settings</button>
-			<br><br>
+			<?php renderButtonBlock( [ 'label' => 'Save Settings', 'type' => 'submit' ] ); ?>
+
 			<?php renderAccordionSectionEnd(); ?>
 
 			<?php renderSeparatorLine(); ?>
@@ -255,38 +305,40 @@ require_once __DIR__ . '/../config/config.php';
 				]
 			);
 			?>
-			<?php if ( ! $phpPathValid ): ?>
-				<p><strong>Warning:</strong> PHP Error Handling & Logging will save to <code>user_config.php</code> but
-					will
-					not be reflected in <code>php.ini</code> (invalid PHP path).</p><br>
-			<?php endif; ?>
+			<div class="settings-container">
+				<?php if ( ! $phpPathValid ): ?>
+					<p><strong>Warning:</strong> PHP Error Handling & Logging will save to <code>user_config.php</code>
+						but
+						will
+						not be reflected in <code>php.ini</code> (invalid PHP path).</p><br>
+				<?php endif; ?>
 
-			<label>Display Errors:
-				<input type="checkbox" name="displayPhpErrors" <?= ini_get( 'display_errors' ) ? 'checked' : '' ?>>
-			</label>
+				<label>Display Errors:
+					<input type="checkbox" name="displayPhpErrors" <?= ini_get( 'display_errors' ) ? 'checked' : '' ?>>
+				</label>
 
-			<label>Error Reporting Level:
-				<?php
-				$phpErrorLevels = [
-					E_ALL     => 'E_ALL',
-					E_ERROR   => 'E_ERROR',
-					E_WARNING => 'E_WARNING',
-					E_NOTICE  => 'E_NOTICE'
-				];
-				?>
-				<select name="phpErrorLevel">
-					<?php foreach ( $phpErrorLevels as $value => $label ) : ?>
-						<option value="<?= $label ?>" <?= $currentPhpErrorLevel == $value ? 'selected' : '' ?>><?= $label ?></option>
-					<?php endforeach; ?>
-				</select>
-			</label>
+				<label>Error Reporting Level:
+					<?php
+					$phpErrorLevels = [
+						E_ALL     => 'E_ALL',
+						E_ERROR   => 'E_ERROR',
+						E_WARNING => 'E_WARNING',
+						E_NOTICE  => 'E_NOTICE'
+					];
+					?>
+					<select name="phpErrorLevel">
+						<?php foreach ( $phpErrorLevels as $value => $label ) : ?>
+							<option value="<?= $label ?>" <?= $currentPhpErrorLevel == $value ? 'selected' : '' ?>><?= $label ?></option>
+						<?php endforeach; ?>
+					</select>
+				</label>
 
-			<label>Log Errors:
-				<input type="checkbox" name="logPhpErrors" <?= ini_get( 'log_errors' ) ? 'checked' : '' ?>>
-			</label><br>
+				<label>Log Errors:
+					<input type="checkbox" name="logPhpErrors" <?= ini_get( 'log_errors' ) ? 'checked' : '' ?>>
+				</label>
+			</div>
+			<?php renderButtonBlock( [ 'label' => 'Save Settings', 'type' => 'submit' ], [ 'top' => 'sm' ] ); ?>
 
-			<button type="submit">Save Settings</button>
-			<br><br>
 			<?php renderAccordionSectionEnd(); ?>
 
 			<?php renderSeparatorLine(); ?>
@@ -302,14 +354,15 @@ require_once __DIR__ . '/../config/config.php';
 				]
 			);
 			?>
-			<div id="folders-config">
-				<ul id="folders-config-list" class="draggable-list"><!-- Generated by folders.js --></ul>
-				<button type="button" id="add-folder-column">➕ Add Folder Column</button>
+			<div class="settings-container">
+				<div id="folders-config">
+					<ul id="folders-config-list" class="draggable-list"><!-- Generated by folders.js --></ul>
+					<button type="button" id="add-folder-column">➕ Add Folder Column</button>
+				</div>
+				<input type="hidden" id="folders_json_input" name="folders_json">
 			</div>
-			<input type="hidden" id="folders_json_input" name="folders_json">
-			<br>
-			<button type="submit">Save Settings</button>
-			<br><br>
+			<?php renderButtonBlock( [ 'label' => 'Save Settings', 'type' => 'submit' ] ); ?>
+
 			<?php renderAccordionSectionEnd(); ?>
 
 			<?php renderSeparatorLine(); ?>
@@ -325,35 +378,37 @@ require_once __DIR__ . '/../config/config.php';
 				]
 			);
 			?>
-			<div id="link-templates-config">
-				<p id="link-templates-help">
-					Build your folder link templates with plain HTML. Use
-					<code>{urlName}</code> wherever the site name should appear — in text
-					or in attributes.<br>
-					<!-- Currently supported variables: <code>{urlName}</code>.<br> -->
-					Example:
-					<code>&lt;li class='folder-item'&gt;&lt;a href='https://local.{urlName}.com'&gt;{urlName}&lt;/a&gt;&lt;/li&gt;</code>.<br>
-					Tips: Tab to indent, Shift+Tab to outdent, Enter preserves current indent.
-				</p>
-				<p id="editor-instructions" class="sr-only">
-					When inside the editor, press Tab to insert a tab character. Press Escape, then Tab to move focus
-					out of the editor.
-				</p>
+			<div class="settings-container">
+				<div id="link-templates-config">
+					<p id="link-templates-help">
+						Build your folder link templates with plain HTML. Use
+						<code>{urlName}</code> wherever the site name should appear — in text
+						or in attributes.<br>
+						<!-- Currently supported variables: <code>{urlName}</code>.<br> -->
+						Example:
+						<code>&lt;li class='folder-item'&gt;&lt;a href='https://local.{urlName}.com'&gt;{urlName}&lt;/a&gt;&lt;/li&gt;</code>.<br>
+						Tips: Tab to indent, Shift+Tab to outdent, Enter preserves current indent.
+					</p>
+					<p id="editor-instructions" class="sr-only">
+						When inside the editor, press Tab to insert a tab character. Press Escape, then Tab to move
+						focus
+						out of the editor.
+					</p>
 
-				<?php renderSeparatorLine( 'small' ) ?>
+					<?php renderSeparatorLine( 'sm' ) ?>
 
-				<ul
-						id="link-templates-list"
-						class="template-list"
-						aria-describedby="link-templates-help"
-						aria-live="polite"
-				><!-- Generated by linkTemplates.js --></ul>
-				<button type="button" id="add-link-template">➕ Add Link Template</button>
+					<ul
+							id="link-templates-list"
+							class="template-list"
+							aria-describedby="link-templates-help"
+							aria-live="polite"
+					><!-- Generated by linkTemplates.js --></ul>
+					<button type="button" id="add-link-template">➕ Add Link Template</button>
+				</div>
+				<input type="hidden" id="link_templates_json_input" name="link_templates_json" value="">
 			</div>
-			<input type="hidden" id="link_templates_json_input" name="link_templates_json" value="">
-			<br>
-			<button type="submit">Save Settings</button>
-			<br><br>
+			<?php renderButtonBlock( [ 'label' => 'Save Settings', 'type' => 'submit' ] ); ?>
+
 			<?php renderAccordionSectionEnd(); ?>
 
 			<?php renderSeparatorLine(); ?>
@@ -369,16 +424,16 @@ require_once __DIR__ . '/../config/config.php';
 				]
 			);
 			?>
-			<div id="dock-config-editor">
-				<ul id="dock-list"><!-- Generated by dock.js --></ul>
-				<button type="button" id="add-dock-item">➕ Add Dock Item</button>
+			<div class="settings-container">
+				<div id="dock-config-editor">
+					<ul id="dock-list"><!-- Generated by dock.js --></ul>
+					<button type="button" id="add-dock-item">➕ Add Dock Item</button>
+				</div>
+				<input type="hidden" id="dock_json_input" name="dock_json">
 			</div>
-			<input type="hidden" id="dock_json_input" name="dock_json">
-			<br>
-			<button type="submit">Save Settings</button>
-			<br><br>
-			<?php renderAccordionSectionEnd(); ?>
+			<?php renderButtonBlock( [ 'label' => 'Save Settings', 'type' => 'submit' ] ); ?>
 
+			<?php renderAccordionSectionEnd(); ?>
 		</form>
 
 		<?php renderSeparatorLine(); ?>
@@ -438,9 +493,10 @@ require_once __DIR__ . '/../config/config.php';
 		);
 		?>
 		<?php if ( $apacheToggle && $apachePathValid ): ?>
-			<?php renderSeparatorLine( 'small' ) ?>
-			<button id="restart-apache-button">Restart Apache</button>
-			<?php renderSeparatorLine(); ?>
+			<?php renderButtonBlock( [
+				'label' => 'Restart Apache',
+				'id'    => 'restart-apache-button'
+			], [ 'top' => 'sm' ] ); ?>
 			<div id="apache-status-message" role="status" aria-live="polite"></div>
 		<?php else: ?>
 			<p><strong>Warning:</strong> Apache control unavailable.
@@ -455,9 +511,13 @@ require_once __DIR__ . '/../config/config.php';
 					echo ' The <code>toggle_apache.php</code> utility is missing.';
 				}
 				?>
-			</p><br>
-			<button disabled id="restart-apache-button">Restart Apache</button>
-			<?php renderSeparatorLine(); ?>
+			</p>
+			<?php renderButtonBlock( [
+				'label'    => 'Restart Apache',
+				'id'       => 'restart-apache-button',
+				'disabled' => true,
+			], [ 'top' => 'sm' ] ); ?>
+
 		<?php endif; ?>
 		<?php renderAccordionSectionEnd(); ?>
 
@@ -474,9 +534,12 @@ require_once __DIR__ . '/../config/config.php';
 			]
 		);
 		?>
-		<?php renderSeparatorLine( 'small' ) ?>
-		<button id="clear-local-storage" class="button warning">🧹 Clear Local Storage</button>
-		<?php renderSeparatorLine(); ?>
+		<?php renderButtonBlock( [
+			'label' => '🧹 Clear Local Storage',
+			'id'    => 'clear-local-storage',
+			'class' => 'button warning',
+		], [ 'top' => 'sm' ] ); ?>
+
 		<?php renderAccordionSectionEnd(); ?>
 	</div>
 </div>

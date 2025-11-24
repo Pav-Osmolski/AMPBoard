@@ -27,16 +27,6 @@ label, legend, .uid-container span {
 	}
 }
 
-label {
-	&.select {
-		flex-basis: 100%;
-
-		select {
-			flex-grow: 1;
-		}
-	}
-}
-
 input[type="text"], input[type="password"], select, textarea {
 	font-family: var(--font-main);
 	color: var(--input-text);
@@ -64,10 +54,6 @@ textarea {
 	transition: color var(--transition-ease), width var(--transition-ease), border var(--transition-ease), background var(--transition-ease);
 }
 
-input[type="checkbox"] {
-	margin: 0 5px;
-}
-
 select {
 	width: auto;
 }
@@ -78,7 +64,7 @@ fieldset {
 	border-radius: var(--container-border-radius);
 	padding: 0 15px 15px;
 
-	label:last-child {
+	> label:last-child {
 		margin-bottom: 0;
 	}
 }
