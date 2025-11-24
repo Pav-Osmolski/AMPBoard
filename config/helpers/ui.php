@@ -3,7 +3,7 @@
  * UI helpers
  *
  * @author  Pawel Osmolski
- * @version 1.5
+ * @version 1.6
  */
 
 /**
@@ -33,38 +33,62 @@ function getThemeColorScheme( string $theme ): string {
 /**
  * Generate dynamic <body> class string based on UI settings and theme.
  *
- * @param string $theme
- * @param bool $displayHeader
- * @param bool $displayFooter
- * @param bool $displayClock
- * @param bool $displaySearch
- * @param bool $displayTooltips
- * @param bool $displaySystemStats
- * @param bool $displayApacheErrorLog
- * @param bool $displayPhpErrorLog
+ * This assembles a space-delimited class list for the <body> element using:
+ * - UI toggle states (header, footer, clock, search, tooltips).
+ * - Optional module availability checks (system stats, Apache log, PHP log).
+ * - The resolved theme colour scheme (light-mode / dark-mode).
  *
- * @return string
+ * Optional modules are only marked active when their file exists and the
+ * corresponding display flag is enabled.
+ *
+ * @param string $theme Theme identifier used by getThemeColorScheme().
+ * @param bool $displayHeader Whether the header UI should be visible.
+ * @param bool $displayFooter Whether the footer UI should be visible.
+ * @param bool $displayClock Whether the clock widget should be visible.
+ * @param bool $displaySearch Whether the search widget should be visible.
+ * @param bool $displayTooltips Whether tooltip icons should be visible.
+ * @param bool $displaySystemStats Whether the system monitor panel should be visible.
+ * @param bool $displayApacheErrorLog Whether the Apache error log panel should be visible.
+ * @param bool $displayPhpErrorLog Whether the PHP error log panel should be visible.
+ *
+ * @return string Space-delimited body class list.
  */
-function buildBodyClasses( string $theme, bool $displayHeader, bool $displayFooter, bool $displayClock, bool $displaySearch, bool $displayTooltips, bool $displaySystemStats, bool $displayApacheErrorLog, bool $displayPhpErrorLog ): string {
-	$classes   = [ 'background-image' ];
-	$classes[] = $displayHeader ? 'header-active' : 'header-inactive';
-	$classes[] = $displayFooter ? 'footer-active' : 'footer-inactive';
-	$classes[] = $displayClock ? 'clock-active' : 'clock-inactive';
-	$classes[] = $displaySearch ? 'search-active' : 'search-inactive';
-	$classes[] = $displayTooltips ? 'tooltips-active' : 'tooltips-inactive';
+function buildBodyClasses(
+	string $theme,
+	bool $displayHeader,
+	bool $displayFooter,
+	bool $displayClock,
+	bool $displaySearch,
+	bool $displayTooltips,
+	bool $displaySystemStats,
+	bool $displayApacheErrorLog,
+	bool $displayPhpErrorLog
+): string {
+	$utilsDir = __DIR__ . '/../../utils';
 
-	if ( file_exists( __DIR__ . '/../../utils/system_stats.php' ) && $displaySystemStats ) {
-		$classes[] = 'system-monitor-active';
-	} else {
-		$classes[] = 'system-monitor-inactive';
-	}
+	$systemStatsAvailable = file_exists( $utilsDir . '/system_stats.php' );
+	$apacheLogAvailable   = file_exists( $utilsDir . '/apache_error_log.php' );
+	$phpLogAvailable      = file_exists( $utilsDir . '/php_error_log.php' );
 
-	$apacheLogAvailable = file_exists( __DIR__ . '/../../utils/apache_error_log.php' );
-	$phpLogAvailable    = file_exists( __DIR__ . '/../../utils/php_error_log.php' );
+	$classes = [
+		'background-image',
+		$displayHeader ? 'header-active' : 'header-inactive',
+		$displayFooter ? 'footer-active' : 'footer-inactive',
+		$displayClock ? 'clock-active' : 'clock-inactive',
+		$displaySearch ? 'search-active' : 'search-inactive',
+		$displayTooltips ? 'tooltips-active' : 'tooltips-inactive',
+		( $systemStatsAvailable && $displaySystemStats )
+			? 'system-monitor-active'
+			: 'system-monitor-inactive',
+		( $apacheLogAvailable && $displayApacheErrorLog )
+			? 'apache-error-log-active'
+			: 'apache-error-log-inactive',
+		( $phpLogAvailable && $displayPhpErrorLog )
+			? 'php-error-log-active'
+			: 'php-error-log-inactive',
+	];
 
-	$classes[] = ( $apacheLogAvailable && $displayApacheErrorLog ) ? 'apache-error-log-active' : 'apache-error-log-inactive';
-	$classes[] = ( $phpLogAvailable && $displayPhpErrorLog ) ? 'php-error-log-active' : 'php-error-log-inactive';
-
+	// Grouped error log state.
 	if ( ( $apacheLogAvailable && $displayApacheErrorLog ) || ( $phpLogAvailable && $displayPhpErrorLog ) ) {
 		$classes[] = 'error-log-active';
 	}
@@ -147,7 +171,7 @@ function loadThemes( string $themeDir ): array {
  *
  * @return string The generated HTML markup.
  */
-function renderWidthControls( $widthKey, $contextLabel, $extraClasses = '', $echo = false ): string {
+function renderWidthControls( string $widthKey, string $contextLabel, string $extraClasses = '', bool $echo = false ): string {
 	$widthKey     = htmlspecialchars( (string) $widthKey, ENT_QUOTES, 'UTF-8' );
 	$contextLabel = htmlspecialchars( (string) $contextLabel, ENT_QUOTES, 'UTF-8' );
 	$wrapperClass = trim( $extraClasses . ' width-controls' );
@@ -318,7 +342,7 @@ function getTooltip( string $key, array $tooltips, string $default ): string {
  * @param bool $headingOnly If true, only the heading is rendered (tooltip is omitted).
  * @param bool $below If true, tooltip is rendered with class "below"; otherwise it uses "above".
  *
- * @return string HTML output
+ * @return string HTML output.
  */
 function renderHeadingTooltip(
 	string $key,
@@ -330,41 +354,35 @@ function renderHeadingTooltip(
 	bool $headingOnly = false,
 	bool $below = false
 ): string {
-	global $displayTooltips;
+	$showTooltips = $GLOBALS['displayTooltips'] ?? true;
 
 	$desc     = getTooltip( $key, $tooltips, $defaultTooltipMessage );
 	$title    = $label ?: ucwords( str_replace( '_', ' ', $key ) );
 	$posClass = $below ? 'below' : 'above';
 
+	// Escape once, use everywhere.
+	$escKey   = htmlspecialchars( $key, ENT_QUOTES, 'UTF-8' );
+	$escDesc  = htmlspecialchars( $desc, ENT_QUOTES, 'UTF-8' );
+	$escTitle = htmlspecialchars( $title, ENT_QUOTES, 'UTF-8' );
+
+	$renderHeading = ! $tooltipOnly;
+	$renderTooltip = ( ! $headingOnly ) && $showTooltips;
+
 	ob_start();
 
-	if ( $tooltipOnly ) {
+	if ( $renderHeading ) {
+		echo "<{$headingTag}>{$escTitle}</{$headingTag}>";
+	}
+
+	if ( $tooltipOnly || ( $renderHeading && $renderTooltip ) ) {
 		?>
-		<span class="tooltip-icon <?= $posClass ?>"
-		      aria-describedby="tooltip-<?= $key ?>"
+		<span class="tooltip-icon <?= htmlspecialchars( $posClass, ENT_QUOTES, 'UTF-8' ) ?>"
+		      aria-describedby="tooltip-<?= $escKey ?>"
 		      tabindex="0"
-		      data-tooltip="<?= $desc ?>">
+		      data-tooltip="<?= $escDesc ?>">
 			<?php include __DIR__ . '/../../assets/images/tooltip-icon.svg'; ?>
 		</span>
-		<span id="tooltip-<?= $key ?>" class="sr-only" role="tooltip"><?= $desc ?></span>
-		<?php
-
-	} elseif ( $headingOnly || ( isset( $displayTooltips ) && $displayTooltips === false ) ) {
-
-		echo "<{$headingTag}>" . htmlspecialchars( $title ) . "</{$headingTag}>";
-
-	} else {
-
-		echo "<{$headingTag}>" . htmlspecialchars( $title ) . "</{$headingTag}>";
-
-		?>
-		<span class="tooltip-icon <?= $posClass ?>"
-		      aria-describedby="tooltip-<?= $key ?>"
-		      tabindex="0"
-		      data-tooltip="<?= $desc ?>">
-			<?php include __DIR__ . '/../../assets/images/tooltip-icon.svg'; ?>
-		</span>
-		<span id="tooltip-<?= $key ?>" class="sr-only" role="tooltip"><?= $desc ?></span>
+		<span id="tooltip-<?= $escKey ?>" class="sr-only" role="tooltip"><?= $escDesc ?></span>
 		<?php
 	}
 
@@ -534,7 +552,7 @@ function renderServerInfo( string $dbUser, string $dbPass ): void {
  *
  * @return string HTML snippet defining window.BASE_URL once, then the tags requested.
  */
-function render_versioned_assets_with_base(
+function renderVersionedAssetsWithBase(
 	?string $cssRel = 'dist/css/style.min.css',
 	?string $jsRel = 'dist/js/script.min.js',
 	?string $projectRoot = null,

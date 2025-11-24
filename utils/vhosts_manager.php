@@ -30,7 +30,7 @@ $pageClasses = buildPageViewClasses( $settingsView ?? null );
 ?>
 <div id="vhosts-manager" class="<?= $pageClasses ?>">
 	<?php if ( empty( $settingsView ) ): ?>
-		<?php echo render_versioned_assets_with_base(); ?>
+		<?php echo renderVersionedAssetsWithBase(); ?>
 
 		<div class="heading">
 			<?= renderHeadingTooltip( 'vhosts_manager', $tooltips, $defaultTooltipMessage, 'h2', 'Virtual Hosts Manager', false, false, true ) ?>

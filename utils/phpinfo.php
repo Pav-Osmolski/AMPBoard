@@ -22,7 +22,7 @@ $pageClasses = buildPageViewClasses( $settingsView ?? null );
 ?>
 <div id="phpinfo-view" class="<?= $pageClasses ?>">
 	<?php if ( empty( $settingsView ) ): ?>
-		<?php echo render_versioned_assets_with_base(); ?>
+		<?php echo renderVersionedAssetsWithBase(); ?>
 	<?php endif; ?>
 	<div class="heading">
 		<?= renderHeadingTooltip( 'phpinfo', $tooltips, $defaultTooltipMessage, 'h2', 'PHP Info', false, false, true ) ?>

@@ -355,7 +355,7 @@ if ( $action ) {
 
 <div id="export" class="<?= $pageClasses ?>">
 	<?php if ( empty( $settingsView ) ): ?>
-		<?php echo render_versioned_assets_with_base(); ?>
+		<?php echo renderVersionedAssetsWithBase(); ?>
 
 		<div class="heading">
 			<?= renderHeadingTooltip( 'export', $tooltips, $defaultTooltipMessage, 'h2', 'Export Files & Database', false, false, true ) ?>
