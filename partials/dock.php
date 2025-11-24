@@ -16,7 +16,7 @@
  * - A horizontal dock bar with anchor elements linking to external tools or resources
  *
  * @author  Pawel Osmolski
- * @version 1.2
+ * @version 1.3
  */
 
 require_once __DIR__ . '/../config/config.php';
@@ -26,28 +26,46 @@ $dockItems = read_json_array_safely( __DIR__ . '/../config/dock.json' );
 <nav class="dock" aria-label="Quick launch">
 	<ul class="dock-list">
 		<?php foreach ( $dockItems as $item ):
+
 			$label = isset( $item['label'] ) ? trim( $item['label'] ) : '';
 			$alt = isset( $item['alt'] ) ? trim( $item['alt'] ) : '';
-			$name = $label !== '' ? $label : $alt; // fallback if no label
+			$url = isset( $item['url'] ) ? $item['url'] : '#';
+			$icon = isset( $item['icon'] ) ? $item['icon'] : '';
+
 			$opens = '(opens in a new tab)';
+
+			// If alt is empty and there is no visible label, derive alt from the icon filename.
+			if ( $alt === '' && $label === '' && $icon !== '' ) {
+				$filename = pathinfo( $icon, PATHINFO_FILENAME ); // e.g. "GitHub"
+				$filename = str_replace( [ '-', '_' ], ' ', $filename ); // e.g. "git hub"
+				$alt      = trim( $filename );
+			}
+
+			// Accessible name: label wins, else alt (possibly filename-derived).
+			$name = $label !== '' ? $label : $alt;
+
+			// If we still don't have a usable name, skip for accessibility.
+			if ( $name === '' ) {
+				continue;
+			}
 			?>
 			<li class="dock-item">
 				<a
-						href="<?= htmlspecialchars( $item['url'] ) ?>"
+						href="<?= htmlspecialchars( $url, ENT_QUOTES, 'UTF-8' ) ?>"
 						target="_blank"
 						rel="noopener noreferrer"
-					<?php if ( $label === '' ): // no visible text -> name the link ?>
-						aria-label="<?= htmlspecialchars( $name . ' ' . $opens ) ?>"
+					<?php if ( $label === '' ): ?>
+						aria-label="<?= htmlspecialchars( $name . ' ' . $opens, ENT_QUOTES, 'UTF-8' ) ?>"
 					<?php endif; ?>
 				>
 					<img
-						src="<?= htmlspecialchars( $item['icon'] ) ?>"
-						alt="<?= $label === '' ? htmlspecialchars( $alt ) : '' ?>"
-						<?php if ( $label !== '' ): ?>aria-hidden="true"<?php endif; ?>
+							src="<?= htmlspecialchars( $icon, ENT_QUOTES, 'UTF-8' ) ?>"
+							alt="<?= $label === '' ? htmlspecialchars( $alt, ENT_QUOTES, 'UTF-8' ) : '' ?>"
+							loading="lazy"
 					>
 					<?php if ( $label !== '' ): ?>
-						<span class="dock-label"><?= htmlspecialchars( $label ) ?></span>
-						<span class="sr-only"><?= $opens ?></span>
+						<span class="dock-label"><?= htmlspecialchars( $label, ENT_QUOTES, 'UTF-8' ) ?></span>
+						<span class="sr-only"><?= htmlspecialchars( trim( $alt . ' ' . $label . ' ' . $opens ), ENT_QUOTES, 'UTF-8' ) ?></span>
 					<?php endif; ?>
 				</a>
 			</li>
