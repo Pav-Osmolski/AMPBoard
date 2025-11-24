@@ -17,7 +17,7 @@
  * - Redirect with 303 on success
  *
  * @author  Pawel Osmolski
- * @version 2.7
+ * @version 2.9
  */
 
 /** @var string $foldersJson */
@@ -86,6 +86,7 @@ $defs = [
 	'displayClock'          => FILTER_DEFAULT,
 	'displaySearch'         => FILTER_DEFAULT,
 	'displayTooltips'       => FILTER_DEFAULT,
+	'displayFolderBadges'   => FILTER_DEFAULT,
 	'displaySystemStats'    => FILTER_DEFAULT,
 	'displayApacheErrorLog' => FILTER_DEFAULT,
 	'displayPhpErrorLog'    => FILTER_DEFAULT,
@@ -132,6 +133,7 @@ $displayFooter         = normalise_bool( $in['displayFooter'] ?? null );
 $displayClock          = normalise_bool( $in['displayClock'] ?? null );
 $displaySearch         = normalise_bool( $in['displaySearch'] ?? null );
 $displayTooltips       = normalise_bool( $in['displayTooltips'] ?? null );
+$displayFolderBadges   = normalise_bool( $in['displayFolderBadges'] ?? null );
 $displaySystemStats    = normalise_bool( $in['displaySystemStats'] ?? null );
 $displayApacheErrorLog = normalise_bool( $in['displayApacheErrorLog'] ?? null );
 $displayPhpErrorLog    = normalise_bool( $in['displayPhpErrorLog'] ?? null );
@@ -242,6 +244,7 @@ $user_config .= "\$displayFooter = {$displayFooter};\n";
 $user_config .= "\$displayClock = {$displayClock};\n";
 $user_config .= "\$displaySearch = {$displaySearch};\n";
 $user_config .= "\$displayTooltips = {$displayTooltips};\n";
+$user_config .= "\$displayFolderBadges = {$displayFolderBadges};\n";
 $user_config .= "\$displaySystemStats = {$displaySystemStats};\n";
 $user_config .= "\$displayApacheErrorLog = {$displayApacheErrorLog};\n";
 $user_config .= "\$displayPhpErrorLog = {$displayPhpErrorLog};\n";

@@ -35,7 +35,7 @@
  * - Sensitive values are obfuscated for display via `obfuscate_value()`
  *
  * @author  Pawel Osmolski
- * @version 2.8
+ * @version 3.0
  */
 
 /**
@@ -46,6 +46,7 @@
  * @var bool $displayClock UI flag to show clock
  * @var bool $displaySearch UI flag to show search
  * @var bool $displayTooltips UI flag to show tooltips
+ * @var bool $displayFolderBadges UI flag to show Folder Badges
  * @var bool $displayApacheErrorLog UI flag to show Apache error log
  * @var bool $displayPhpErrorLog UI flag to show PHP error log
  * @var bool $displaySystemStats UI flag to show system stats
@@ -207,6 +208,10 @@ require_once __DIR__ . '/../config/config.php';
 
 				<label>Display Tooltips:
 					<input type="checkbox" name="displayTooltips" <?= $displayTooltips ? 'checked' : '' ?>>
+				</label>
+
+				<label>Display Folder Badges:
+					<input type="checkbox" name="displayFolderBadges" <?= $displayFolderBadges ? 'checked' : '' ?>>
 				</label>
 
 				<label>Display System Stats:

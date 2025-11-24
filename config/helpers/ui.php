@@ -3,7 +3,7 @@
  * UI helpers
  *
  * @author  Pawel Osmolski
- * @version 1.6
+ * @version 1.7
  */
 
 /**
@@ -294,7 +294,7 @@ function getDefaultTooltips(): array {
 		'user_interface'   => 'Toggle visual and interactive elements like themes, layouts, and visibility of dashboard components.',
 		'php_error'        => 'Configure how PHP displays or logs errors, including toggling error reporting levels and defining log output behavior for development or production use.',
 		'folders'          => 'Manage which folders appear in each column, their titles, filters, and link behaviour.',
-		'link_templates'   => 'Define how each folder\'s website links should appear by customising the HTML templates used per column.',
+		'link_templates'   => 'Define how each folder’s website links should appear by customising the HTML templates used per column.',
 		'dock'             => 'Manage the items displayed in the dock, including their order, icons, and link targets.',
 		'apache_control'   => 'Restart the Apache server.',
 		'vhosts_manager'   => 'Browse, check, and open virtual hosts with cert and DNS validation.',
@@ -631,6 +631,13 @@ function renderBadge(
 	?string $aria = null,
 	?bool $apachePathValid = null
 ): string {
+
+	// Global toggle: if badge display is disabled, render nothing.
+	$showBadges = $GLOBALS['displayFolderBadges'] ?? true;
+	if ( ! $showBadges ) {
+		return '';
+	}
+
 	$type = trim( $type ) !== '' ? strtolower( $type ) : 'default';
 
 	// Special case: vHost badge error
@@ -640,14 +647,12 @@ function renderBadge(
 		$title = 'Apache vHost not detected. Please confirm that your Apache path is valid.';
 		$aria  = 'Apache vHost not detected';
 
-		return '
-			<span class="' . htmlspecialchars( $class, ENT_QUOTES, 'UTF-8' ) . '"
-				 title="' . htmlspecialchars( $title, ENT_QUOTES, 'UTF-8' ) . '"
-				 aria-label="' . htmlspecialchars( $aria, ENT_QUOTES, 'UTF-8' ) . '"
-				 role="note">
-				' . htmlspecialchars( $label, ENT_QUOTES, 'UTF-8' )
-		       . '</span>
-		';
+		return '<span class="' . htmlspecialchars( $class, ENT_QUOTES, 'UTF-8' ) . '"'
+		       . ' title="' . htmlspecialchars( $title, ENT_QUOTES, 'UTF-8' ) . '"'
+		       . ' aria-label="' . htmlspecialchars( $aria, ENT_QUOTES, 'UTF-8' ) . '"'
+		       . ' role="note">'
+		       . htmlspecialchars( $label, ENT_QUOTES, 'UTF-8' )
+		       . '</span>';
 	}
 
 	// Standard badge
@@ -664,12 +669,10 @@ function renderBadge(
 		$aria = $label;
 	}
 
-	return '
-		<span class="' . htmlspecialchars( $class, ENT_QUOTES, 'UTF-8' ) . '"
-			 title="' . htmlspecialchars( $title, ENT_QUOTES, 'UTF-8' ) . '"
-			 aria-label="' . htmlspecialchars( $aria, ENT_QUOTES, 'UTF-8' ) . '"
-			 role="note">
-			' . htmlspecialchars( $label, ENT_QUOTES, 'UTF-8' )
-	       . '</span>
-	';
+	return '<span class="' . htmlspecialchars( $class, ENT_QUOTES, 'UTF-8' ) . '"'
+	       . ' title="' . htmlspecialchars( $title, ENT_QUOTES, 'UTF-8' ) . '"'
+	       . ' aria-label="' . htmlspecialchars( $aria, ENT_QUOTES, 'UTF-8' ) . '"'
+	       . ' role="note">'
+	       . htmlspecialchars( $label, ENT_QUOTES, 'UTF-8' )
+	       . '</span>';
 }
