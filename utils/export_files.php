@@ -15,7 +15,7 @@
  *
  * @package AMPBoard
  * @author  Pawel Osmolski
- * @version 1.2
+ * @version 1.3
  * @license GPL-3.0-or-later https://www.gnu.org/licenses/gpl-3.0.html
  */
 
@@ -358,7 +358,7 @@ if ( $action ) {
 		<?php echo renderVersionedAssetsWithBase(); ?>
 
 		<div class="heading">
-			<?= renderHeadingTooltip( 'export', $tooltips, $defaultTooltipMessage, 'h2', 'Export Files & Database', false, false, true ) ?>
+			<?= renderHeadingTooltip( 'export_files', $tooltips, $defaultTooltipMessage, 'h2', 'Export Files & Database', false, false, true ) ?>
 		</div>
 	<?php endif; ?>
 

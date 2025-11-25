@@ -131,6 +131,7 @@ These scripts are automatically used by `utils/generate_cert.php` to generate se
 
 | File                     | Description |
 |--------------------------|-------------|
+| `settings/`              | Contains all modular settings panels used to build the full configuration interface. |
 | `dock.php`               | Renders the customizable macOS-style dock. |
 | `folders.php`            | Dynamically scans and lists local project folders. |
 | `footer.php`             | Displays the page footer with navigation links and a humorous quote. |
