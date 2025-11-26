@@ -3,7 +3,7 @@
  * UI helpers
  *
  * @author  Pawel Osmolski
- * @version 1.9
+ * @version 2.1
  */
 
 /**
@@ -113,14 +113,7 @@ function buildBodyClasses(
  * @return string The generated space-separated CSS class string.
  */
 function buildPageViewClasses( mixed $settingsView ): string {
-	if ( empty( $settingsView ) ) {
-		$classes   = [];
-		$classes[] = 'page-view';
-
-		return implode( ' ', $classes );
-	}
-
-	return '';
+	return empty( $settingsView ) ? 'page-view' : '';
 }
 
 /**
@@ -248,7 +241,7 @@ function renderAccordionSectionStart( string $id, string $headingHtml, array $op
 
 	$disabled    = ! empty( $opts['disabled'] );
 	$expanded    = ! empty( $opts['expanded'] );
-	$caretPath   = isset( $opts['caretPath'] ) ? (string) $opts['caretPath'] : __DIR__ . '/../assets/images/caret-down.svg';
+	$caretPath   = isset( $opts['caretPath'] ) ? (string) $opts['caretPath'] : __DIR__ . '/../../assets/images/caret-down.svg';
 	$caretClass  = isset( $opts['caretClass'] ) ? (string) $opts['caretClass'] : '';
 	$containerCl = 'toggle-content-container' . ( $disabled ? ' disabled' : '' );
 
@@ -258,7 +251,7 @@ function renderAccordionSectionStart( string $id, string $headingHtml, array $op
 		$svg = file_get_contents( $caretPath );
 		// ensure decorative: strip any accidental focusability
 		$svg      = preg_replace( '/(<svg\b)([^>]*)(>)/i', '$1$2 focusable="false" aria-hidden="true"$3', $svg, 1 );
-		$caretSvg = '<span class="icon' . ( $caretClass ? ' ' . htmlspecialchars( $caretClass ) : '' ) . '" aria-hidden="true">' . $svg . '</span>';
+		$caretSvg = '<span class="icon' . ( $caretClass ? ' ' . htmlspecialchars( $caretClass, ENT_QUOTES, 'UTF-8' ) : '' ) . '" aria-hidden="true">' . $svg . '</span>';
 	}
 
 	$idEsc = htmlspecialchars( $id, ENT_QUOTES, 'UTF-8' );
@@ -282,28 +275,15 @@ function renderAccordionSectionEnd(): void {
 }
 
 /**
- * Get default tooltip definitions.
+ * Load tooltip definitions from tooltips.json.
+ *
+ * Missing keys will fall back to getDefaultTooltipMessage()
+ * via renderHeadingTooltip() → no need for PHP defaults.
  *
  * @return array<string, string>
  */
 function getDefaultTooltips(): array {
-	return [
-		'document_folders' => 'Displays your document folders as columns, based on the configured folder settings and link templates.',
-		'user_config'      => 'Adjust default settings, paths, and overrides for your Apache, MySQL and PHP environment.',
-		'amp_paths'        => 'Set your database credentials, Apache configuration, HTDocs directory, and PHP executable path.',
-		'user_interface'   => 'Toggle visual and interactive elements like themes, layouts, and visibility of dashboard components.',
-		'php_error'        => 'Configure how PHP displays or logs errors, including toggling error reporting levels and defining log output behavior for development or production use.',
-		'folders_config'   => 'Manage which folders appear in each column, their titles, filters, and link behaviour.',
-		'link_templates'   => 'Define how each folder’s website links should appear by customising the HTML templates used per column.',
-		'dock_config'      => 'Manage the items displayed in the dock, including their order, icons, and link targets.',
-		'apache_control'   => 'Restart the Apache server.',
-		'vhosts_manager'   => 'Browse, check, and open virtual hosts with cert and DNS validation.',
-		'export_files'     => 'Create an archive of site files or a database. Pick a subfolder, optionally include or export only wp-content/uploads, and apply your exclude list.',
-		'apache_inspector' => 'Inspect your Apache setup, including loaded modules, configuration files, environment details, ports in use, and the current runtime status.',
-		'mysql_inspector'  => 'Check your MySQL server status, active databases, connection settings, and environment details to diagnose connectivity or configuration issues.',
-		'phpinfo'          => 'View detailed information about your PHP environment, including extensions, configuration settings, and server variables.',
-		'settings_manager' => 'This will reset saved UI settings (theme, Column Order and Column Size etc.) stored in your browser’s local storage.'
-	];
+	return $GLOBALS['tooltipsConfig'] ?? [];
 }
 
 /**
@@ -326,8 +306,8 @@ function getDefaultTooltipMessage(): string {
  */
 function getTooltip( string $key, array $tooltips, string $default ): string {
 	return array_key_exists( $key, $tooltips )
-		? htmlspecialchars( $tooltips[ $key ] )
-		: htmlspecialchars( $default . " (Missing tooltip key: $key)" );
+		? $tooltips[ $key ]
+		: $default . " (Missing tooltip key: $key)";
 }
 
 /**
@@ -402,8 +382,7 @@ function injectSvgWithUniqueIds( string $svgPath, string $prefix ): string {
 	if ( $svg === false ) {
 		return '';
 	}
-	preg_match_all( '/id="([^"]+)"/', $svg, $matches );
-	if ( empty( $matches[1] ) ) {
+	if ( ! preg_match_all( '/id="([^"]+)"/', $svg, $matches ) ) {
 		return $svg;
 	}
 	foreach ( $matches[1] as $originalId ) {
@@ -539,7 +518,7 @@ function renderServerInfo( string $dbUser, string $dbPass ): void {
 /**
  * Render versioned CSS/JS tags plus a single BASE_URL bootstrap.
  *
- * - BASE_URL is computed by stripping a suffix from SCRIPT_NAME's directory (default "/partials").
+ * - BASE_URL is computed by stripping a suffix from SCRIPT_NAME's directory (default "/utils").
  * - Each asset gets a version query from filemtime(), falling back to time().
  * - Pass null for $cssRel or $jsRel to skip that asset.
  * - Optional $jsAttrs lets you add attributes like ["defer" => true, "crossorigin" => "anonymous"].
@@ -794,4 +773,117 @@ function renderButtonBlock( array $button = [], array $separators = [] ): void {
 			renderSeparatorLine();
 		}
 	}
+}
+
+/**
+ * Render a heading (and optional tooltip) by human-readable label or tooltip key.
+ *
+ * Usage:
+ *   <?= heading('Document Folders', 'h2', true) ?>
+ *   <?= heading('Export Files & Database', 'h3') ?>
+ *
+ * Resolution rules:
+ * - First, try to resolve $labelOrKey against headings.json by label.
+ * - If not found, try to match against headings.json entries where "key" === $labelOrKey.
+ * - Tooltip key comes from the "key" field if defined, otherwise is derived
+ *   from the final label (e.g. "Document Folders" → "document_folders").
+ * - "suffix" in headings.json can be:
+ *     - "PHP_VALIDITY_DEPENDENT"    (marks invalid PHP path)
+ *     - "APACHE_VALIDITY_DEPENDENT" (marks invalid Apache path)
+ *     - any other string to be appended as-is.
+ *
+ * @param string $labelOrKey Human-readable label (preferred) or tooltip key.
+ * @param string $tag Heading tag (e.g. "h2", "h3"). Defaults to "h3".
+ * @param bool $below If true, tooltip is rendered below (class "below").
+ * @param bool $tooltipOnly If true, only the tooltip icon is rendered.
+ * @param bool $headingOnly If true, only the heading is rendered (no tooltip).
+ *
+ * @return string
+ */
+function renderHeading(
+	string $labelOrKey,
+	string $tag = 'h3',
+	bool $below = false,
+	bool $tooltipOnly = false,
+	bool $headingOnly = false
+): string {
+	$headingsConfig = $GLOBALS['headingsConfig'] ?? [];
+	$tooltips       = getDefaultTooltips();
+	$default        = getDefaultTooltipMessage();
+
+	$label = $labelOrKey;
+	$cfg   = null;
+
+	// 1. Try direct match by label (preferred usage).
+	if ( isset( $headingsConfig[ $labelOrKey ] ) ) {
+		$cfg   = $headingsConfig[ $labelOrKey ];
+		$label = $labelOrKey;
+	} else {
+		// 2. Try match by "key" field (backwards-friendly).
+		foreach ( $headingsConfig as $configuredLabel => $entry ) {
+			if ( isset( $entry['key'] ) && (string) $entry['key'] === $labelOrKey ) {
+				$cfg   = $entry;
+				$label = $configuredLabel;
+				break;
+			}
+		}
+	}
+
+	// Tooltip key: prefer explicit "key" from config, otherwise derive from label.
+	if ( $cfg && isset( $cfg['key'] ) && $cfg['key'] !== '' ) {
+		$key = (string) $cfg['key'];
+	} else {
+		$key = strtolower( preg_replace( '/[^a-z0-9]+/i', '_', $label ) );
+	}
+
+	// Allow headings.json to provide defaults for tag / below / modes, but let
+	// function arguments override them.
+	if ( $cfg ) {
+		if ( isset( $cfg['tag'] ) && $tag === 'h3' ) {
+			$tag = (string) $cfg['tag'];
+		}
+		if ( isset( $cfg['below'] ) && $below === false ) {
+			$below = (bool) $cfg['below'];
+		}
+		if ( isset( $cfg['tooltipOnly'] ) && $tooltipOnly === false ) {
+			$tooltipOnly = (bool) $cfg['tooltipOnly'];
+		}
+		if ( isset( $cfg['headingOnly'] ) && $headingOnly === false ) {
+			$headingOnly = (bool) $cfg['headingOnly'];
+		}
+	}
+
+	// Compute suffix, if any.
+	$suffix = '';
+	if ( $cfg && isset( $cfg['suffix'] ) ) {
+		$phpPathValid    = $GLOBALS['phpPathValid'] ?? true;
+		$apachePathValid = $GLOBALS['apachePathValid'] ?? true;
+		$type            = (string) $cfg['suffix'];
+
+		if ( $type === 'PHP_VALIDITY_DEPENDENT' ) {
+			$suffix = $phpPathValid ? '' : ' &nbsp;❕';
+		} elseif ( $type === 'APACHE_VALIDITY_DEPENDENT' ) {
+			$suffix = $apachePathValid ? '' : ' &nbsp;❕';
+		} else {
+			// Literal suffix string.
+			$suffix = $type;
+		}
+	}
+
+	$html = renderHeadingTooltip(
+		$key,
+		$tooltips,
+		$default,
+		$tag,
+		$label,
+		$tooltipOnly,
+		$headingOnly,
+		$below
+	);
+
+	if ( $suffix !== '' ) {
+		$html .= $suffix;
+	}
+
+	return $html;
 }

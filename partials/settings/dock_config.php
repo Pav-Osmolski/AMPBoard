@@ -1,14 +1,15 @@
 <?php
 /**
- * @var string $dockConfigHeading Dock Config Heading
+ * Dock Configuration
+ * Included as part of `partials/settings.php`
+ *
  * @var array $tooltips Tooltip copy map
  * @var string $defaultTooltipMessage Default tooltip fallback message
  */
 
-// Dock Configuration
 renderAccordionSectionStart(
 	'dock-config',
-	$dockConfigHeading,
+	renderHeading( 'Dock Configuration' ),
 	[
 		'expanded'  => false,
 		'caretPath' => __DIR__ . '/../../assets/images/caret-down.svg',

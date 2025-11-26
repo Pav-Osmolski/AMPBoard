@@ -15,17 +15,17 @@
  * Output:
  * - A horizontal dock bar with anchor elements linking to external tools or resources
  *
+ * @var array $dockConfig
+ *
  * @author  Pawel Osmolski
- * @version 1.3
+ * @version 1.4
  */
 
 require_once __DIR__ . '/../config/config.php';
-
-$dockItems = read_json_array_safely( __DIR__ . '/../config/dock.json' );
 ?>
 <nav class="dock" aria-label="Quick launch">
 	<ul class="dock-list">
-		<?php foreach ( $dockItems as $item ):
+		<?php foreach ( $dockConfig as $item ):
 
 			$label = isset( $item['label'] ) ? trim( $item['label'] ) : '';
 			$alt = isset( $item['alt'] ) ? trim( $item['alt'] ) : '';

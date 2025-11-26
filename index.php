@@ -2,18 +2,18 @@
 /**
  * AMPBoard — Modern Localhost and Remote Dashboard for Apache, MySQL & PHP
  *
+ * @var string $user
+ * @var string $theme
+ * @var bool $displayHeader
+ * @var bool $displayFooter
+ * @var bool $useAjaxForStats
+ * @var bool $useAjaxForErrorLog
+ * @var string $bodyClasses
+ *
  * @package AMPBoard
  * @author  Pawel Osmolski
  * @license GPL-3.0-or-later https://www.gnu.org/licenses/gpl-3.0.html
  */
-
-/** @var string $user */
-/** @var string $theme */
-/** @var bool $displayHeader */
-/** @var bool $displayFooter */
-/** @var bool $useAjaxForStats */
-/** @var bool $useAjaxForErrorLog */
-/** @var string $bodyClasses */
 
 require_once __DIR__ . '/config/bootstrap.php';
 ?>

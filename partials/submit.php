@@ -16,13 +16,13 @@
  * - Invalidate OPcache where applicable
  * - Redirect with 303 on success
  *
+ * @var string $foldersJson
+ * @var string $linkTplJson
+ * @var string $dockJson
+ *
  * @author  Pawel Osmolski
  * @version 2.9
  */
-
-/** @var string $foldersJson */
-/** @var string $linkTplJson */
-/** @var string $dockJson */
 
 require_once __DIR__ . '/../config/config.php';
 

@@ -10,18 +10,18 @@
  * - Folder column layout and filtering
  * - Link templates for folder rendering
  * - Dock item management (order, labels, links)
- * - Apache control (restart support if `toggle_apache.php` is present)
  * - vHosts manager integration
+ * - Export files and database
+ * - Apache control (restart support if `toggle_apache.php` is present)
  * - Resetting saved UI settings from localStorage
  *
  * Accessibility and UX Enhancements:
  * - Tabbable, keyboard-operable accordion triggers
  * - ARIA-complete wiring via helper functions
- * - Tooltips via `renderHeadingTooltip()` using keys from `$tooltips` with fallback support
  * - Dynamic theme metadata injected into JS context
  *
  * Dependencies:
- * - `config.php` for helpers, theme detection, display flags, path constants, tooltip data, access control
+ * - `config.php` for headings, helpers, theme detection, display flags, path constants, tooltip data, access control
  * - `utils/vhosts_manager.php` for virtual host listing
  * - `utils/export_files.php` for export features
  *
@@ -34,29 +34,16 @@
  * - CSRF token output with `csrf_get_token()`
  * - Sensitive values are obfuscated for display via `obfuscate_value()`
  *
- * @author  Pawel Osmolski
- * @version 3.2
- */
-
-/**
  * @var array $themeTypes Theme type metadata for client-side use
  * @var string $currentTheme Active theme key
  * @var array $tooltips Tooltip copy map
  * @var string $defaultTooltipMessage Default tooltip fallback message
+ *
+ * @author  Pawel Osmolski
+ * @version 3.3
  */
 
 require_once __DIR__ . '/../config/config.php';
-
-$ampPathsHeading        = renderHeadingTooltip( 'amp_paths', $tooltips, $defaultTooltipMessage, 'h3', 'Database & Paths' );
-$userInterfaceHeading   = renderHeadingTooltip( 'user_interface', $tooltips, $defaultTooltipMessage, 'h3', 'User Interface' );
-$phpErrorHeading        = renderHeadingTooltip( 'php_error', $tooltips, $defaultTooltipMessage, 'h3', 'PHP Error Handling & Logging' ) . ( $phpPathValid ? '' : ' &nbsp;❕' );
-$foldersConfigHeading   = renderHeadingTooltip( 'folders_config', $tooltips, $defaultTooltipMessage, 'h3', 'Folders Configuration' );
-$linkTemplatesHeading   = renderHeadingTooltip( 'link_templates', $tooltips, $defaultTooltipMessage, 'h3', 'Folder Link Templates' );
-$dockConfigHeading      = renderHeadingTooltip( 'dock_config', $tooltips, $defaultTooltipMessage, 'h3', 'Dock Configuration' );
-$vhostsManagerHeading   = renderHeadingTooltip( 'vhosts_manager', $tooltips, $defaultTooltipMessage, 'h3', 'Virtual Hosts Manager' ) . ( $apachePathValid ? '' : ' &nbsp;❕' );
-$exportFilesHeading     = renderHeadingTooltip( 'export_files', $tooltips, $defaultTooltipMessage, 'h3', 'Export Files & Database' ) . ( $phpPathValid ? '' : ' &nbsp;❕' );
-$apacheControlHeading   = renderHeadingTooltip( 'apache_control', $tooltips, $defaultTooltipMessage, 'h3', 'Apache Control' ) . ( $apachePathValid ? '' : ' &nbsp;❕' );
-$settingsManagerHeading = renderHeadingTooltip( 'settings_manager', $tooltips, $defaultTooltipMessage, 'h3', 'Settings Manager' );
 ?>
 
 <script>
@@ -75,7 +62,7 @@ $settingsManagerHeading = renderHeadingTooltip( 'settings_manager', $tooltips, $
 
 <div id="settings-view">
 	<div class="heading">
-		<?= renderHeadingTooltip( 'user_config', $tooltips, $defaultTooltipMessage, 'h2', 'User Configuration', false, false, true ) ?>
+		<?= renderHeading( 'User Configuration', 'h2', true ) ?>
 	</div>
 
 	<?= renderWidthControls( 'width_settings', 'Accordion', 'accordion-controls' ); ?>

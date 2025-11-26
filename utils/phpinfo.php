@@ -9,12 +9,12 @@
  * - Strips out `<style>` blocks and inline `style` attributes
  * - Leaves only raw HTML structure and content
  *
+ * @var string[] $tooltips
+ * @var string $defaultTooltipMessage
+ *
  * @author  Pawel Osmolski
- * @version 1.1
+ * @version 1.2
  */
-
-/** @var string[] $tooltips */
-/** @var string $defaultTooltipMessage */
 
 require_once __DIR__ . '/../config/config.php';
 
@@ -22,10 +22,10 @@ $pageClasses = buildPageViewClasses( $settingsView ?? null );
 ?>
 <div id="phpinfo-view" class="<?= $pageClasses ?>">
 	<?php if ( empty( $settingsView ) ): ?>
-		<?php echo renderVersionedAssetsWithBase(); ?>
+		<?= renderVersionedAssetsWithBase(); ?>
 	<?php endif; ?>
 	<div class="heading">
-		<?= renderHeadingTooltip( 'phpinfo', $tooltips, $defaultTooltipMessage, 'h2', 'PHP Info', false, false, true ) ?>
+		<?= renderHeading( 'PHP Info', 'h2', true ) ?>
 	</div>
 	<div class="phpinfo">
 		<?php

@@ -1,14 +1,15 @@
 <?php
 /**
- * @var string $linkTemplatesHeading Link Templates Heading
+ * Link Templates Configuration
+ * Included as part of `partials/settings.php`
+ *
  * @var array $tooltips Tooltip copy map
  * @var string $defaultTooltipMessage Default tooltip fallback message
  */
 
-// Link Templates
 renderAccordionSectionStart(
 	'link-templates-config',
-	$linkTemplatesHeading,
+	renderHeading( 'Link Templates' ),
 	[
 		'expanded'  => false,
 		'caretPath' => __DIR__ . '/../../assets/images/caret-down.svg',

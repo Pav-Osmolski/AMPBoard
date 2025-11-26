@@ -108,7 +108,9 @@ A quick overview of the core files and folders in this project, so you’re neve
 | `debug.php`              | Logs raw shell commands (with optional context) to `logs/localhost-page.log`. |
 | `dock.json`              | Stores dock layout and links in JSON format. |
 | `folders.json`           | Defines folder configurations, incl. paths, filters, link templates, and display rules. |
+| `headings.json`          | Defines heading configuration for settings and panels. |
 | `link_templates.json`    | Defines reusable HTML link templates for folder display, referenced by folders.json. |
+| `tooltips.json`          | Defines all tooltip descriptions for settings, panels, and interface elements. |
 
 ---
 

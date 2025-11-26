@@ -1,6 +1,8 @@
 <?php
 /**
- * @var string $userInterfaceHeading User Interface Heading
+ * User Interface
+ * Included as part of `partials/settings.php`
+ *
  * @var array $tooltips Tooltip copy map
  * @var string $defaultTooltipMessage Default tooltip fallback message
  * @var array $themeOptions Theme options for the select box
@@ -20,10 +22,9 @@
  * @var bool $mysqlFastMode Fast mode flag for MySQL inspector
  */
 
-// User Interface
 renderAccordionSectionStart(
 	'user-interface',
-	$userInterfaceHeading,
+	renderHeading( 'User Interface' ),
 	[
 		'expanded'  => false,
 		'caretPath' => __DIR__ . '/../../assets/images/caret-down.svg',

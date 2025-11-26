@@ -1,16 +1,17 @@
 <?php
 /**
- * @var string $apacheControlHeading Apache Control Heading
+ * Apache Control
+ * Included as part of `partials/settings.php`
+ *
  * @var array $tooltips Tooltip copy map
  * @var string $defaultTooltipMessage Default tooltip fallback message
  * @var bool $apachePathValid Validation state for Apache path
  * @var bool $apacheToggle True if Apache restart endpoint is available
  */
 
-// Apache Control
 renderAccordionSectionStart(
 	'apache-control',
-	$apacheControlHeading,
+	renderHeading( 'Apache Control' ),
 	[
 		'disabled'  => ! $apachePathValid,
 		'expanded'  => false,

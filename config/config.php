@@ -24,7 +24,7 @@
  * - Flags: `$apachePathValid`, `$htdocsPathValid`, `$phpPathValid`, `$apacheToggle`
  * - DB: `$dbUser`, `$dbPass`
  * - UI: `$theme`, `$currentTheme`, `$bodyClasses`, `$tooltips`, `$defaultTooltipMessage`
- * - Toggles: `$displayHeader`, `$displayFooter`, `$displayClock`, `$displaySearch`, `$displayTooltips`, `$displaySystemStats`, `$displayApacheErrorLog`, `$displayPhpErrorLog`, `$useAjaxForStats`, `$useAjaxForErrorLog`
+ * - Toggles: `$displayHeader`, `$displayFooter`, `$displayClock`, `$displaySearch`, `$displayTooltips`, `displayFolderBadges`, `$displaySystemStats`, `$displayApacheErrorLog`, `$displayPhpErrorLog`, `$useAjaxForStats`, `$useAjaxForErrorLog`
  * - Themes: `$themeOptions`, `$themeTypes`
  * - Misc: `$user`, `$currentPhpErrorLevel`
  *
@@ -32,7 +32,7 @@
  * - `helpers.php` for access control and shared logic like `resolveCurrentUser()`, `buildBodyClasses()`, `loadThemes()`, etc.
  *
  * @author  Pawel Osmolski
- * @version 2.5
+ * @version 2.6
  */
 
 require_once __DIR__ . '/helpers.php';
@@ -41,6 +41,13 @@ require_once __DIR__ . '/helpers.php';
 if ( file_exists( __DIR__ . '/user_config.php' ) ) {
 	require_once __DIR__ . '/user_config.php';
 }
+
+// Initialise Configs
+$headingsConfig      = read_json_array_safely( __DIR__ . '/headings.json' );
+$tooltipsConfig      = read_json_array_safely( __DIR__ . '/tooltips.json' );
+$foldersConfig       = read_json_array_safely( __DIR__ . '/folders.json' );
+$linkTemplatesConfig = read_json_array_safely( __DIR__ . '/link_templates.json' );
+$dockConfig          = read_json_array_safely( __DIR__ . '/dock.json' );
 
 // Enable Demo Mode (disables saving settings and obfuscates credentials)
 const DEMO_MODE = false;
@@ -92,6 +99,7 @@ $defaults = [
 	'displayClock'          => true,
 	'displaySearch'         => true,
 	'displayTooltips'       => true,
+	'displayFolderBadges'   => true,
 	'displaySystemStats'    => true,
 	'displayApacheErrorLog' => true,
 	'displayPhpErrorLog'    => true,

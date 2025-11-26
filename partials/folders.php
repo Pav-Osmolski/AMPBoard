@@ -18,22 +18,20 @@
  * - HTML markup with columns and folder links
  * - Error or warning messages for invalid or empty directories
  *
+ * @var string[] $tooltips
+ * @var string $defaultTooltipMessage
+ * @var bool $apachePathValid
+ * @var array $linkTemplatesConfig
+ *
  * @author  Pawel Osmolski
- * @version 1.6
+ * @version 1.7
  */
-
-/** @var string[] $tooltips */
-/** @var string $defaultTooltipMessage */
 
 require_once __DIR__ . '/../config/config.php';
 
-// Load config via safe JSON reader
-$foldersConfigData = read_json_array_safely( __DIR__ . '/../config/folders.json' );
-$linkTemplates     = read_json_array_safely( __DIR__ . '/../config/link_templates.json' );
-
 // Index templates by name for fast lookup
 $templatesByName = [];
-foreach ( $linkTemplates as $tpl ) {
+foreach ( $linkTemplatesConfig as $tpl ) {
 	if ( is_array( $tpl ) && isset( $tpl['name'] ) ) {
 		$templatesByName[ (string) $tpl['name'] ] = $tpl;
 	}
@@ -50,17 +48,17 @@ $globalErrors            = [];
 $hasVhostFilteredColumns = false;
 ?>
 
-<?php if ( empty( $foldersConfigData ) || empty( $templatesByName ) ) : ?>
+<?php if ( empty( $foldersConfig ) || empty( $templatesByName ) ) : ?>
 	<div id="folders-view" class="visible" aria-labelledby="folders-view-heading">
 		<div class="heading">
-			<?= renderHeadingTooltip( 'document_folders', $tooltips, $defaultTooltipMessage, 'h2', 'Document Folders', false, false, true ) ?>
+			<?= renderHeading( 'Document Folders', 'h2', true ) ?>
 		</div>
-		<div class="columns max-md">
+		<div class="columns width-resizable max-md">
 			<div class="column">
-				<?php if ( empty( $foldersConfigData ) && empty( $templatesByName ) ) : ?>
+				<?php if ( empty( $foldersConfig ) && empty( $templatesByName ) ) : ?>
 					<p>No folders or link templates configured yet. Pop over to <a href="?view=settings">Settings</a> to
 						add your first folder column and link template.</p>
-				<?php elseif ( empty( $foldersConfigData ) ) : ?>
+				<?php elseif ( empty( $foldersConfig ) ) : ?>
 					<p>No folders configured yet. Pop over to <a href="?view=settings">Settings</a> to add your first
 						folder column.</p>
 				<?php elseif ( empty( $templatesByName ) ) : ?>
@@ -74,10 +72,10 @@ $hasVhostFilteredColumns = false;
 	<div id="folders-view" class="visible">
 		<?= renderWidthControls( 'width_columns', 'Column', 'column-controls' ); ?>
 		<div class="heading">
-			<?= renderHeadingTooltip( 'document_folders', $tooltips, $defaultTooltipMessage, 'h2', 'Document Folders', false, false, true ) ?>
+			<?= renderHeading( 'Document Folders', 'h2', true ) ?>
 		</div>
 		<div class="columns width-resizable" role="list" data-width-key="width_columns">
-			<?php foreach ( $foldersConfigData as $column ): ?>
+			<?php foreach ( $foldersConfig as $column ): ?>
 				<?php
 				if ( ! is_array( $column ) ) {
 					$globalErrors[] = 'Column configuration must be an object.';

@@ -13,14 +13,14 @@
  *
  * Optional: ?fast=1 to skip size aggregation
  *
+ * @var string $dbUser
+ * @var string $dbPass
+ *
  * @package AMPBoard
  * @author  Pawel Osmolski
- * @version 1.2
+ * @version 1.3
  * @license GPL-3.0-or-later https://www.gnu.org/licenses/gpl-3.0.html
  */
-
-/** @var string $dbUser */
-/** @var string $dbPass */
 
 require_once __DIR__ . '/../config/config.php';
 
@@ -40,7 +40,7 @@ $start = microtime( true );
 
 echo '
 <div class="heading">
-    ' . renderHeadingTooltip( 'mysql_inspector', $tooltips, $defaultTooltipMessage, 'h2', 'MySQL Inspector', false, false, true ) . '
+    ' . renderHeading( 'MySQL Inspector', 'h2', true ) . '
 </div>
 <pre>';
 

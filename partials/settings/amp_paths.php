@@ -1,6 +1,8 @@
 <?php
 /**
- * @var string $ampPathsHeading AMP Paths heading
+ * Apache, MySQL and PHP Paths
+ * Included as part of `partials/settings.php`
+ *
  * @var array $tooltips Tooltip copy map
  * @var string $defaultTooltipMessage Default tooltip fallback message
  * @var bool $apachePathValid Validation state for Apache path
@@ -13,10 +15,9 @@
  * @var string $dbPass Database password for display (obfuscated on output)
  */
 
-// Apache, MySQL and PHP Paths
 renderAccordionSectionStart(
 	'amp-paths',
-	$ampPathsHeading,
+	renderHeading( 'Database & Paths' ),
 	[
 		'expanded'  => false,
 		'caretPath' => __DIR__ . '/../../assets/images/caret-down.svg',

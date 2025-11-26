@@ -1,14 +1,15 @@
 <?php
 /**
- * @var string $foldersConfigHeading Folders Config Heading
+ * Folders Configuration
+ * Included as part of `partials/settings.php`
+ *
  * @var array $tooltips Tooltip copy map
  * @var string $defaultTooltipMessage Default tooltip fallback message
  */
 
-// Folders Configuration
 renderAccordionSectionStart(
 	'folders-config',
-	$foldersConfigHeading,
+	renderHeading( 'Folders Configuration' ),
 	[
 		'expanded'  => false,
 		'caretPath' => __DIR__ . '/../../assets/images/caret-down.svg',

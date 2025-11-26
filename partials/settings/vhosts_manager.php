@@ -1,15 +1,16 @@
 <?php
 /**
- * @var string $vhostsManagerHeading Vhosts Manager Heading
+ * Virtual Hosts Manager
+ * Included as part of `partials/settings.php`
+ *
  * @var array $tooltips Tooltip copy map
  * @var string $defaultTooltipMessage Default tooltip fallback message
  * @var bool $apachePathValid Validation state for Apache path
  */
 
-// vHosts Manager
 renderAccordionSectionStart(
 	'vhosts-manager',
-	$vhostsManagerHeading,
+	renderHeading( 'Virtual Hosts Manager' ),
 	[
 		'disabled'  => ! $apachePathValid,
 		'expanded'  => false,

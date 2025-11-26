@@ -1,15 +1,16 @@
 <?php
 /**
- * @var string $exportFilesHeading Export Files Heading
+ * Export Files & Database
+ * Included as part of `partials/settings.php`
+ *
  * @var array $tooltips Tooltip copy map
  * @var string $defaultTooltipMessage Default tooltip fallback message
  * @var bool $phpPathValid Validation state for PHP path
  */
 
-// Export Files
 renderAccordionSectionStart(
 	'export',
-	$exportFilesHeading,
+	renderHeading( 'Export Files & Database' ),
 	[
 		'disabled'  => ! $phpPathValid,
 		'expanded'  => false,

@@ -1,14 +1,15 @@
 <?php
 /**
- * @var string $settingsManagerHeading Settings Manager Heading
+ * Settings Manager
+ * Included as part of `partials/settings.php`
+ *
  * @var array $tooltips Tooltip copy map
  * @var string $defaultTooltipMessage Default tooltip fallback message
  */
 
-// Settings Manager
 renderAccordionSectionStart(
 	'settings-manager',
-	$settingsManagerHeading,
+	renderHeading( 'Settings Manager' ),
 	[
 		'expanded'  => false,
 		'caretPath' => __DIR__ . '/../../assets/images/caret-down.svg',

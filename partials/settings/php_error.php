@@ -1,16 +1,17 @@
 <?php
 /**
- * @var string $phpErrorHeading PHP Error Heading
+ * PHP Error Handling & Logging
+ * Included as part of `partials/settings.php`
+ *
  * @var array $tooltips Tooltip copy map
  * @var string $defaultTooltipMessage Default tooltip fallback message
  * @var bool $phpPathValid Validation state for PHP path
  * @var string $currentPhpErrorLevel Current PHP error reporting level constant value
  */
 
-// PHP Error Handling & Logging (disabled when PHP path invalid)
 renderAccordionSectionStart(
 	'php-error',
-	$phpErrorHeading,
+	renderHeading( 'PHP Error Handling & Logging' ),
 	[
 		'disabled'  => ! $phpPathValid,
 		'expanded'  => false,

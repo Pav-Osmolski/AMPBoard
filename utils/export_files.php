@@ -13,17 +13,17 @@
  *   POST action=dumpdb → dump a database to SQL and compress (ZIP preferred, tar.gz fallback)
  *   ?action=token   → return a fresh CSRF token (for rotating-tokens setups)
  *
+ * @var string[] $tooltips
+ * @var string $defaultTooltipMessage
+ * @var string $dbUser
+ * @var string $dbPass
+ * @var bool $phpPathValid
+ *
  * @package AMPBoard
  * @author  Pawel Osmolski
- * @version 1.3
+ * @version 1.4
  * @license GPL-3.0-or-later https://www.gnu.org/licenses/gpl-3.0.html
  */
-
-/** @var string[] $tooltips */
-/** @var string $defaultTooltipMessage */
-/** @var string $dbUser */
-/** @var string $dbPass */
-/** @var bool $phpPathValid */
 
 require_once __DIR__ . '/../config/config.php';
 
@@ -355,10 +355,10 @@ if ( $action ) {
 
 <div id="export" class="<?= $pageClasses ?>">
 	<?php if ( empty( $settingsView ) ): ?>
-		<?php echo renderVersionedAssetsWithBase(); ?>
+		<?= renderVersionedAssetsWithBase(); ?>
 
 		<div class="heading">
-			<?= renderHeadingTooltip( 'export_files', $tooltips, $defaultTooltipMessage, 'h2', 'Export Files & Database', false, false, true ) ?>
+			<?= renderHeading( 'Export Files & Database', 'h2', true ) ?>
 		</div>
 	<?php endif; ?>
 

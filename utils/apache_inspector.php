@@ -16,7 +16,7 @@
  *
  * @package AMPBoard
  * @author  Pawel Osmolski
- * @version 1.2
+ * @version 1.3
  * @license GPL-3.0-or-later https://www.gnu.org/licenses/gpl-3.0.html
  */
 
@@ -40,7 +40,7 @@ $arch = ( PHP_INT_SIZE === 8 ) ? '64-bit' : '32-bit';
 
 echo '
 <div class="heading">
-    ' . renderHeadingTooltip( 'apache_inspector', $tooltips, $defaultTooltipMessage, 'h2', 'Apache Inspector', false, false, true ) . '
+    ' . renderHeading( 'Apache Inspector', 'h2', true ) . '
 </div>
 <pre>';
 echo "🖥️ Operating System: $os ($arch)\n";

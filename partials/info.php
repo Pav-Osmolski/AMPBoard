@@ -1,8 +1,28 @@
 <?php
-/** @var bool $displayApacheErrorLog */
-/** @var bool $displayPhpErrorLog */
-/** @var bool $displaySystemStats */
-/** @var bool $useAjaxForStats */
+/**
+ * Renders the Apache/PHP error log panels and optional system statistics section.
+ *
+ * Overview:
+ * - Builds a feature map describing each section (title, IDs, associated PHP partials).
+ * - Apache and PHP log panels:
+ *   - Render a toggleable section with aria attributes.
+ *   - Include a <pre><code> container initialised with a "Loading..." placeholder.
+ * - System stats panel:
+ *   - If AJAX is enabled, prints placeholder stats fields (CPU, RAM, Disk) for JS to update.
+ *   - Otherwise includes the system_stats.php partial.
+ *
+ * Accessibility:
+ * - Regions use role="region" and aria-labelledby.
+ * - Live content uses aria-live="polite" for nonintrusive updates.
+ *
+ * @var bool $displayApacheErrorLog
+ * @var bool $displayPhpErrorLog
+ * @var bool $displaySystemStats
+ * @var bool $useAjaxForStats
+ *
+ * @author  Pawel Osmolski
+ * @version 1.2
+ */
 
 require_once __DIR__ . '/../config/config.php';
 

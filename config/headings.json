@@ -1,0 +1,52 @@
+{
+  "Database & Paths": {
+    "key": "amp_paths",
+    "suffix": "PHP_VALIDITY_DEPENDENT"
+  },
+  "User Interface": {
+    "key": "user_interface"
+  },
+  "PHP Error Handling & Logging": {
+    "key": "php_error",
+    "suffix": "PHP_VALIDITY_DEPENDENT"
+  },
+  "Folders Configuration": {
+    "key": "folders_config"
+  },
+  "Folder Link Templates": {
+    "key": "link_templates"
+  },
+  "Dock Configuration": {
+    "key": "dock_config"
+  },
+  "Virtual Hosts Manager": {
+    "key": "vhosts_manager",
+    "suffix": "APACHE_VALIDITY_DEPENDENT"
+  },
+  "Export Files & Database": {
+    "key": "export_files",
+    "suffix": "PHP_VALIDITY_DEPENDENT"
+  },
+  "Apache Control": {
+    "key": "apache_control",
+    "suffix": "APACHE_VALIDITY_DEPENDENT"
+  },
+  "Settings Manager": {
+    "key": "settings_manager"
+  },
+  "Document Folders": {
+    "key": "document_folders"
+  },
+  "User Configuration": {
+    "key": "user_config"
+  },
+  "Apache Inspector": {
+    "key": "apache_inspector"
+  },
+  "MySQL Inspector": {
+    "key": "mysql_inspector"
+  },
+  "PHP Info": {
+    "key": "phpinfo"
+  }
+}
