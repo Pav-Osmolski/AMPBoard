@@ -1,7 +1,9 @@
 .idea
 node_modules
 package-lock.json
-.key
-user_config.php
 logs
+.key
 dist/exports
+config/local.php
+config/profiles/*
+!config/profiles/default/

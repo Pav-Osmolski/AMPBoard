@@ -3,7 +3,7 @@
  * UI helpers
  *
  * @author  Pawel Osmolski
- * @version 2.1
+ * @version 2.2
  */
 
 /**
@@ -779,8 +779,8 @@ function renderButtonBlock( array $button = [], array $separators = [] ): void {
  * Render a heading (and optional tooltip) by human-readable label or tooltip key.
  *
  * Usage:
- *   <?= heading('Document Folders', 'h2', true) ?>
- *   <?= heading('Export Files & Database', 'h3') ?>
+ *   <?= renderHeading('Document Folders', 'h2', true) ?>
+ *   <?= renderHeading('Export Files & Database', 'h3') ?>
  *
  * Resolution rules:
  * - First, try to resolve $labelOrKey against headings.json by label.

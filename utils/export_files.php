@@ -62,7 +62,7 @@ if ( $action ) {
 		// List groups/subfolders from folders.json applying urlRules/excludeList
 		if ( $action === 'scan' ) {
 			$groups = [];
-			$cfg    = export_load_folders_json( __DIR__ . '/../config/folders.json' );
+			$cfg    = export_load_folders_json( $activeConfigDir . '/folders.json' );
 
 			foreach ( $cfg as $i => $entry ) {
 				if ( empty( $entry['dir'] ) || empty( $entry['title'] ) ) {
@@ -144,7 +144,7 @@ if ( $action ) {
 				exit;
 			}
 
-			$cfg = export_load_folders_json( __DIR__ . '/../config/folders.json' );
+			$cfg = export_load_folders_json( $activeConfigDir . '/folders.json' );
 			if ( ! isset( $cfg[ $groupIndex ] ) ) {
 				echo json_encode( [ 'ok' => false, 'error' => 'Group not found.' ] );
 				exit;

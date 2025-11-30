@@ -40,7 +40,7 @@
  * @var string $defaultTooltipMessage Default tooltip fallback message
  *
  * @author  Pawel Osmolski
- * @version 3.3
+ * @version 3.4
  */
 
 require_once __DIR__ . '/../config/config.php';
@@ -78,26 +78,40 @@ require_once __DIR__ . '/../config/config.php';
 		<form method="post" action="" accept-charset="UTF-8" autocomplete="off">
 			<input type="hidden" name="csrf" value="<?= htmlspecialchars( csrf_get_token() ) ?>">
 
-			<?php require_once __DIR__ . '/settings/amp_paths.php';
-			renderSeparatorLine(); ?>
-			<?php require_once __DIR__ . '/settings/user_interface.php';
-			renderSeparatorLine(); ?>
-			<?php require_once __DIR__ . '/settings/php_error.php';
-			renderSeparatorLine(); ?>
-			<?php require_once __DIR__ . '/settings/folders_config.php';
-			renderSeparatorLine(); ?>
-			<?php require_once __DIR__ . '/settings/link_templates.php';
-			renderSeparatorLine(); ?>
-			<?php require_once __DIR__ . '/settings/dock_config.php';
-			renderSeparatorLine(); ?>
+			<?php
+			$settingsFormPanels = [
+				'amp_paths',
+				'user_interface',
+				'php_error',
+				'folders_config',
+				'link_templates',
+				'dock_config'
+			];
+
+			foreach ( $settingsFormPanels as $formPanel ) {
+				require_once __DIR__ . "/settings/{$formPanel}.php";
+				renderSeparatorLine();
+			}
+			?>
 		</form>
 
-		<?php require_once __DIR__ . '/settings/vhosts_manager.php';
-		renderSeparatorLine(); ?>
-		<?php require_once __DIR__ . '/settings/export_files.php';
-		renderSeparatorLine(); ?>
-		<?php require_once __DIR__ . '/settings/apache_control.php';
-		renderSeparatorLine(); ?>
-		<?php require_once __DIR__ . '/settings/settings_manager.php'; ?>
+			<?php
+			$settingsPanels = [
+				'vhosts_manager',
+				'export_files',
+				'apache_control',
+				'settings_manager'
+			];
+
+			$lastIndex = count( $settingsPanels ) - 1;
+
+			foreach ( $settingsPanels as $index => $panel ) {
+				require_once __DIR__ . "/settings/{$panel}.php";
+
+				if ( $index !== $lastIndex ) {
+					renderSeparatorLine();
+				}
+			}
+			?>
 	</div>
 </div>

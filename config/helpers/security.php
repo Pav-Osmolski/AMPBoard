@@ -20,7 +20,7 @@
  * - Gracefully handles missing or malformed encrypted values
  *
  * @author  Pawel Osmolski
- * @version 1.3
+ * @version 1.4
  */
 
 define( 'CRYPTO_KEY_FILE', __DIR__ . '/../../.key' );
@@ -35,7 +35,7 @@ define( 'CRYPTO_KEY_FILE', __DIR__ . '/../../.key' );
  *
  * @return string Raw binary string of length $length.
  */
-function _secure_random_bytes( int $length ) {
+function _secure_random_bytes( int $length ): string {
 	if ( function_exists( 'random_bytes' ) ) {
 		return random_bytes( $length );
 	}
@@ -162,7 +162,7 @@ function getEncryptionKey(): string {
  *
  * @return string Base64-encoded string containing IV and ciphertext.
  */
-function encryptValue( $plaintext ) {
+function encryptValue( string $plaintext ): string {
 	$key = getEncryptionKey();
 	$iv  = _secure_random_bytes( 16 );
 
@@ -192,7 +192,7 @@ function encryptValue( $plaintext ) {
  *
  * @return string Decrypted plaintext, or empty string on failure.
  */
-function decryptValue( $encoded ) {
+function decryptValue( string $encoded ): string {
 	$kc   = _get_key_candidates();
 	$data = base64_decode( $encoded, true );
 	if ( $data === false || strlen( $data ) < 17 ) {
@@ -234,7 +234,7 @@ function decryptValue( $encoded ) {
  *
  * @return string Decrypted value, raw fallback, or empty string if not permitted.
  */
-function getDecrypted( $const, $allowFallback = true ) {
+function getDecrypted( string $const, bool $allowFallback = true ): string {
 	static $allowed = [ 'DB_USER', 'DB_PASSWORD', 'DB_HOST', 'DB_NAME' ];
 
 	if ( ! defined( $const ) || ! in_array( $const, $allowed, true ) ) {
@@ -355,7 +355,7 @@ function request_is_same_origin(): bool {
  *
  * @return string|null Command output on success, null if blocked or failed.
  */
-function safe_shell_exec( $cmd ) {
+function safe_shell_exec( string $cmd ): ?string {
 	$allowed = [
 		// Web server & system maintenance utilities
 		'apachectl',    // Manage Apache on macOS/Linux

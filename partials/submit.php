@@ -8,20 +8,21 @@
  * - Normalise and validate inputs from the settings form
  * - Encrypt sensitive values using encryptValue()
  * - Persist configuration atomically:
- *     - /config/user_config.php
- *     - /config/folders.json
- *     - /config/link_templates.json
- *     - /config/dock.json
+ *     - /config/profiles/{$userConfigDir}/user_config.php
+ *     - /config/profiles/{$userConfigDir}/folders.json
+ *     - /config/profiles/{$userConfigDir}/link_templates.json
+ *     - /config/profiles/{$userConfigDir}/dock.json
  * - Optionally patch php.ini for display_errors and error_reporting
  * - Invalidate OPcache where applicable
  * - Redirect with 303 on success
  *
+ * @var string $userConfigDir
  * @var string $foldersJson
  * @var string $linkTplJson
  * @var string $dockJson
  *
  * @author  Pawel Osmolski
- * @version 2.9
+ * @version 3.0
  */
 
 require_once __DIR__ . '/../config/config.php';
@@ -215,8 +216,6 @@ try {
 /* Persist configuration                                              */
 /* ------------------------------------------------------------------ */
 
-$configDir = __DIR__ . '/../config';
-
 // Build user_config.php
 $user_config  = "<?php\n";
 $user_config .= "/**\n * Auto-generated user configuration. Do not edit by hand.\n */\n\n";
@@ -261,12 +260,13 @@ $user_config .= "ini_set('display_errors', {$displayPhpErrors});\n";
 $user_config .= "error_reporting({$phpErrorLevelExpr});\n";
 $user_config .= "ini_set('log_errors', {$logPhpErrors});\n";
 
-atomic_write( $configDir . '/user_config.php', $user_config );
+// User Config
+atomic_write( $userConfigDir . '/user_config.php', $user_config );
 
 // JSON configs
-atomic_write( $configDir . '/folders.json',        $foldersJson );
-atomic_write( $configDir . '/link_templates.json', $linkTplJson );
-atomic_write( $configDir . '/dock.json',           $dockJson );
+atomic_write( $userConfigDir . '/folders.json',        $foldersJson );
+atomic_write( $userConfigDir . '/link_templates.json', $linkTplJson );
+atomic_write( $userConfigDir . '/dock.json',           $dockJson );
 
 /* ------------------------------------------------------------------ */
 /* Optional php.ini patching                                          */
@@ -312,10 +312,10 @@ if ( $php_ini_path !== '' && is_file( $php_ini_path ) && is_readable( $php_ini_p
 /* ------------------------------------------------------------------ */
 
 if ( function_exists( 'opcache_invalidate' ) ) {
-	@opcache_invalidate( $configDir . '/user_config.php', true );
-	@opcache_invalidate( $configDir . '/folders.json', true );
-	@opcache_invalidate( $configDir . '/link_templates.json', true );
-	@opcache_invalidate( $configDir . '/dock.json', true );
+	@opcache_invalidate( $userConfigDir . '/user_config.php', true );
+	@opcache_invalidate( $userConfigDir . '/folders.json', true );
+	@opcache_invalidate( $userConfigDir . '/link_templates.json', true );
+	@opcache_invalidate( $userConfigDir . '/dock.json', true );
 }
 
 if ( session_status() !== PHP_SESSION_ACTIVE ) {

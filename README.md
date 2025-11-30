@@ -101,16 +101,12 @@ A quick overview of the core files and folders in this project, so you’re neve
 | File                     | Description |
 |--------------------------|-------------|
 | `helpers/`               | Common helpers for the whole app, grouped logically and easy to extend. |
+| `interface/`             | Heading configuration and tooltip descriptions for settings and panels. |
+| `profiles/`              | Profile folder for auto generated user-defined overrides saved from the settings UI. |
 | `bootstrap.php`          | Init headers, session, security, and config; starts session early for CSRF rendering. |
 | `config.php`             | Default configuration including MySQL credentials and Apache path settings. |
-| `user_config.php`        | Auto generated user-defined overrides saved from the settings UI. |
 | `helpers.php`            | One include to rule them all: loads modular helpers and common utilities. |
 | `debug.php`              | Logs raw shell commands (with optional context) to `logs/localhost-page.log`. |
-| `dock.json`              | Stores dock layout and links in JSON format. |
-| `folders.json`           | Defines folder configurations, incl. paths, filters, link templates, and display rules. |
-| `headings.json`          | Defines heading configuration for settings and panels. |
-| `link_templates.json`    | Defines reusable HTML link templates for folder display, referenced by folders.json. |
-| `tooltips.json`          | Defines all tooltip descriptions for settings, panels, and interface elements. |
 
 ---
 

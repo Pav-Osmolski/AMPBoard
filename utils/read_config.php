@@ -4,13 +4,15 @@
  * Exposes only: folders.json, link_templates.json, dock.json.
  * Uses same-origin checks. No auth tokens required for GET.
  *
+ * @var string $activeConfigDir
+ *
  * @package AMPBoard
  * @author  Pawel Osmolski
- * @version 1.0
+ * @version 1.1
  * @license GPL-3.0-or-later https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-require_once __DIR__ . '/../config/helpers/security.php';
+require_once __DIR__ . '/../config/config.php';
 
 header( 'Content-Type: application/json; charset=utf-8' );
 header( 'Cache-Control: no-store' );
@@ -28,9 +30,9 @@ if ( ! function_exists( 'request_is_same_origin' ) || ! request_is_same_origin()
 }
 
 $map = [
-	'folders'        => __DIR__ . '/../config/folders.json',
-	'link_templates' => __DIR__ . '/../config/link_templates.json',
-	'dock'           => __DIR__ . '/../config/dock.json',
+	'folders'        => $activeConfigDir . '/folders.json',
+	'link_templates' => $activeConfigDir . '/link_templates.json',
+	'dock'           => $activeConfigDir . '/dock.json',
 ];
 
 $key = $_GET['file'] ?? '';
