@@ -6,18 +6,19 @@
  * @var array $tooltips Tooltip copy map
  * @var string $defaultTooltipMessage Default tooltip fallback message
  * @var bool $apachePathValid Validation state for Apache path
+ * @var array<string, mixed> $config
  */
 
 renderAccordionSectionStart(
 	'vhosts-manager',
 	renderHeading( 'Virtual Hosts Manager' ),
 	[
-		'disabled'  => ! $apachePathValid,
+		'disabled'  => ! $config['status']['apachePathValid'],
 		'expanded'  => false,
 		'settings'  => true,
-		'caretPath' => __DIR__ . '/../../assets/images/caret-down.svg',
+		'caretPath' => $config['paths']['assets'] . '/images/caret-down.svg',
 	]
 );
 ?>
-<?php require_once __DIR__ . '/../../utils/vhosts_manager.php'; ?>
+<?php require_once $config['paths']['utils'] . '/vhosts_manager.php'; ?>
 <?php renderAccordionSectionEnd(); ?>

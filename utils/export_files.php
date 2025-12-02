@@ -18,10 +18,11 @@
  * @var string $dbUser
  * @var string $dbPass
  * @var bool $phpPathValid
+ * @var array<string, mixed> $config
  *
  * @package AMPBoard
  * @author  Pawel Osmolski
- * @version 1.4
+ * @version 1.5
  * @license GPL-3.0-or-later https://www.gnu.org/licenses/gpl-3.0.html
  */
 
@@ -62,7 +63,7 @@ if ( $action ) {
 		// List groups/subfolders from folders.json applying urlRules/excludeList
 		if ( $action === 'scan' ) {
 			$groups = [];
-			$cfg    = export_load_folders_json( $activeConfigDir . '/folders.json' );
+			$cfg    = export_load_folders_json( $config['paths']['activeProfile'] . '/folders.json' );
 
 			foreach ( $cfg as $i => $entry ) {
 				if ( empty( $entry['dir'] ) || empty( $entry['title'] ) ) {
@@ -98,9 +99,9 @@ if ( $action ) {
 
 		// List databases
 		if ( $action === 'dbs' ) {
-			$host = DB_HOST;
-			$user = $dbUser;
-			$pass = $dbPass;
+			$host = $config['db']['host'] ?? DB_HOST;
+			$user = $config['db']['user'] ?? null;
+			$pass = $config['db']['pass'] ?? null;
 			$dbs  = export_list_databases( $host, $user, $pass );
 
 			// In demos, obfuscate names so we don’t leak anything spicy.
@@ -144,7 +145,7 @@ if ( $action ) {
 				exit;
 			}
 
-			$cfg = export_load_folders_json( $activeConfigDir . '/folders.json' );
+			$cfg = export_load_folders_json( $config['paths']['activeProfile'] . '/folders.json' );
 			if ( ! isset( $cfg[ $groupIndex ] ) ) {
 				echo json_encode( [ 'ok' => false, 'error' => 'Group not found.' ] );
 				exit;
@@ -251,7 +252,12 @@ if ( $action ) {
 				? 'external'
 				: 'php';
 
-			$sql     = export_dump_mysql_database( DB_HOST, $dbUser, $dbPass, $db );
+			$sql     = export_dump_mysql_database(
+				$config['db']['host'] ?? DB_HOST,
+				$config['db']['user'] ?? null,
+				$config['db']['pass'] ?? null,
+				$db
+			);
 			$exports = export_ensure_exports_dir();
 			$stamp   = date( 'Ymd-His' );
 			$safeDb  = preg_replace( '/[^a-zA-Z0-9._-]+/', '_', $db );

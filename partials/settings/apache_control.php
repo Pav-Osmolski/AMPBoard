@@ -7,19 +7,20 @@
  * @var string $defaultTooltipMessage Default tooltip fallback message
  * @var bool $apachePathValid Validation state for Apache path
  * @var bool $apacheToggle True if Apache restart endpoint is available
+ * @var array<string, mixed> $config
  */
 
 renderAccordionSectionStart(
 	'apache-control',
 	renderHeading( 'Apache Control' ),
 	[
-		'disabled'  => ! $apachePathValid,
+		'disabled'  => ! $config['status']['apachePathValid'],
 		'expanded'  => false,
-		'caretPath' => __DIR__ . '/../../assets/images/caret-down.svg',
+		'caretPath' => $config['paths']['assets'] . '/images/caret-down.svg',
 	]
 );
 ?>
-<?php if ( $apacheToggle && $apachePathValid ): ?>
+<?php if ( $config['status']['apacheToggleAvailable'] && $config['status']['apachePathValid'] ): ?>
 	<?php renderButtonBlock( [
 		'label' => 'Restart Apache',
 		'id'    => 'restart-apache-button'
@@ -28,9 +29,9 @@ renderAccordionSectionStart(
 <?php else: ?>
 	<p><strong>Warning:</strong> Apache control unavailable.
 		<?php
-		if ( ! $apachePathValid ) {
-			if ( ! empty( APACHE_PATH ) ) {
-				echo ' The Apache path <code>' . obfuscate_value( APACHE_PATH ) . '</code> is invalid.';
+		if ( ! $config['status']['apachePathValid'] ) {
+			if ( ! empty( $config['paths']['apache'] ) ) {
+				echo ' The Apache path <code>' . obfuscate_value( $config['paths']['apache'] ) . '</code> is invalid.';
 			} else {
 				echo ' The Apache path is not set.';
 			}

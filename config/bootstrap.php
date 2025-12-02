@@ -3,6 +3,8 @@
  * Global bootstrap: headers, session, security, config.
  * Ensures a session is active before any output so CSRF can render safely.
  *
+ * @var array<string, mixed> $config
+ *
  * @package AMPBoard
  * @author  Pawel Osmolski
  * @license GPL-3.0-or-later https://www.gnu.org/licenses/gpl-3.0.html
@@ -27,4 +29,4 @@ if ( session_status() !== PHP_SESSION_ACTIVE ) {
 // Load core bits after session is up
 include __DIR__ . '/config.php';
 //include __DIR__ . '/debug.php';
-include __DIR__ . '/../partials/submit.php';
+include $config['paths']['partials'] . '/submit.php';

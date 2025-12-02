@@ -14,16 +14,18 @@
  * - Apache environment variables
  * - PHP config info
  *
+ * @var array<string, mixed> $config
+ *
  * @package AMPBoard
  * @author  Pawel Osmolski
- * @version 1.3
+ * @version 1.4
  * @license GPL-3.0-or-later https://www.gnu.org/licenses/gpl-3.0.html
  */
 
 require_once __DIR__ . '/../config/config.php';
 
 // Default to config value; override with ?fast=1 or ?fast=0 if provided
-$fastMode = $apacheFastMode ?? false;
+$fastMode = $config['ui']['flags']['apacheFastMode'] ?? false;
 
 if ( isset( $_GET['fast'] ) ) {
 	$fastMode = filter_var( $_GET['fast'], FILTER_VALIDATE_BOOLEAN );
@@ -62,11 +64,11 @@ if ( ! $fastMode ) {
 }
 
 if ( $binary && ! $fastMode ) {
-	$config = getApacheConfigPath( $binary );
-	echo "📝 Config File: " . ( $config ?: "Not detected" ) . "\n";
+	$apacheConfig = getApacheConfigPath( $binary );
+	echo "📝 Config File: " . ( $apacheConfig ?: "Not detected" ) . "\n";
 
-	if ( $config && file_exists( $config ) ) {
-		$includes = getIncludes( $config );
+	if ( $apacheConfig && file_exists( $apacheConfig ) ) {
+		$includes = getIncludes( $apacheConfig );
 		if ( $includes ) {
 			echo "📂 Included Config Files:\n";
 			foreach ( $includes as $inc ) {

@@ -135,9 +135,29 @@
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
 		gap: .6rem;
-		padding: 1rem;
+		padding: 3rem 1rem 1rem 1rem;
 		position: relative;
 		cursor: grab;
+
+		.folder-label {
+			position: absolute;
+			top: 0;
+			left: .5rem;
+			width: fit-content;
+			color: var(--link-color);
+			border: var(--border-width) var(--link-color) solid;
+			border-radius: var(--button-border-radius);
+			padding: 2px 10px;
+			opacity: 0.7;
+			transition: color var(--transition-ease), border var(--transition-ease);
+		}
+
+		&:hover {
+			.folder-label {
+				color: var(--hover-color);
+				border: var(--border-width) var(--hover-color) solid;
+			}
+		}
 
 		.uid-container {
 			margin-bottom: 10px;

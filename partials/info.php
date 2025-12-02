@@ -19,38 +19,39 @@
  * @var bool $displayPhpErrorLog
  * @var bool $displaySystemStats
  * @var bool $useAjaxForStats
+ * @var array<string, mixed> $config
  *
  * @author  Pawel Osmolski
- * @version 1.2
+ * @version 1.3
  */
 
 require_once __DIR__ . '/../config/config.php';
 
 $features = [
 	'apache' => [
-		'enabled'     => $displayApacheErrorLog,
+		'enabled'     => $config['ui']['flags']['apacheErrorLog'],
 		'title'       => 'Apache Error Log',
 		'toggle_id'   => 'toggle-apache-error-log',
 		'log_id'      => 'apache-error-log',
 		'php_include' => '/../utils/apache_error_log.php',
 	],
 	'php'    => [
-		'enabled'     => $displayPhpErrorLog,
+		'enabled'     => $config['ui']['flags']['phpErrorLog'],
 		'title'       => 'PHP Error Log',
 		'toggle_id'   => 'toggle-php-error-log',
 		'log_id'      => 'php-error-log',
 		'php_include' => '/../utils/php_error_log.php',
 	],
 	'stats'  => [
-		'enabled'     => $displaySystemStats,
+		'enabled'     => $config['ui']['flags']['systemStats'],
 		'title'       => 'System Stats',
 		'php_include' => '/../utils/system_stats.php',
 	],
 ];
 
 $icons = [
-	'apache' => __DIR__ . '/../assets/images/Apache.svg',
-	'php'    => __DIR__ . '/../assets/images/PHP.svg',
+	'apache' => $config['paths']['assets'] . '/images/Apache.svg',
+	'php'    => $config['paths']['assets'] . '/images/PHP.svg',
 ];
 
 if ( array_filter( array_column( $features, 'enabled' ) ) ): ?>
@@ -67,33 +68,33 @@ if ( array_filter( array_column( $features, 'enabled' ) ) ): ?>
 		?>
 
 		<?php if ( $key === 'stats' ): ?>
-			<?php if ( $useAjaxForStats ): ?>
-				<div id="<?= $id ?>" class="<?= $class ?>" role="region" aria-labelledby="<?= $titleId ?>">
-					<h3 id="<?= $titleId ?>"><?= htmlspecialchars( $feature['title'] ) ?></h3>
-					<p>CPU Load: <span id="cpu-load" aria-live="polite">N/A</span></p>
-					<p>RAM Usage: <span id="memory-usage" aria-live="polite">N/A</span></p>
-					<p>Disk Space: <span id="disk-space" aria-live="polite">N/A</span></p>
-				</div>
-			<?php else: ?>
-				<section id="<?= $id ?>" class="<?= $class ?>" role="region" aria-labelledby="<?= $titleId ?>">
-					<?php include __DIR__ . $feature['php_include']; ?>
-				</section>
-			<?php endif; ?>
+		<?php if ( $config['ui']['flags']['useAjaxForStats'] ): ?>
+			<div id="<?= $id ?>" class="<?= $class ?>" role="region" aria-labelledby="<?= $titleId ?>">
+				<h3 id="<?= $titleId ?>"><?= htmlspecialchars( $feature['title'] ) ?></h3>
+				<p>CPU Load: <span id="cpu-load" aria-live="polite">N/A</span></p>
+				<p>RAM Usage: <span id="memory-usage" aria-live="polite">N/A</span></p>
+				<p>Disk Space: <span id="disk-space" aria-live="polite">N/A</span></p>
+			</div>
 		<?php else: ?>
-			<section id="<?= $id ?>" class="<?= $class ?>" aria-labelledby="<?= $titleId ?>">
-				<h3 id="<?= $titleId ?>">
-					<button id="<?= htmlspecialchars( $feature['toggle_id'] ) ?>" aria-expanded="false"
-					        aria-controls="<?= htmlspecialchars( $regionId ) ?>">
-						<?php if ( isset( $icons[ $key ] ) ) {
-							include $icons[ $key ];
-						} ?>
-						Toggle <?= htmlspecialchars( $feature['title'] ) ?>
-					</button>
-				</h3>
-				<pre id="<?= htmlspecialchars( $regionId ) ?>" aria-live="polite"
-				     tabindex="0"><code>Loading...</code></pre>
+			<section id="<?= $id ?>" class="<?= $class ?>" role="region" aria-labelledby="<?= $titleId ?>">
+				<?php include __DIR__ . $feature['php_include']; ?>
 			</section>
 		<?php endif; ?>
+	<?php else: ?>
+		<section id="<?= $id ?>" class="<?= $class ?>" aria-labelledby="<?= $titleId ?>">
+			<h3 id="<?= $titleId ?>">
+				<button id="<?= htmlspecialchars( $feature['toggle_id'] ) ?>" aria-expanded="false"
+				        aria-controls="<?= htmlspecialchars( $regionId ) ?>">
+					<?php if ( isset( $icons[ $key ] ) ) {
+						include $icons[ $key ];
+					} ?>
+					Toggle <?= htmlspecialchars( $feature['title'] ) ?>
+				</button>
+			</h3>
+			<pre id="<?= htmlspecialchars( $regionId ) ?>" aria-live="polite"
+			     tabindex="0"><code>Loading...</code></pre>
+		</section>
+	<?php endif; ?>
 
 	<?php endforeach; ?>
 

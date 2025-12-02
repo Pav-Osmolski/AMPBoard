@@ -13,6 +13,7 @@
  * @var bool $mySqlPassValid Validation state for MySQL Password
  * @var string $dbUser Database user for display (obfuscated on output)
  * @var string $dbPass Database password for display (obfuscated on output)
+ * @var array<string, mixed> $config
  */
 
 renderAccordionSectionStart(
@@ -20,43 +21,43 @@ renderAccordionSectionStart(
 	renderHeading( 'Database & Paths' ),
 	[
 		'expanded'  => false,
-		'caretPath' => __DIR__ . '/../../assets/images/caret-down.svg',
+		'caretPath' => $config['paths']['assets'] . '/images/caret-down.svg',
 	]
 );
 ?>
 <div class="background-logos">
-	<?php echo injectSvgWithUniqueIds( __DIR__ . '/../../assets/images/Apache.svg', 'Apache2' ); ?>
-	<?php echo injectSvgWithUniqueIds( __DIR__ . '/../../assets/images/MariaDB.svg', 'MariaDB1' ); ?>
-	<?php echo injectSvgWithUniqueIds( __DIR__ . '/../../assets/images/PHP.svg', 'PHP2' ); ?>
+	<?php echo injectSvgWithUniqueIds( $config['paths']['assets'] . '/images/Apache.svg', 'Apache2' ); ?>
+	<?php echo injectSvgWithUniqueIds( $config['paths']['assets'] . '/images/MariaDB.svg', 'MariaDB1' ); ?>
+	<?php echo injectSvgWithUniqueIds( $config['paths']['assets'] . '/images/PHP.svg', 'PHP2' ); ?>
 </div>
 <div class="settings-container">
 	<label>DB Host:
-		<input type="text" name="DB_HOST" value="<?= obfuscate_value( DB_HOST ) ?>">
-		<?= $mySqlHostValid ? '✔️' : '❌' ?>
+		<input type="text" name="DB_HOST" value="<?= obfuscate_value( $config['db']['host'] ) ?>">
+		<?= $config['status']['mySqlHostValid'] ? '✔️' : '❌' ?>
 	</label>
 	<label>DB User:
-		<input type="text" name="DB_USER" value="<?= obfuscate_value( htmlspecialchars( $dbUser ) ) ?>">
-		<?= $mySqlUserValid ? '✔️' : '❌' ?>
+		<input type="text" name="DB_USER" value="<?= obfuscate_value( htmlspecialchars( $config['db']['user'] ) ) ?>">
+		<?= $config['status']['mySqlUserValid'] ? '✔️' : '❌' ?>
 	</label>
 	<label>DB Password:
 		<input type="password" name="DB_PASSWORD"
-		       value="<?= obfuscate_value( htmlspecialchars( $dbPass ) ) ?>">
-		<?= $mySqlPassValid ? '✔️' : '❌' ?>
+		       value="<?= obfuscate_value( htmlspecialchars( $config['db']['pass'] ) ) ?>">
+		<?= $config['status']['mySqlPassValid'] ? '✔️' : '❌' ?>
 	</label>
 
 	<label>Apache Path:
-		<input type="text" name="APACHE_PATH" value="<?= obfuscate_value( APACHE_PATH ) ?>">
-		<?= $apachePathValid ? '✔️' : '❌' ?>
+		<input type="text" name="APACHE_PATH" value="<?= obfuscate_value( $config['paths']['apache'] ) ?>">
+		<?= $config['status']['apachePathValid'] ? '✔️' : '❌' ?>
 	</label>
 
 	<label>HTDocs Path:
-		<input type="text" name="HTDOCS_PATH" value="<?= obfuscate_value( HTDOCS_PATH ) ?>">
-		<?= $htdocsPathValid ? '✔️' : '❌' ?>
+		<input type="text" name="HTDOCS_PATH" value="<?= obfuscate_value( $config['paths']['htdocs'] ) ?>">
+		<?= $config['paths']['htdocs'] ? '✔️' : '❌' ?>
 	</label>
 
 	<label>PHP Path:
-		<input type="text" name="PHP_PATH" value="<?= obfuscate_value( PHP_PATH ) ?>">
-		<?= $phpPathValid ? '✔️' : '❌' ?>
+		<input type="text" name="PHP_PATH" value="<?= obfuscate_value( $config['paths']['php'] ) ?>">
+		<?= $config['status']['phpPathValid'] ? '✔️' : '❌' ?>
 	</label>
 	<?php renderSeparatorLine( 'xs' ); ?>
 	<fieldset>
@@ -64,13 +65,13 @@ renderAccordionSectionStart(
 
 		<label>
 			<input type="checkbox"
-			       name="apacheFastMode" <?= isset( $apacheFastMode ) && $apacheFastMode ? 'checked' : '' ?>>
+			       name="apacheFastMode" <?= isset( $config['ui']['flags']['apacheFastMode'] ) && $config['ui']['flags']['apacheFastMode'] ? 'checked' : '' ?>>
 			Fast Mode for Apache Inspector
 		</label>
 
 		<label>
 			<input type="checkbox"
-			       name="mysqlFastMode" <?= isset( $mysqlFastMode ) && $mysqlFastMode ? 'checked' : '' ?>>
+			       name="mysqlFastMode" <?= isset( $config['ui']['flags']['mysqlFastMode'] ) && $config['ui']['flags']['mysqlFastMode'] ? 'checked' : '' ?>>
 			Fast Mode for MySQL Inspector
 		</label>
 	</fieldset>

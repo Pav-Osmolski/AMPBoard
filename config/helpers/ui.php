@@ -2,8 +2,10 @@
 /**
  * UI helpers
  *
+ * @var array<string, mixed> $config
+ *
  * @author  Pawel Osmolski
- * @version 2.2
+ * @version 2.3
  */
 
 /**
@@ -14,7 +16,9 @@
  * @return string Returns 'light' or 'dark' depending on the $theme-type in the SCSS file.
  */
 function getThemeColorScheme( string $theme ): string {
-	$themeFile     = __DIR__ . '/../../assets/scss/themes/_' . $theme . '.scss';
+	global $config;
+
+	$themeFile     = $config['paths']['assets'] . '/scss/themes/_' . $theme . '.scss';
 	$defaultScheme = 'dark';
 
 	if ( $theme === 'default' || ! file_exists( $themeFile ) ) {
@@ -50,6 +54,9 @@ function getThemeColorScheme( string $theme ): string {
  * @param bool $displaySystemStats Whether the system monitor panel should be visible.
  * @param bool $displayApacheErrorLog Whether the Apache error log panel should be visible.
  * @param bool $displayPhpErrorLog Whether the PHP error log panel should be visible.
+ * @param bool $systemStatsAvailable Whether the system stats utility file exists.
+ * @param bool $apacheErrorLogAvailable Whether the Apache error log utility file exists.
+ * @param bool $phpErrorLogAvailable Whether the PHP error log utility file exists.
  *
  * @return string Space-delimited body class list.
  */
@@ -62,14 +69,11 @@ function buildBodyClasses(
 	bool $displayTooltips,
 	bool $displaySystemStats,
 	bool $displayApacheErrorLog,
-	bool $displayPhpErrorLog
+	bool $displayPhpErrorLog,
+	bool $systemStatsAvailable,
+	bool $apacheErrorLogAvailable,
+	bool $phpErrorLogAvailable
 ): string {
-	$utilsDir = __DIR__ . '/../../utils';
-
-	$systemStatsAvailable = file_exists( $utilsDir . '/system_stats.php' );
-	$apacheLogAvailable   = file_exists( $utilsDir . '/apache_error_log.php' );
-	$phpLogAvailable      = file_exists( $utilsDir . '/php_error_log.php' );
-
 	$classes = [
 		'background-image',
 		$displayHeader ? 'header-active' : 'header-inactive',
@@ -80,16 +84,19 @@ function buildBodyClasses(
 		( $systemStatsAvailable && $displaySystemStats )
 			? 'system-monitor-active'
 			: 'system-monitor-inactive',
-		( $apacheLogAvailable && $displayApacheErrorLog )
+		( $apacheErrorLogAvailable && $displayApacheErrorLog )
 			? 'apache-error-log-active'
 			: 'apache-error-log-inactive',
-		( $phpLogAvailable && $displayPhpErrorLog )
+		( $phpErrorLogAvailable && $displayPhpErrorLog )
 			? 'php-error-log-active'
 			: 'php-error-log-inactive',
 	];
 
 	// Grouped error log state.
-	if ( ( $apacheLogAvailable && $displayApacheErrorLog ) || ( $phpLogAvailable && $displayPhpErrorLog ) ) {
+	if (
+		( $apacheErrorLogAvailable && $displayApacheErrorLog ) ||
+		( $phpErrorLogAvailable && $displayPhpErrorLog )
+	) {
 		$classes[] = 'error-log-active';
 	}
 
@@ -231,6 +238,8 @@ HTML;
  * @return void
  */
 function renderAccordionSectionStart( string $id, string $headingHtml, array $opts = [] ): void {
+	global $config;
+
 	$isSettings = ! empty( $opts['settings'] );
 	if ( $isSettings ) {
 		$GLOBALS['settingsView'] = true;
@@ -241,7 +250,7 @@ function renderAccordionSectionStart( string $id, string $headingHtml, array $op
 
 	$disabled    = ! empty( $opts['disabled'] );
 	$expanded    = ! empty( $opts['expanded'] );
-	$caretPath   = isset( $opts['caretPath'] ) ? (string) $opts['caretPath'] : __DIR__ . '/../../assets/images/caret-down.svg';
+	$caretPath   = isset( $opts['caretPath'] ) ? (string) $opts['caretPath'] : $config['paths']['assets'] . '/images/caret-down.svg';
 	$caretClass  = isset( $opts['caretClass'] ) ? (string) $opts['caretClass'] : '';
 	$containerCl = 'toggle-content-container' . ( $disabled ? ' disabled' : '' );
 
@@ -283,7 +292,9 @@ function renderAccordionSectionEnd(): void {
  * @return array<string, string>
  */
 function getDefaultTooltips(): array {
-	return $GLOBALS['tooltipsConfig'] ?? [];
+	global $config;
+
+	return $config['interface']['tooltips'] ?? [];
 }
 
 /**
@@ -334,7 +345,9 @@ function renderHeadingTooltip(
 	bool $headingOnly = false,
 	bool $below = false
 ): string {
-	$showTooltips = $GLOBALS['displayTooltips'] ?? true;
+	global $config;
+
+	$showTooltips = $config['ui']['flags']['tooltips'] ?? true;
 
 	$desc     = getTooltip( $key, $tooltips, $defaultTooltipMessage );
 	$title    = $label ?: ucwords( str_replace( '_', ' ', $key ) );
@@ -360,7 +373,7 @@ function renderHeadingTooltip(
 		      aria-describedby="tooltip-<?= $escKey ?>"
 		      tabindex="0"
 		      data-tooltip="<?= $escDesc ?>">
-			<?php include __DIR__ . '/../../assets/images/tooltip-icon.svg'; ?>
+			<?php include $config['paths']['assets'] . '/images/tooltip-icon.svg'; ?>
 		</span>
 		<span id="tooltip-<?= $escKey ?>" class="sr-only" role="tooltip"><?= $escDesc ?></span>
 		<?php
@@ -610,9 +623,10 @@ function renderBadge(
 	?string $aria = null,
 	?bool $apachePathValid = null
 ): string {
+	global $config;
 
 	// Global toggle: if badge display is disabled, render nothing.
-	$showBadges = $GLOBALS['displayFolderBadges'] ?? true;
+	$showBadges = $config['ui']['flags']['folderBadges'] ?? true;
 	if ( ! $showBadges ) {
 		return '';
 	}
@@ -807,7 +821,9 @@ function renderHeading(
 	bool $tooltipOnly = false,
 	bool $headingOnly = false
 ): string {
-	$headingsConfig = $GLOBALS['headingsConfig'] ?? [];
+	global $config;
+
+	$headingsConfig = $config['interface']['headings'] ?? [];
 	$tooltips       = getDefaultTooltips();
 	$default        = getDefaultTooltipMessage();
 
@@ -856,8 +872,8 @@ function renderHeading(
 	// Compute suffix, if any.
 	$suffix = '';
 	if ( $cfg && isset( $cfg['suffix'] ) ) {
-		$phpPathValid    = $GLOBALS['phpPathValid'] ?? true;
-		$apachePathValid = $GLOBALS['apachePathValid'] ?? true;
+		$phpPathValid    = $config['status']['phpPathValid'] ?? true;
+		$apachePathValid = $config['status']['apachePathValid'] ?? true;
 		$type            = (string) $cfg['suffix'];
 
 		if ( $type === 'PHP_VALIDITY_DEPENDENT' ) {

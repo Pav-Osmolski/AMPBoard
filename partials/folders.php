@@ -22,23 +22,24 @@
  * @var string $defaultTooltipMessage
  * @var bool $apachePathValid
  * @var array $linkTemplatesConfig
+ * @var array<string, mixed> $config
  *
  * @author  Pawel Osmolski
- * @version 1.7
+ * @version 1.8
  */
 
 require_once __DIR__ . '/../config/config.php';
 
 // Index templates by name for fast lookup
 $templatesByName = [];
-foreach ( $linkTemplatesConfig as $tpl ) {
+foreach ( $config['profile']['linkTemplates'] as $tpl ) {
 	if ( is_array( $tpl ) && isset( $tpl['name'] ) ) {
 		$templatesByName[ (string) $tpl['name'] ] = $tpl;
 	}
 }
 
 // Load hamburger icon, prefixing IDs to avoid collisions
-$hamburgerSvgPath = __DIR__ . '/../assets/images/hamburger.svg';
+$hamburgerSvgPath = $config['paths']['assets'] . '/images/hamburger.svg';
 $hamburgerSvg     = is_file( $hamburgerSvgPath )
 	? injectSvgWithUniqueIds( $hamburgerSvgPath, 'drag-' . bin2hex( random_bytes( 3 ) ) )
 	: '';
@@ -48,17 +49,17 @@ $globalErrors            = [];
 $hasVhostFilteredColumns = false;
 ?>
 
-<?php if ( empty( $foldersConfig ) || empty( $templatesByName ) ) : ?>
+<?php if ( empty( $config['profile']['folders'] ) || empty( $templatesByName ) ) : ?>
 	<div id="folders-view" class="visible" aria-labelledby="folders-view-heading">
 		<div class="heading">
 			<?= renderHeading( 'Document Folders', 'h2', true ) ?>
 		</div>
 		<div class="columns width-resizable max-md">
 			<div class="column">
-				<?php if ( empty( $foldersConfig ) && empty( $templatesByName ) ) : ?>
+				<?php if ( empty( $config['profile']['folders'] ) && empty( $templatesByName ) ) : ?>
 					<p>No folders or link templates configured yet. Pop over to <a href="?view=settings">Settings</a> to
 						add your first folder column and link template.</p>
-				<?php elseif ( empty( $foldersConfig ) ) : ?>
+				<?php elseif ( empty( $config['profile']['folders'] ) ) : ?>
 					<p>No folders configured yet. Pop over to <a href="?view=settings">Settings</a> to add your first
 						folder column.</p>
 				<?php elseif ( empty( $templatesByName ) ) : ?>
@@ -75,7 +76,7 @@ $hasVhostFilteredColumns = false;
 			<?= renderHeading( 'Document Folders', 'h2', true ) ?>
 		</div>
 		<div class="columns width-resizable" role="list" data-width-key="width_columns">
-			<?php foreach ( $foldersConfig as $column ): ?>
+			<?php foreach ( $config['profile']['folders'] as $column ): ?>
 				<?php
 				if ( ! is_array( $column ) ) {
 					$globalErrors[] = 'Column configuration must be an object.';
@@ -104,7 +105,7 @@ $hasVhostFilteredColumns = false;
 				<div class="column" id="<?php echo 'column_' . ( ++ $columnCounter ); ?>" role="listitem">
 					<button class="drag-handle reset" aria-label="Reorder column <?= htmlspecialchars( $title ) ?>"
 					        aria-describedby="drag-help" data-drag-allow><?php echo $hamburgerSvg; ?></button>
-					<h3 class="<?= $requireVhost ? 'with-badges' : '' ?><?= $apachePathValid ? ' valid-apache-path' : ' invalid-apache-path' ?>">
+					<h3 class="<?= $requireVhost ? 'with-badges' : '' ?><?= $config['status']['apachePathValid'] ? ' valid-apache-path' : ' invalid-apache-path' ?>">
 						<?php if ( $href !== '' ): ?>
 							<a href="<?= htmlspecialchars( $href ) ?>"><?= htmlspecialchars( $title ) ?></a>
 						<?php else: ?>
@@ -125,7 +126,7 @@ $hasVhostFilteredColumns = false;
 								'vHost',
 								'This column only lists folders with valid Apache vHosts.',
 								'Column filtered by valid Apache vHost configuration',
-								$apachePathValid
+								$config['status']['apachePathValid']
 							); ?>
 						<?php endif; ?>
 					</h3>

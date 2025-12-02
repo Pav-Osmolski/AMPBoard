@@ -5,10 +5,11 @@
  * Uses same-origin checks. No auth tokens required for GET.
  *
  * @var string $activeConfigDir
+ * @var array<string, mixed> $config
  *
  * @package AMPBoard
  * @author  Pawel Osmolski
- * @version 1.1
+ * @version 1.2
  * @license GPL-3.0-or-later https://www.gnu.org/licenses/gpl-3.0.html
  */
 
@@ -30,9 +31,9 @@ if ( ! function_exists( 'request_is_same_origin' ) || ! request_is_same_origin()
 }
 
 $map = [
-	'folders'        => $activeConfigDir . '/folders.json',
-	'link_templates' => $activeConfigDir . '/link_templates.json',
-	'dock'           => $activeConfigDir . '/dock.json',
+	'folders'        => $config['paths']['activeProfile'] . '/folders.json',
+	'link_templates' => $config['paths']['activeProfile'] . '/link_templates.json',
+	'dock'           => $config['paths']['activeProfile'] . '/dock.json',
 ];
 
 $key = $_GET['file'] ?? '';

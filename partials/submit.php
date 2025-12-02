@@ -8,10 +8,10 @@
  * - Normalise and validate inputs from the settings form
  * - Encrypt sensitive values using encryptValue()
  * - Persist configuration atomically:
- *     - /config/profiles/{$userConfigDir}/user_config.php
- *     - /config/profiles/{$userConfigDir}/folders.json
- *     - /config/profiles/{$userConfigDir}/link_templates.json
- *     - /config/profiles/{$userConfigDir}/dock.json
+ *     - /config/profiles/{$config['paths']['userProfile']}/user_config.php
+ *     - /config/profiles/{$config['paths']['userProfile']}/folders.json
+ *     - /config/profiles/{$config['paths']['userProfile']}/link_templates.json
+ *     - /config/profiles/{$config['paths']['userProfile']}/dock.json
  * - Optionally patch php.ini for display_errors and error_reporting
  * - Invalidate OPcache where applicable
  * - Redirect with 303 on success
@@ -20,9 +20,10 @@
  * @var string $foldersJson
  * @var string $linkTplJson
  * @var string $dockJson
+ * @var array<string, mixed> $config
  *
  * @author  Pawel Osmolski
- * @version 3.0
+ * @version 3.1
  */
 
 require_once __DIR__ . '/../config/config.php';
@@ -38,7 +39,7 @@ if ( $_SERVER['REQUEST_METHOD'] !== 'POST' ) {
 
 $ct = $_SERVER['CONTENT_TYPE'] ?? '';
 if ( stripos( $ct, 'application/x-www-form-urlencoded' ) !== 0
-	&& stripos( $ct, 'multipart/form-data' ) !== 0 ) {
+     && stripos( $ct, 'multipart/form-data' ) !== 0 ) {
 	submit_fail( 'Invalid content type: ' . $ct );
 }
 
@@ -73,9 +74,9 @@ if ( defined( 'DEMO_MODE' ) && DEMO_MODE ) {
 /* ------------------------------------------------------------------ */
 
 $defs = [
-	'DB_HOST'               => FILTER_DEFAULT,
-	'DB_USER'               => FILTER_DEFAULT,
-	'DB_PASSWORD'           => FILTER_DEFAULT,
+	'DB_HOST'     => FILTER_DEFAULT,
+	'DB_USER'     => FILTER_DEFAULT,
+	'DB_PASSWORD' => FILTER_DEFAULT,
 
 	'APACHE_PATH'           => FILTER_DEFAULT,
 	'HTDOCS_PATH'           => FILTER_DEFAULT,
@@ -141,12 +142,12 @@ $displayPhpErrorLog    = normalise_bool( $in['displayPhpErrorLog'] ?? null );
 $useAjaxForStats       = normalise_bool( $in['useAjaxForStats'] ?? null );
 $useAjaxForErrorLog    = normalise_bool( $in['useAjaxForErrorLog'] ?? null );
 
-$displayPhpErrors      = normalise_bool( $in['displayPhpErrors'] ?? null );
-$logPhpErrors          = normalise_bool( $in['logPhpErrors'] ?? null );
+$displayPhpErrors = normalise_bool( $in['displayPhpErrors'] ?? null );
+$logPhpErrors     = normalise_bool( $in['logPhpErrors'] ?? null );
 
 // Performance flags
-$apacheFastMode        = normalise_bool( $in['apacheFastMode'] ?? null );
-$mysqlFastMode         = normalise_bool( $in['mysqlFastMode'] ?? null );
+$apacheFastMode = normalise_bool( $in['apacheFastMode'] ?? null );
+$mysqlFastMode  = normalise_bool( $in['mysqlFastMode'] ?? null );
 
 // Theme: letters, numbers, dashes, underscores. Fallback to default.
 $theme = 'default';
@@ -201,13 +202,13 @@ $encPass = $DB_PASS !== '' ? encryptValue( $DB_PASS ) : null;
 
 // JSON
 try {
-	$foldersRaw   = (string) ( $in['folders_json'] ?? '' );
-	$linkTplRaw   = (string) ( $in['link_templates_json'] ?? '' );
-	$dockRaw      = (string) ( $in['dock_json'] ?? '' );
+	$foldersRaw = (string) ( $in['folders_json'] ?? '' );
+	$linkTplRaw = (string) ( $in['link_templates_json'] ?? '' );
+	$dockRaw    = (string) ( $in['dock_json'] ?? '' );
 
-	$foldersJson  = validate_and_canonicalise_json( $foldersRaw );
-	$linkTplJson  = validate_and_canonicalise_json( $linkTplRaw );
-	$dockJson     = validate_and_canonicalise_json( $dockRaw );
+	$foldersJson = validate_and_canonicalise_json( $foldersRaw );
+	$linkTplJson = validate_and_canonicalise_json( $linkTplRaw );
+	$dockJson    = validate_and_canonicalise_json( $dockRaw );
 } catch ( Throwable $e ) {
 	submit_fail( 'Invalid JSON payload: ' . $e->getMessage() );
 }
@@ -217,7 +218,7 @@ try {
 /* ------------------------------------------------------------------ */
 
 // Build user_config.php
-$user_config  = "<?php\n";
+$user_config = "<?php\n";
 $user_config .= "/**\n * Auto-generated user configuration. Do not edit by hand.\n */\n\n";
 if ( $DB_HOST !== '' ) {
 	$user_config .= "if ( ! defined('DB_HOST') ) { define('DB_HOST', '" . addslashes( $DB_HOST ) . "'); }\n";
@@ -231,10 +232,10 @@ if ( $encPass !== null ) {
 
 // Paths (only if provided)
 foreach ( [ 'APACHE_PATH', 'HTDOCS_PATH', 'PHP_PATH' ] as $pkey ) {
-    if ( isset( $in[ $pkey ] ) && is_string( $in[ $pkey ] ) && $in[ $pkey ] !== '' ) {
-        $val = addslashes( $in[ $pkey ] );
-        $user_config .= "if ( ! defined('{$pkey}') ) { define('{$pkey}', '{$val}'); }\n";
-    }
+	if ( isset( $in[ $pkey ] ) && is_string( $in[ $pkey ] ) && $in[ $pkey ] !== '' ) {
+		$val         = addslashes( $in[ $pkey ] );
+		$user_config .= "if ( ! defined('{$pkey}') ) { define('{$pkey}', '{$val}'); }\n";
+	}
 }
 
 // UI flags
@@ -261,12 +262,12 @@ $user_config .= "error_reporting({$phpErrorLevelExpr});\n";
 $user_config .= "ini_set('log_errors', {$logPhpErrors});\n";
 
 // User Config
-atomic_write( $userConfigDir . '/user_config.php', $user_config );
+atomic_write( $config['paths']['userProfile'] . '/user_config.php', $user_config );
 
 // JSON configs
-atomic_write( $userConfigDir . '/folders.json',        $foldersJson );
-atomic_write( $userConfigDir . '/link_templates.json', $linkTplJson );
-atomic_write( $userConfigDir . '/dock.json',           $dockJson );
+atomic_write( $config['paths']['userProfile'] . '/folders.json', $foldersJson );
+atomic_write( $config['paths']['userProfile'] . '/link_templates.json', $linkTplJson );
+atomic_write( $config['paths']['userProfile'] . '/dock.json', $dockJson );
 
 /* ------------------------------------------------------------------ */
 /* Optional php.ini patching                                          */
@@ -312,10 +313,10 @@ if ( $php_ini_path !== '' && is_file( $php_ini_path ) && is_readable( $php_ini_p
 /* ------------------------------------------------------------------ */
 
 if ( function_exists( 'opcache_invalidate' ) ) {
-	@opcache_invalidate( $userConfigDir . '/user_config.php', true );
-	@opcache_invalidate( $userConfigDir . '/folders.json', true );
-	@opcache_invalidate( $userConfigDir . '/link_templates.json', true );
-	@opcache_invalidate( $userConfigDir . '/dock.json', true );
+	@opcache_invalidate( $config['paths']['userProfile'] . '/user_config.php', true );
+	@opcache_invalidate( $config['paths']['userProfile'] . '/folders.json', true );
+	@opcache_invalidate( $config['paths']['userProfile'] . '/link_templates.json', true );
+	@opcache_invalidate( $config['paths']['userProfile'] . '/dock.json', true );
 }
 
 if ( session_status() !== PHP_SESSION_ACTIVE ) {

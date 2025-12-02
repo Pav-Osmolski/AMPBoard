@@ -13,19 +13,17 @@
  * - `$displaySystemStats` boolean
  * - `$useAjaxForStats` boolean
  *
+ * @var array<string, mixed> $config
+ *
  * @package AMPBoard
  * @author  Pawel Osmolski
- * @version 1.0
+ * @version 1.1
  * @license GPL-3.0-or-later https://www.gnu.org/licenses/gpl-3.0.html
  */
 
 require_once __DIR__ . '/../config/config.php';
 
-// Set safe defaults
-$displaySystemStats = $displaySystemStats ?? false;
-$useAjaxForStats    = $useAjaxForStats ?? true;
-
-if ( ! $displaySystemStats ) {
+if ( ! $config['ui']['flags']['systemStats'] ) {
 	header( 'Content-Type: application/json' );
 	echo json_encode( [ 'error' => 'System stats display is disabled.' ] );
 	exit;
@@ -60,7 +58,7 @@ $peakMemoryUsage = memory_get_peak_usage( true ) / 1024 / 1024;
 // Disk
 $diskFree = disk_free_space( "/" ) / disk_total_space( "/" ) * 100;
 
-if ( $useAjaxForStats ) {
+if ( $config['ui']['flags']['useAjaxForStats'] ) {
 	header( 'Content-Type: application/json' );
 	header( 'Cache-Control: no-cache, no-store, must-revalidate' );
 	header( 'Pragma: no-cache' );

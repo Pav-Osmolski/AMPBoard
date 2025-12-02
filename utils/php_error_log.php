@@ -5,18 +5,17 @@
  * Displays the most recent PHP error log entries
  * either as raw text (for AJAX fetch) or HTML markup.
  *
+ * @var array<string, mixed> $config
+ *
  * @package AMPBoard
  * @author  Pawel Osmolski
- * @version 1.4
+ * @version 1.5
  * @license GPL-3.0-or-later https://www.gnu.org/licenses/gpl-3.0.html
  */
 
 require_once __DIR__ . '/../config/config.php';
 
-$displayPhpErrorLog = $displayPhpErrorLog ?? true;
-$useAjaxForStats    = $useAjaxForStats ?? true;
-
-if ( ! $displayPhpErrorLog ) {
+if ( ! $config['ui']['flags']['phpErrorLog'] ) {
 	header( 'Content-Type: application/json' );
 	echo json_encode( [ 'error' => 'PHP error log display is disabled.' ] );
 	exit;
@@ -66,7 +65,7 @@ function tail_log( $file, $lines = 25 ): string {
 	} ) );
 }
 
-if ( $useAjaxForStats ) {
+if ( $config['ui']['flags']['useAjaxForStats'] ) {
 	header( 'Content-Type: text/plain; charset=utf-8' );
 	header( 'Cache-Control: no-cache, no-store, must-revalidate' );
 	header( 'Pragma: no-cache' );

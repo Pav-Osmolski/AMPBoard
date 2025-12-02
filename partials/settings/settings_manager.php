@@ -5,6 +5,7 @@
  *
  * @var array $tooltips Tooltip copy map
  * @var string $defaultTooltipMessage Default tooltip fallback message
+ * @var array<string, mixed> $config
  */
 
 renderAccordionSectionStart(
@@ -12,7 +13,7 @@ renderAccordionSectionStart(
 	renderHeading( 'Settings Manager' ),
 	[
 		'expanded'  => false,
-		'caretPath' => __DIR__ . '/../../assets/images/caret-down.svg',
+		'caretPath' => $config['paths']['assets'] . '/images/caret-down.svg',
 	]
 );
 ?>

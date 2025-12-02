@@ -16,16 +16,17 @@
  * - A horizontal dock bar with anchor elements linking to external tools or resources
  *
  * @var array $dockConfig
+ * @var array<string, mixed> $config
  *
  * @author  Pawel Osmolski
- * @version 1.4
+ * @version 1.5
  */
 
 require_once __DIR__ . '/../config/config.php';
 ?>
 <nav class="dock" aria-label="Quick launch">
 	<ul class="dock-list">
-		<?php foreach ( $dockConfig as $item ):
+		<?php foreach ( $config['profile']['dock'] as $item ):
 
 			$label = isset( $item['label'] ) ? trim( $item['label'] ) : '';
 			$alt = isset( $item['alt'] ) ? trim( $item['alt'] ) : '';

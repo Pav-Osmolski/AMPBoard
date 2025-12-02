@@ -7,20 +7,21 @@
  * @var string $defaultTooltipMessage Default tooltip fallback message
  * @var bool $phpPathValid Validation state for PHP path
  * @var string $currentPhpErrorLevel Current PHP error reporting level constant value
+ * @var array<string, mixed> $config
  */
 
 renderAccordionSectionStart(
 	'php-error',
 	renderHeading( 'PHP Error Handling & Logging' ),
 	[
-		'disabled'  => ! $phpPathValid,
+		'disabled'  => ! $config['status']['phpPathValid'],
 		'expanded'  => false,
-		'caretPath' => __DIR__ . '/../../assets/images/caret-down.svg',
+		'caretPath' => $config['paths']['assets'] . '/images/caret-down.svg',
 	]
 );
 ?>
 <div class="settings-container">
-	<?php if ( ! $phpPathValid ): ?>
+	<?php if ( ! $config['status']['phpPathValid'] ): ?>
 		<p><strong>Warning:</strong> PHP Error Handling & Logging will save to <code>user_config.php</code>
 			but
 			will
@@ -42,7 +43,7 @@ renderAccordionSectionStart(
 		?>
 		<select name="phpErrorLevel">
 			<?php foreach ( $phpErrorLevels as $value => $label ) : ?>
-				<option value="<?= $label ?>" <?= $currentPhpErrorLevel == $value ? 'selected' : '' ?>><?= $label ?></option>
+				<option value="<?= $label ?>" <?= $config['user']['phpError'] == $value ? 'selected' : '' ?>><?= $label ?></option>
 			<?php endforeach; ?>
 		</select>
 	</label>

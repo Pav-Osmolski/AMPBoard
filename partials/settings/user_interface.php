@@ -20,6 +20,7 @@
  * @var bool $useAjaxForErrorLog UI flag to fetch error logs via AJAX
  * @var bool $apacheFastMode Fast mode flag for Apache inspector
  * @var bool $mysqlFastMode Fast mode flag for MySQL inspector
+ * @var array<string, mixed> $config
  */
 
 renderAccordionSectionStart(
@@ -27,7 +28,7 @@ renderAccordionSectionStart(
 	renderHeading( 'User Interface' ),
 	[
 		'expanded'  => false,
-		'caretPath' => __DIR__ . '/../../assets/images/caret-down.svg',
+		'caretPath' => $config['paths']['assets'] . '/images/caret-down.svg',
 	]
 );
 ?>
@@ -36,9 +37,9 @@ renderAccordionSectionStart(
 		<div class="settings-row">
 			<label class="select" for="theme-selector">Theme:</label>
 			<select id="theme-selector" name="theme">
-				<?php foreach ( $themeOptions as $id => $label ) : ?>
+				<?php foreach ( $config['ui']['themes']['options'] as $id => $label ) : ?>
 					<option value="<?= htmlspecialchars( $id, ENT_QUOTES, 'UTF-8' ) ?>"
-						<?= $currentTheme === $id ? 'selected="selected"' : '' ?>>
+						<?= $config['ui']['themes']['currentTheme'] === $id ? 'selected="selected"' : '' ?>>
 						<?= htmlspecialchars( $label, ENT_QUOTES, 'UTF-8' ) ?>
 					</option>
 				<?php endforeach; ?>
@@ -52,35 +53,36 @@ renderAccordionSectionStart(
 		<div class="settings-row">
 			<label>
 				Display Header:
-				<input type="checkbox" name="displayHeader" <?= $displayHeader ? 'checked' : '' ?>>
+				<input type="checkbox" name="displayHeader" <?= $config['ui']['flags']['header'] ? 'checked' : '' ?>>
 			</label>
 		</div>
 
 		<div class="settings-row">
 			<label>
 				Display Footer:
-				<input type="checkbox" name="displayFooter" <?= $displayFooter ? 'checked' : '' ?>>
+				<input type="checkbox" name="displayFooter" <?= $config['ui']['flags']['footer'] ? 'checked' : '' ?>>
 			</label>
 		</div>
 
 		<div class="settings-row">
 			<label>
 				Display Clock:
-				<input type="checkbox" name="displayClock" <?= $displayClock ? 'checked' : '' ?>>
+				<input type="checkbox" name="displayClock" <?= $config['ui']['flags']['clock'] ? 'checked' : '' ?>>
 			</label>
 		</div>
 
 		<div class="settings-row">
 			<label>
 				Display Search:
-				<input type="checkbox" name="displaySearch" <?= $displaySearch ? 'checked' : '' ?>>
+				<input type="checkbox" name="displaySearch" <?= $config['ui']['flags']['search'] ? 'checked' : '' ?>>
 			</label>
 		</div>
 
 		<div class="settings-row">
 			<label>
 				Display Tooltips:
-				<input type="checkbox" name="displayTooltips" <?= $displayTooltips ? 'checked' : '' ?>>
+				<input type="checkbox"
+				       name="displayTooltips" <?= $config['ui']['flags']['tooltips'] ? 'checked' : '' ?>>
 			</label>
 		</div>
 
@@ -88,7 +90,7 @@ renderAccordionSectionStart(
 			<label>
 				Display Folder Badges:
 				<input type="checkbox"
-				       name="displayFolderBadges" <?= $displayFolderBadges ? 'checked' : '' ?>>
+				       name="displayFolderBadges" <?= $config['ui']['flags']['folderBadges'] ? 'checked' : '' ?>>
 			</label>
 		</div>
 
@@ -96,7 +98,7 @@ renderAccordionSectionStart(
 			<label>
 				Display System Stats:
 				<input type="checkbox"
-				       name="displaySystemStats" <?= $displaySystemStats ? 'checked' : '' ?>>
+				       name="displaySystemStats" <?= $config['ui']['flags']['systemStats'] ? 'checked' : '' ?>>
 			</label>
 		</div>
 
@@ -104,7 +106,7 @@ renderAccordionSectionStart(
 			<label>
 				Display Apache Error Log:
 				<input type="checkbox"
-				       name="displayApacheErrorLog" <?= $displayApacheErrorLog ? 'checked' : '' ?>>
+				       name="displayApacheErrorLog" <?= $config['ui']['flags']['apacheErrorLog'] ? 'checked' : '' ?>>
 			</label>
 		</div>
 
@@ -112,14 +114,15 @@ renderAccordionSectionStart(
 			<label>
 				Display PHP Error Log:
 				<input type="checkbox"
-				       name="displayPhpErrorLog" <?= $displayPhpErrorLog ? 'checked' : '' ?>>
+				       name="displayPhpErrorLog" <?= $config['ui']['flags']['phpErrorLog'] ? 'checked' : '' ?>>
 			</label>
 		</div>
 
 		<div class="settings-row">
 			<label>
 				Use AJAX for Stats:
-				<input type="checkbox" name="useAjaxForStats" <?= $useAjaxForStats ? 'checked' : '' ?>>
+				<input type="checkbox"
+				       name="useAjaxForStats" <?= $config['ui']['flags']['useAjaxForStats'] ? 'checked' : '' ?>>
 				<span class="sr-only">Loads stats in the background without reloading the page</span>
 			</label>
 		</div>
@@ -128,7 +131,7 @@ renderAccordionSectionStart(
 			<label>
 				Use AJAX for Error Log:
 				<input type="checkbox"
-				       name="useAjaxForErrorLog" <?= $useAjaxForErrorLog ? 'checked' : '' ?>>
+				       name="useAjaxForErrorLog" <?= $config['ui']['flags']['useAjaxForErrorLog'] ? 'checked' : '' ?>>
 				<span class="sr-only">Loads the error log in the background without reloading the page</span>
 			</label>
 		</div>

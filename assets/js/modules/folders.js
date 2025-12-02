@@ -99,9 +99,17 @@ export function initFoldersConfig() {
 			const casesHtml = mapToRows( item.specialCases ).map( specialCaseRowHtml ).join( '' );
 			const selected = item.linkTemplate || '';
 			const uid = `${ Math.random().toString( 36 ).slice( 2 ) }`;
+			const labelText = typeof index === 'number'
+				? `Folder ${ index }`
+				: 'Folder';
+
+			const headingId = `folder-label-${ uid }`;
 
 			return `
-				<li class="folder-config-item">
+				<li class="folder-config-item" role="group" aria-labelledby="${ headingId }">
+					<h4 id="${ headingId }" class="folder-label">
+						${ labelText }
+					</h4>
 					<div class="uid-container">
 						<label for="title-${ uid }">Title:</label>
 						<input id="title-${ uid }"
@@ -194,10 +202,24 @@ export function initFoldersConfig() {
 			`;
 		}
 
+		function renumberFolders() {
+			list.querySelectorAll( '.folder-config-item' ).forEach( ( li, index ) => {
+				const labelEl = li.querySelector( '.folder-label' );
+				if ( labelEl ) {
+					labelEl.textContent = `Folder ${ index + 1 }`;
+				}
+			} );
+		}
+
 		function appendFolderItems( items ) {
 			const frag = document.createDocumentFragment();
 			const tmp = document.createElement( 'div' );
-			tmp.innerHTML = items.map( folderItemHtml ).join( '' );
+			const existingCount = list.querySelectorAll( '.folder-config-item' ).length;
+
+			tmp.innerHTML = items
+				.map( ( item, index ) => folderItemHtml( item, existingCount + index + 1 ) )
+				.join( '' );
+
 			Array.from( tmp.children ).forEach( child => frag.appendChild( child ) );
 			list.appendChild( frag );
 
@@ -213,11 +235,14 @@ export function initFoldersConfig() {
 					select.disabled = linkTemplates.length === 0;
 				}
 			} );
+
+			renumberFolders();
 		}
 
 		function addFolderItem( item = {} ) {
 			const tmp = document.createElement( 'div' );
-			tmp.innerHTML = folderItemHtml( item );
+			const nextIndex = list.querySelectorAll( '.folder-config-item' ).length + 1;
+			tmp.innerHTML = folderItemHtml( item, nextIndex );
 			const li = tmp.firstElementChild;
 			list.appendChild( li );
 			const select = li.querySelector( '.link-template-select' );
@@ -225,6 +250,7 @@ export function initFoldersConfig() {
 				select.disabled = linkTemplates.length === 0;
 				if ( item.linkTemplate ) select.value = item.linkTemplate;
 			}
+			renumberFolders();
 			markDirty();
 		}
 
@@ -334,12 +360,14 @@ export function initFoldersConfig() {
 				const li = e.target.closest( '.folder-config-item' );
 				if ( li ) {
 					li.remove();
+					renumberFolders();
 					markDirty();
 				}
 			}
 		} );
 
 		list.addEventListener( 'sorted', () => {
+			renumberFolders();
 			dirty = true;
 			updateInput(); // immediate update after reorder
 		} );

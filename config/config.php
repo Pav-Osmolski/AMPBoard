@@ -42,7 +42,7 @@
  * - `getDefaultTooltips()`, `getDefaultTooltipMessage()`
  *
  * @author  Pawel Osmolski
- * @version 2.7
+ * @version 2.8
  */
 
 if ( ! defined( 'AMPBOARD_NO_HELPERS' ) ) {
@@ -53,7 +53,7 @@ if ( ! defined( 'AMPBOARD_NO_HELPERS' ) ) {
 $localOverrides = __DIR__ . '/local.php';
 
 if ( file_exists( $localOverrides ) ) {
-    require_once $localOverrides;
+	require_once $localOverrides;
 }
 
 // Sanitize username for user config folder creation
@@ -75,6 +75,13 @@ $interfaceDir = __DIR__ . '/interface';
 if ( file_exists( $activeUserConfig ) ) {
 	require_once $activeUserConfig;
 }
+
+// AMPBoard general application paths
+$assetsDir   = __DIR__ . '/../assets';
+$crtDir      = __DIR__ . '/../crt';
+$partialsDir = __DIR__ . '/../partials';
+$utilsDir    = __DIR__ . '/../utils';
+$logsDir     = __DIR__ . '/../logs';
 
 // Initialise user configs
 $foldersConfig       = read_json_array_safely( $activeConfigDir . '/folders.json' );
@@ -168,8 +175,11 @@ $apachePathValid = file_exists( APACHE_PATH );
 $htdocsPathValid = file_exists( HTDOCS_PATH );
 $phpPathValid    = file_exists( PHP_PATH );
 
-// Check if Apache toggle script exists
-$apacheToggle = file_exists( __DIR__ . '/../utils/toggle_apache.php' );
+// Check if utilities are available
+$apacheToggleAvailable   = file_exists( $utilsDir . '/toggle_apache.php' );
+$systemStatsAvailable    = file_exists( $utilsDir . '/system_stats.php' );
+$apacheErrorLogAvailable = file_exists( $utilsDir . '/apache_error_log.php' );
+$phpErrorLogAvailable    = file_exists( $utilsDir . '/php_error_log.php' );
 
 // Validate MySQL credentials (host, user, password)
 $mySqlHostValid = checkMysqlCredentialsStatus( 'host' );
@@ -182,6 +192,22 @@ $currentPhpErrorLevel = ini_get( 'error_reporting' );
 // Resolve display user (respecting DEMO_MODE)
 $user = ( defined( 'DEMO_MODE' ) && DEMO_MODE ) ? 'demo' : $rawUser;
 
+// Base config structure (paths are available early for helpers)
+$config['paths'] = [
+	'apache'         => APACHE_PATH,
+	'htdocs'         => HTDOCS_PATH,
+	'php'            => PHP_PATH,
+	'defaultProfile' => $defaultConfigDir,
+	'userProfile'    => $userConfigDir,
+	'activeProfile'  => $activeConfigDir,
+	'interface'      => $interfaceDir,
+	'assets'         => $assetsDir,
+	'crt'            => $crtDir,
+	'logs'           => $logsDir,
+	'partials'       => $partialsDir,
+	'utils'          => $utilsDir,
+];
+
 // Class list for the <body> based on the UI options set by `user_config.php`
 $bodyClasses = buildBodyClasses(
 	$theme,
@@ -192,9 +218,11 @@ $bodyClasses = buildBodyClasses(
 	$displayTooltips,
 	$displaySystemStats,
 	$displayApacheErrorLog,
-	$displayPhpErrorLog
+	$displayPhpErrorLog,
+	$systemStatsAvailable,
+	$apacheErrorLogAvailable,
+	$phpErrorLogAvailable
 );
-
 // Query available themes directly from assets
 [ $themeOptions, $themeTypes ] = loadThemes( __DIR__ . '/../assets/scss/themes/' );
 
@@ -205,61 +233,68 @@ $currentTheme = $theme;
 $tooltips              = getDefaultTooltips();
 $defaultTooltipMessage = getDefaultTooltipMessage();
 
-// Config array
-$config = [
-	'paths'  => [
-		'defaultProfile' => $defaultConfigDir,
-		'userProfile'    => $userConfigDir,
-		'activeProfile'  => $activeConfigDir,
-		'interface'      => $interfaceDir,
-		'apache'         => APACHE_PATH,
-		'htdocs'         => HTDOCS_PATH,
-		'php'            => PHP_PATH,
-	],
-	'ui'     => [
-		'theme'        => $theme,
-		'currentTheme' => $currentTheme,
-		'bodyClasses'  => $bodyClasses,
-		'flags'        => [
-			'header'         => $displayHeader,
-			'footer'         => $displayFooter,
-			'clock'          => $displayClock,
-			'search'         => $displaySearch,
-			'tooltips'       => $displayTooltips,
-			'folderBadges'   => $displayFolderBadges,
-			'systemStats'    => $displaySystemStats,
-			'apacheErrorLog' => $displayApacheErrorLog,
-			'phpErrorLog'    => $displayPhpErrorLog,
-		],
-		'themes'       => [
-			'options' => $themeOptions,
-			'types'   => $themeTypes,
-		],
-		'tooltips'     => [
-			'map'     => $tooltips,
-			'default' => $defaultTooltipMessage,
-		],
-	],
-	'db'     => [
-		'user' => $dbUser,
-		'pass' => $dbPass,
-	],
-	'status' => [
-		'apachePathValid' => $apachePathValid,
-		'htdocsPathValid' => $htdocsPathValid,
-		'phpPathValid'    => $phpPathValid,
-		'mySqlHostValid'  => $mySqlHostValid,
-		'mySqlUserValid'  => $mySqlUserValid,
-		'mySqlPassValid'  => $mySqlPassValid,
-		'apacheToggle'    => $apacheToggle,
-	],
-	'user'   => [
-		'name'     => $user,
-		'isDemo'   => (bool) ( defined( 'DEMO_MODE' ) && DEMO_MODE ),
-		'phpError' => $currentPhpErrorLevel,
-	],
-	'utils'  => [
+// Augment the centralised config array
+$config['profile'] = [
+	'folders'       => $foldersConfig,
+	'linkTemplates' => $linkTemplatesConfig,
+	'dock'          => $dockConfig,
+];
+
+$config['ui'] = [
+	'bodyClasses' => $bodyClasses,
+	'flags'       => [
+		'header'             => $displayHeader,
+		'footer'             => $displayFooter,
+		'clock'              => $displayClock,
+		'search'             => $displaySearch,
+		'tooltips'           => $displayTooltips,
+		'folderBadges'       => $displayFolderBadges,
+		'systemStats'        => $displaySystemStats,
+		'apacheErrorLog'     => $displayApacheErrorLog,
+		'phpErrorLog'        => $displayPhpErrorLog,
 		'useAjaxForStats'    => $useAjaxForStats,
 		'useAjaxForErrorLog' => $useAjaxForErrorLog,
+		'apacheFastMode'     => $apacheFastMode,
+		'mysqlFastMode'      => $mysqlFastMode,
 	],
+	'themes'      => [
+		'theme'        => $theme,
+		'currentTheme' => $currentTheme,
+		'options'      => $themeOptions,
+		'types'        => $themeTypes,
+	],
+	'tooltips'    => [
+		'map'     => $tooltips,
+		'default' => $defaultTooltipMessage,
+	],
+];
+
+$config['db'] = [
+	'host' => DB_HOST,
+	'user' => $dbUser,
+	'pass' => $dbPass,
+];
+
+$config['status'] = [
+	'apachePathValid'         => $apachePathValid,
+	'htdocsPathValid'         => $htdocsPathValid,
+	'phpPathValid'            => $phpPathValid,
+	'mySqlHostValid'          => $mySqlHostValid,
+	'mySqlUserValid'          => $mySqlUserValid,
+	'mySqlPassValid'          => $mySqlPassValid,
+	'apacheToggleAvailable'   => $apacheToggleAvailable,
+	'systemStatsAvailable'    => $systemStatsAvailable,
+	'apacheErrorLogAvailable' => $apacheErrorLogAvailable,
+	'phpErrorLogAvailable'    => $phpErrorLogAvailable,
+];
+
+$config['user'] = [
+	'name'     => $user,
+	'isDemo'   => (bool) ( defined( 'DEMO_MODE' ) && DEMO_MODE ),
+	'phpError' => $currentPhpErrorLevel,
+];
+
+$config['interface'] = [
+	'headings' => $headingsConfig,
+	'tooltips' => $tooltipsConfig,
 ];

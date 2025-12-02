@@ -38,17 +38,18 @@
  * @var string $currentTheme Active theme key
  * @var array $tooltips Tooltip copy map
  * @var string $defaultTooltipMessage Default tooltip fallback message
+ * @var array<string, mixed> $config
  *
  * @author  Pawel Osmolski
- * @version 3.4
+ * @version 3.5
  */
 
 require_once __DIR__ . '/../config/config.php';
 ?>
 
 <script>
-	const themeTypes = <?= json_encode( $themeTypes ) ?>;
-	const serverTheme = <?= json_encode( $currentTheme ) ?>;
+	const themeTypes = <?= json_encode( $config['ui']['themes']['types'] ) ?>;
+	const serverTheme = <?= json_encode( $config['ui']['themes']['currentTheme'] ) ?>;
 </script>
 
 <?php if ( isset( $_GET['saved'] ) ): ?>
@@ -95,23 +96,23 @@ require_once __DIR__ . '/../config/config.php';
 			?>
 		</form>
 
-			<?php
-			$settingsPanels = [
-				'vhosts_manager',
-				'export_files',
-				'apache_control',
-				'settings_manager'
-			];
+		<?php
+		$settingsPanels = [
+			'vhosts_manager',
+			'export_files',
+			'apache_control',
+			'settings_manager'
+		];
 
-			$lastIndex = count( $settingsPanels ) - 1;
+		$lastIndex = count( $settingsPanels ) - 1;
 
-			foreach ( $settingsPanels as $index => $panel ) {
-				require_once __DIR__ . "/settings/{$panel}.php";
+		foreach ( $settingsPanels as $index => $panel ) {
+			require_once __DIR__ . "/settings/{$panel}.php";
 
-				if ( $index !== $lastIndex ) {
-					renderSeparatorLine();
-				}
+			if ( $index !== $lastIndex ) {
+				renderSeparatorLine();
 			}
-			?>
+		}
+		?>
 	</div>
 </div>

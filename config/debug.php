@@ -14,14 +14,16 @@
  * @return void
  *
  * @author  Pawel Osmolski
- * @version 1.1
+ * @version 1.2
  */
 function log_command( string $command, string $context = '' ): void {
-	$logDir  = __DIR__ . '/../logs';
-	$logFile = $logDir . '/localhost-page.log';
+	global $config;
 
-	if ( ! is_dir( $logDir ) ) {
-		mkdir( $logDir, 0755, true );
+	$logsPath = $config['paths']['logs'];
+	$logFile = $logsPath . '/localhost-page.log';
+
+	if ( ! is_dir( $logsPath ) ) {
+		mkdir( $logsPath, 0755, true );
 	}
 
 	$timestamp  = date( '[Y-m-d H:i:s]' );

@@ -15,17 +15,18 @@
  *
  * @var string $dbUser
  * @var string $dbPass
+ * @var array<string, mixed> $config
  *
  * @package AMPBoard
  * @author  Pawel Osmolski
- * @version 1.3
+ * @version 1.4
  * @license GPL-3.0-or-later https://www.gnu.org/licenses/gpl-3.0.html
  */
 
 require_once __DIR__ . '/../config/config.php';
 
 // Default to config value; override with ?fast=1 or ?fast=0 if provided
-$fastMode = $mysqlFastMode ?? false;
+$fastMode = $config['ui']['flags']['mysqlFastMode'] ?? false;
 
 if ( isset( $_GET['fast'] ) ) {
 	$fastMode = filter_var( $_GET['fast'], FILTER_VALIDATE_BOOLEAN );

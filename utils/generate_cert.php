@@ -9,9 +9,11 @@
  *
  * Usage (GET): generate_cert.php?name=example.test
  *
+ * @var array<string, mixed> $config
+ *
  * @package AMPBoard
  * @author  Pawel Osmolski
- * @version 1.1
+ * @version 1.2
  * @license GPL-3.0-or-later https://www.gnu.org/licenses/gpl-3.0.html
  */
 
@@ -31,12 +33,12 @@ if ( defined( 'DEMO_MODE' ) && DEMO_MODE ) {
 
 $domain           = preg_replace( '/[^a-zA-Z0-9.-]/', '', $_GET['name'] );
 $os               = PHP_OS_FAMILY;
-$crtDir           = APACHE_PATH . DIRECTORY_SEPARATOR . 'crt';
-$defaultScriptDir = __DIR__ . '/../crt/';
+$crtPath          = APACHE_PATH . DIRECTORY_SEPARATOR . 'crt';
+$defaultScriptDir = $config['paths']['crt'];
 
 // Ensure crtDir exists
-if ( ! is_dir( $crtDir ) ) {
-	mkdir( $crtDir, 0775, true );
+if ( ! is_dir( $crtPath ) ) {
+	mkdir( $crtPath, 0775, true );
 }
 
 // Define script variants by OS
@@ -48,7 +50,7 @@ $scriptVariants = [
 
 // Copy fallback scripts if missing or outdated
 foreach ( $scriptVariants[ $os ] ?? [] as $script ) {
-	$target = $crtDir . DIRECTORY_SEPARATOR . $script;
+	$target = $crtPath . DIRECTORY_SEPARATOR . $script;
 	$source = $defaultScriptDir . DIRECTORY_SEPARATOR . $script;
 
 	if ( file_exists( $source ) ) {
@@ -70,8 +72,8 @@ foreach ( $scriptVariants[ $os ] ?? [] as $script ) {
 
 // Determine which script to run
 if ( $os === 'Windows' ) {
-	$ps1Path = $crtDir . DIRECTORY_SEPARATOR . 'make-cert-silent.ps1';
-	$batPath = $crtDir . DIRECTORY_SEPARATOR . 'make-cert-silent.bat';
+	$ps1Path = $crtPath . DIRECTORY_SEPARATOR . 'make-cert-silent.ps1';
+	$batPath = $crtPath . DIRECTORY_SEPARATOR . 'make-cert-silent.bat';
 
 	if ( file_exists( $ps1Path ) ) {
 		$command = 'powershell -ExecutionPolicy Bypass -File "' . $ps1Path . '" "' . $domain . '"';
@@ -79,15 +81,15 @@ if ( $os === 'Windows' ) {
 		$command = 'cmd /c "' . $batPath . ' ' . $domain . '"';
 	} else {
 		http_response_code( 500 );
-		exit( "Cannot find PowerShell or BAT script in:\n$crtDir" );
+		exit( "Cannot find PowerShell or BAT script in:\n$crtPath" );
 	}
 } else {
-	$shPath = $crtDir . DIRECTORY_SEPARATOR . 'make-cert-silent.sh';
+	$shPath = $crtPath . DIRECTORY_SEPARATOR . 'make-cert-silent.sh';
 	if ( file_exists( $shPath ) ) {
 		$command = 'bash "' . $shPath . '" "' . $domain . '"';
 	} else {
 		http_response_code( 500 );
-		exit( "Cannot find shell script in:\n$crtDir" );
+		exit( "Cannot find shell script in:\n$crtPath" );
 	}
 }
 
