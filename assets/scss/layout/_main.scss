@@ -8,6 +8,26 @@ body {
 	padding: 0;
 	height: 100vh;
 	overflow-x: hidden;
+
+	&.header-active {
+		&.footer-active {
+			main {
+				min-height: calc(100vh - var(--header-footer-height));
+			}
+		}
+		&.footer-inactive {
+			main {
+				min-height: calc(100vh - var(--header-height));
+			}
+		}
+	}
+	&.header-inactive {
+		&.footer-active {
+			main {
+				min-height: calc(100vh - var(--footer-height));
+			}
+		}
+	}
 }
 
 h1 {
@@ -80,24 +100,6 @@ hr {
 main {
 	display: flex;
 	flex-direction: column;
-}
-
-body.header-active.footer-active {
-	main {
-		min-height: calc(100vh - var(--header-footer-height));
-	}
-}
-
-body.header-inactive.footer-active {
-	main {
-		min-height: calc(100vh - var(--footer-height));
-	}
-}
-
-body.header-active.footer-inactive {
-	main {
-		min-height: calc(100vh - var(--header-height));
-	}
 }
 
 section {

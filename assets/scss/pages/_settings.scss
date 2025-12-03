@@ -51,26 +51,22 @@
 			}
 		}
 	}
-}
 
-#link-templates-list {
-	padding: 0 .5rem;
-}
+	.background-logos {
+		position: absolute;
+		right: 0;
+		top: 10px;
+		display: flex;
+		width: 100%;
+		justify-content: flex-end;
 
-.background-logos {
-	position: absolute;
-	right: 0;
-	top: 10px;
-	display: flex;
-	width: 100%;
-	justify-content: flex-end;
-
-	svg {
-		height: 140px;
-		width: auto;
-		opacity: .3;
-		flex: none;
-		transition: opacity var(--transition-ease);
+		svg {
+			height: 140px;
+			width: auto;
+			opacity: .3;
+			flex: none;
+			transition: opacity var(--transition-ease);
+		}
 	}
 }
 

@@ -3,6 +3,7 @@
 
 /* Media */
 @include respond($break-xl) {
+	/* Header */
 	header {
 		h1 {
 			font-size: 1.5625rem;
@@ -15,25 +16,31 @@
 }
 
 @include respond($break-lg) {
+	/* Header */
 	header {
 		h1 {
 			display: none;
 		}
 	}
+	body.clock-inactive.search-inactive header {
+		justify-content: flex-end;
+	}
+	/* Index page styles and Form Elements */
 	p, label {
 		font-size: .9375rem;
 	}
 	table code {
 		font-size: .8rem;
 	}
-	.columns {
-		flex-direction: column;
-		max-width: none !important;
-		width: 100%;
+	/* Folders and Columns */
+	#folders-view {
+		.columns {
+			flex-direction: column;
+			max-width: none !important;
+			width: 100%;
+		}
 	}
-	body.clock-inactive.search-inactive header {
-		justify-content: flex-end;
-	}
+	/* System Monitor and Error Log */
 	body.system-monitor-active.error-log-active .error-log-section {
 		padding-right: 20px;
 	}
@@ -44,14 +51,19 @@
 		border-radius: 0;
 		align-items: center;
 	}
+	/* Width Controls */
 	.width-controls {
 		display: none;
 	}
-	.background-logos {
-		svg {
-			opacity: 0;
+	/* Settings */
+	.settings {
+		.background-logos {
+			svg {
+				opacity: 0;
+			}
 		}
 	}
+	/* macOS-style Dock */
 	#dock-config-editor {
 		#dock-list {
 			display: flex;
@@ -66,6 +78,7 @@
 			}
 		}
 	}
+	/* Folder Link Templates */
 	#link-templates-config {
 		.template-item {
 			flex-direction: column;
@@ -81,9 +94,11 @@
 			}
 		}
 	}
+	/* HTML Syntax Editor */
 	.template-html-wrapper {
 		width: 100%;
 	}
+	/* vHosts Manager */
 	#vhosts-table {
 		width: 100%;
 		border: 1px solid var(--border-color);
@@ -128,18 +143,23 @@
 }
 
 @include respond($break-md) {
+	/* Index page styles */
 	p {
 		&.description {
 			width: auto;
 		}
 	}
+	/* Form Elements */
 	fieldset {
 		width: auto;
 	}
-	.settings-features {
-		max-width: none;
+	/* Settings */
+	.settings {
+		&-features {
+			max-width: none;
+		}
 	}
-
+	/* Header */
 	.server-info {
 		&:before {
 			content: '';
@@ -158,7 +178,7 @@
 			}
 		}
 	}
-
+	/* macOS-style Dock */
 	.dock-list {
 		gap: 15px;
 
@@ -178,10 +198,10 @@
 }
 
 @include respond($break-sm) {
+	/* Header */
 	body.search-inactive header {
 		justify-content: flex-end;
 	}
-
 	header {
 		.search-bar {
 			margin-top: -30px;

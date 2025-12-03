@@ -25,7 +25,7 @@
  * @var array<string, mixed> $config
  *
  * @author  Pawel Osmolski
- * @version 1.8
+ * @version 1.9
  */
 
 require_once __DIR__ . '/../config/config.php';
@@ -186,13 +186,15 @@ $hasVhostFilteredColumns = false;
 		</div>
 
 		<?php if ( ! empty( $globalErrors ) ): ?>
-			<div class="column warnings max-md">
-				<h4>Warnings</h4>
-				<ul>
-					<?php foreach ( array_unique( $globalErrors ) as $msg ): ?>
-						<li><?= $msg ?></li>
-					<?php endforeach; ?>
-				</ul>
+			<div class="columns width-resizable max-fc">
+				<div class="column warnings max-md">
+					<h4>Warnings</h4>
+					<ul>
+						<?php foreach ( array_unique( $globalErrors ) as $msg ): ?>
+							<li><?= $msg ?></li>
+						<?php endforeach; ?>
+					</ul>
+				</div>
 			</div>
 		<?php endif; ?>
 	</div>

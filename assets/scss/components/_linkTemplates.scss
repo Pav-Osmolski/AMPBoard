@@ -1,0 +1,26 @@
+/* Folder Link Templates */
+#link-templates-config {
+    .template-item {
+        display: flex;
+        gap: .5rem;
+        margin-bottom: 20px;
+
+        input {
+            max-width: none;
+            font-size: .9rem;
+
+            &.template-name {
+                max-width: 300px;
+                align-self: flex-start;
+            }
+        }
+
+        .remove-template {
+            align-self: flex-start;
+        }
+    }
+}
+
+#link-templates-list {
+    padding: 0 .5rem;
+}
