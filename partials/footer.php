@@ -1,4 +1,13 @@
+<?php
+/**
+ * AMPBoard Footer
+ *
+ * @author  Pawel Osmolski
+ * @version 1.4
+ */
+?>
 <footer>
+	<?= renderCollapseToggle( 'footer' ); ?>
 	<div class="footer-wrapper">
 		<nav class="footer-nav" aria-label="Footer shortcuts">
 			<ul class="footer-links">

@@ -28,6 +28,12 @@ body {
 			}
 		}
 	}
+
+	&.header-collapsed {
+		main {
+			margin-top: -75px;
+		}
+	}
 }
 
 h1 {
@@ -100,6 +106,7 @@ hr {
 main {
 	display: flex;
 	flex-direction: column;
+	transition: margin-top var(--transition-ease);
 }
 
 section {

@@ -1,4 +1,15 @@
 /* Keyframe animations */
+@keyframes slideInUp {
+	from {
+		transform: translateY(100%);
+		opacity: 0;
+	}
+	to {
+		transform: translateY(0);
+		opacity: 1;
+	}
+}
+
 @keyframes slideInDown {
 	from {
 		transform: translateY(-100%);
@@ -28,17 +39,6 @@
 	to {
 		opacity: 1;
 		display: flex;
-	}
-}
-
-@keyframes slideInUp {
-	from {
-		transform: translateY(100%);
-		opacity: 0;
-	}
-	to {
-		transform: translateY(0);
-		opacity: 1;
 	}
 }
 

@@ -3,8 +3,9 @@ import '../scss/style.scss';
 
 import {initToggleAccordion} from './modules/accordion.js';
 import {toggleApache} from './modules/apache.js';
-import {initClock} from './modules/clock.js';
+import {initCollapseToggle} from './modules/collapseToggle.js';
 import {setColumnWidth, cycleColumnWidth, initColumnFeatures} from './modules/columns.js';
+import {initClock} from './modules/clock.js';
 import {initDockConfig} from './modules/dock.js';
 import {initApacheErrorLog, initPhpErrorLog} from './modules/error.js';
 import {initExportModule} from './modules/export.js';
@@ -19,8 +20,9 @@ import {setupVhostCertButtons} from './modules/vhosts.js';
 import {initViewToggles} from './modules/view.js';
 
 // Initialise on page load
-initClock();
+initCollapseToggle();
 initColumnFeatures();
+initClock();
 initDockConfig();
 initFoldersConfig();
 initLinkTemplates();

@@ -5,7 +5,7 @@
  * @var array<string, mixed> $config
  *
  * @author  Pawel Osmolski
- * @version 2.3
+ * @version 2.4
  */
 
 /**
@@ -900,6 +900,131 @@ function renderHeading(
 	if ( $suffix !== '' ) {
 		$html .= $suffix;
 	}
+
+	return $html;
+}
+
+/**
+ * Render a collapse toggle button for regions (header, footer, or custom).
+ *
+ * The button is positioned absolutely inside its nearest positioned ancestor
+ * and exposes data attributes that JavaScript can use to collapse the region
+ * in and out of view.
+ *
+ * Usage examples:
+ *
+ *   // Header toggle inside partials/header.php
+ *   echo renderCollapseToggle( 'header' );
+ *
+ *   // Footer toggle inside partials/footer.php
+ *   echo renderCollapseToggle( 'footer' );
+ *
+ *   // Custom element (JS will use the selector)
+ *   echo renderCollapseToggle( 'custom', [
+ *       'targetSelector' => '#my-panel',
+ *       'id'             => 'collapse-my-panel',
+ *   ] );
+ *
+ * Options:
+ * - id             : string Custom button id. Defaults to "collapse-toggle-{region}".
+ * - labelExpanded  : string Screen reader label when region is visible.
+ * - labelCollapsed : string Screen reader label when region is hidden.
+ * - targetSelector : string Optional CSS selector for a custom target element.
+ * - extraClasses   : string Extra CSS classes for the button.
+ *
+ * JS expectations:
+ * - Buttons use the ".collapse-toggle" class.
+ * - The "data-collapse-region" attribute is one of "header", "footer", or "custom".
+ * - Optional "data-target-selector" is used for custom regions.
+ * - JS toggles:
+ *     - "is-collapsed" or "is-open" on the target element, and
+ *     - "{region}-collapsed" on <html> for header/footer.
+ *
+ * @param string $region One of "header", "footer", or "custom".
+ * @param array<string, string> $options See options list above.
+ *
+ * @return string Generated HTML button markup.
+ */
+function renderCollapseToggle( string $region = 'header', array $options = [] ): string {
+	global $config;
+
+	$region = strtolower( $region );
+
+	if ( ! in_array( $region, [ 'header', 'footer', 'custom' ], true ) ) {
+		$region = 'custom';
+	}
+
+	$defaults = [
+		'id'             => '',
+		'labelExpanded'  => '',
+		'labelCollapsed' => '',
+		'targetSelector' => '',
+		'extraClasses'   => '',
+	];
+
+	$options = array_merge( $defaults, $options );
+
+	// Sensible defaults based on region.
+	if ( $options['labelExpanded'] === '' ) {
+		if ( $region === 'footer' ) {
+			$options['labelExpanded'] = 'Collapse footer';
+		} elseif ( $region === 'header' ) {
+			$options['labelExpanded'] = 'Collapse header';
+		} else {
+			$options['labelExpanded'] = 'Collapse section';
+		}
+	}
+
+	if ( $options['labelCollapsed'] === '' ) {
+		if ( $region === 'footer' ) {
+			$options['labelCollapsed'] = 'Expand footer';
+		} elseif ( $region === 'header' ) {
+			$options['labelCollapsed'] = 'Expand header';
+		} else {
+			$options['labelCollapsed'] = 'Expand section';
+		}
+	}
+
+	if ( $options['id'] === '' ) {
+		$options['id'] = 'collapse-toggle-' . $region;
+	}
+
+	$id             = htmlspecialchars( (string) $options['id'], ENT_QUOTES, 'UTF-8' );
+	$regionAttr     = htmlspecialchars( (string) $region, ENT_QUOTES, 'UTF-8' );
+	$labelExpanded  = htmlspecialchars( (string) $options['labelExpanded'], ENT_QUOTES, 'UTF-8' );
+	$labelCollapsed = htmlspecialchars( (string) $options['labelCollapsed'], ENT_QUOTES, 'UTF-8' );
+	$extraClasses   = trim( 'collapse-toggle collapse-toggle-' . $region . ' ' . $options['extraClasses'] );
+	$classAttr      = htmlspecialchars( $extraClasses, ENT_QUOTES, 'UTF-8' );
+
+	$caretPath = $config['paths']['assets'] . '/images/caret-down.svg';
+	$caretSvg  = '<span class="icon" aria-hidden="true">^</span>';
+	if ( is_file( $caretPath ) && is_readable( $caretPath ) ) {
+		$svg      = file_get_contents( $caretPath );
+		$svg      = preg_replace( '/(<svg\b)([^>]*)(>)/i', '$1$2 focusable="false" aria-hidden="true"$3', $svg, 1 );
+		$caretSvg = '<span class="icon" aria-hidden="true">' . $svg . '</span>';
+	}
+
+	$attrs   = [];
+	$attrs[] = 'id="' . $id . '"';
+	$attrs[] = 'type="button"';
+	$attrs[] = 'class="' . $classAttr . '"';
+	$attrs[] = 'data-collapse-region="' . $regionAttr . '"';
+	$attrs[] = 'data-label-expanded="' . $labelExpanded . '"';
+	$attrs[] = 'data-label-collapsed="' . $labelCollapsed . '"';
+	$attrs[] = 'aria-expanded="true"';
+	$attrs[] = 'aria-label="' . $labelExpanded . '"';
+
+	if ( $options['targetSelector'] !== '' ) {
+		$selector = htmlspecialchars( (string) $options['targetSelector'], ENT_QUOTES, 'UTF-8' );
+		$attrs[]  = 'data-target-selector="' . $selector . '"';
+	}
+
+	$attrString = implode( ' ', $attrs );
+
+	$html = '<button ' . $attrString . '>';
+	$html .= $caretSvg;
+	$html .= '<span class="sr-only collapse-toggle-label">' . $labelExpanded . '</span>';
+	$html .= '</button>';
 
 	return $html;
 }

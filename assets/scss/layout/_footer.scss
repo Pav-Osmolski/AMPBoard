@@ -4,19 +4,27 @@ footer {
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
+	height: var(--footer-height);
+	padding: 15px;
+	line-height: 1.6;
+	text-align: center;
+	background-color: var(--header-background-color);
+	border-top: 1px solid var(--border-color);
 	position: fixed;
 	bottom: 0;
 	left: 0;
 	right: 0;
-	padding: 15px;
-	height: var(--footer-height);
-	line-height: 1.6;
-	background-color: var(--header-background-color);
-	border-top: 1px solid var(--border-color);
-	text-align: center;
-	overflow: hidden;
 	z-index: 2;
 	animation: slideInUp 1s ease-out;
+	transition: transform var(--transition-ease), background-color var(--transition-ease);
+
+	&.is-collapsed {
+		transform: translateY(90%);
+	}
+
+	&.is-open {
+		transform: translateY(0);
+	}
 
 	.footer-wrapper {
 		display: flex;

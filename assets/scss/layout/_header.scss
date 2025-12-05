@@ -1,19 +1,30 @@
 /* Header */
 header {
-	padding: 15px;
-	background-color: var(--header-background-color);
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
 	gap: 1.25rem;
-	border-bottom: 1px solid var(--border-color);
 	height: var(--header-height);
+	padding: 15px;
+	background-color: var(--header-background-color);
+	border-bottom: 1px solid var(--border-color);
 	box-shadow: 0 4px 12px var(--box-shadow);
-	animation: slideInDown 1s ease-out;
 	position: -webkit-sticky;
 	position: sticky;
 	top: 0;
+	left: 0;
+	right: 0;
 	z-index: 1000;
+	animation: slideInDown 1s ease-out;
+	transition: transform var(--transition-ease), background-color var(--transition-ease);
+
+	&.is-collapsed {
+		transform: translateY(-90%);
+	}
+
+	&.is-open {
+		transform: translateY(0);
+	}
 
 	h1 {
 		display: flex;

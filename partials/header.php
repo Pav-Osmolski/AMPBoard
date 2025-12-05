@@ -1,14 +1,22 @@
 <?php
-/** @var string $user */
-/** @var string $dbUser */
-/** @var string $dbPass */
-/** @var bool $displayClock */
-/** @var bool $displaySearch */
-/** @var array<string, mixed> $config */
+/**
+ * AMPBoard Header
+ *
+ * @var string $user
+ * @var string $dbUser
+ * @var string $dbPass
+ * @var bool $displayClock
+ * @var bool $displaySearch
+ * @var array<string, mixed> $config
+ *
+ * @author  Pawel Osmolski
+ * @version 1.4
+ */
 
 require_once __DIR__ . '/../config/config.php';
 ?>
 <header role="banner">
+	<?= renderCollapseToggle( 'header' ); ?>
 	<h1>
 		<span><?php echo getServerLabel(); ?> is ready, <?php echo htmlspecialchars( $config['user']['name'], ENT_QUOTES, 'UTF-8' ) ?>! <img
 					src="./assets/favicon/AMPBoard.png" alt="AMPBoard Logo" aria-hidden="true"></span></h1>
