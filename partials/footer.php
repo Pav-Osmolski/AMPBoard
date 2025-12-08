@@ -3,29 +3,23 @@
  * AMPBoard Footer
  *
  * @author  Pawel Osmolski
- * @version 1.4
+ * @version 1.5
  */
 ?>
 <footer>
 	<?= renderCollapseToggle( 'footer' ); ?>
 	<div class="footer-wrapper">
-		<nav class="footer-nav" aria-label="Footer shortcuts">
+		<nav class="footer-nav" aria-label="Footer AMPBoard views and shortcuts">
 			<ul class="footer-links">
 				<li>
 					<a href="#"
-					   id="toggle-index"
-					   role="button"
-					   aria-expanded="false"
-					   aria-controls="index-panel">
+					   id="toggle-index">
 						Folders
 					</a>
 				</li>
 				<li>
 					<a href="#"
-					   id="toggle-settings"
-					   role="button"
-					   aria-expanded="false"
-					   aria-controls="settings-panel">
+					   id="toggle-settings">
 						Settings
 					</a>
 				</li>

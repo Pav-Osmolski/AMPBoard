@@ -25,7 +25,7 @@
  * @var array<string, mixed> $config
  *
  * @author  Pawel Osmolski
- * @version 1.9
+ * @version 2.0
  */
 
 require_once __DIR__ . '/../config/config.php';
@@ -37,12 +37,6 @@ foreach ( $config['profile']['linkTemplates'] as $tpl ) {
 		$templatesByName[ (string) $tpl['name'] ] = $tpl;
 	}
 }
-
-// Load hamburger icon, prefixing IDs to avoid collisions
-$hamburgerSvgPath = $config['paths']['assets'] . '/images/hamburger.svg';
-$hamburgerSvg     = is_file( $hamburgerSvgPath )
-	? injectSvgWithUniqueIds( $hamburgerSvgPath, 'drag-' . bin2hex( random_bytes( 3 ) ) )
-	: '';
 
 $columnCounter           = 0;
 $globalErrors            = [];
@@ -103,8 +97,7 @@ $hasVhostFilteredColumns = false;
 				$folders = $dir ? list_subdirs( $dir ) : [];
 				?>
 				<div class="column" id="<?php echo 'column_' . ( ++ $columnCounter ); ?>" role="listitem">
-					<button class="drag-handle reset" aria-label="Reorder column <?= htmlspecialchars( $title ) ?>"
-					        aria-describedby="drag-help" data-drag-allow><?php echo $hamburgerSvg; ?></button>
+					<?= renderDragHandle( $title ); ?>
 					<h3 class="<?= $requireVhost ? 'with-badges' : '' ?><?= $config['status']['apachePathValid'] ? ' valid-apache-path' : ' invalid-apache-path' ?>">
 						<?php if ( $href !== '' ): ?>
 							<a href="<?= htmlspecialchars( $href ) ?>"><?= htmlspecialchars( $title ) ?></a>

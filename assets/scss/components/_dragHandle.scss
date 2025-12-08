@@ -1,0 +1,25 @@
+/* Drag Handle */
+.drag-handle {
+	position: absolute;
+	width: 40px;
+	height: 40px;
+	top: 3px;
+	right: 3px;
+	padding: 10px;
+	cursor: grab;
+	z-index: 1;
+	touch-action: none;
+
+	svg {
+		width: 20px;
+		height: 20px;
+		color: var(--input-placeholder);
+		transition: color .2s ease;
+	}
+
+	&:hover {
+		svg {
+			color: var(--hover-color);
+		}
+	}
+}

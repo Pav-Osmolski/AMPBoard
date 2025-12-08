@@ -5,7 +5,7 @@
  * @var array<string, mixed> $config
  *
  * @author  Pawel Osmolski
- * @version 2.4
+ * @version 2.5
  */
 
 /**
@@ -490,12 +490,12 @@ function renderServerInfo( string $dbUser, string $dbPass ): void {
 	}
 
 	if ( $apacheVersion && preg_match( '/Server version: Apache\/([\d.]+)/', $apacheVersion, $matches ) ) {
-		echo '<span class="apache-info">Apache: <a href="#" id="toggle-apache-inspector" role="button" aria-expanded="false" aria-controls="apache-inspector">' . $matches[1] . '</a> <span class="status" aria-hidden="true">✔️</span></span>';
+		echo '<span class="apache-info">Apache: <a href="#" id="toggle-apache-inspector">' . $matches[1] . '</a> <span class="status" aria-hidden="true">✔️</span></span>';
 	} else {
 		if ( ! empty( $_SERVER['SERVER_SOFTWARE'] ) && stripos( $_SERVER['SERVER_SOFTWARE'], 'Apache' ) !== false ) {
-			echo '<span class="apache-unknown-info">Apache: <a href="#" id="toggle-apache-inspector" role="button" aria-expanded="false" aria-controls="apache-inspector">Version unknown</a> <span class="status" aria-hidden="true">⚠️</span></span>';
+			echo '<span class="apache-unknown-info">Apache: <a href="#" id="toggle-apache-inspector">Version unknown</a> <span class="status" aria-hidden="true">⚠️</span></span>';
 		} else {
-			echo '<span class="apache-error-info">Apache: <a href="#" id="toggle-apache-inspector" role="button" aria-expanded="false" aria-controls="apache-inspector">Not detected</a> <span class="status" aria-hidden="true">❌</span></span>';
+			echo '<span class="apache-error-info">Apache: <a href="#" id="toggle-apache-inspector">Not detected</a> <span class="status" aria-hidden="true">❌</span></span>';
 		}
 	}
 
@@ -505,7 +505,7 @@ function renderServerInfo( string $dbUser, string $dbPass ): void {
 	} else {
 		$isThreadSafe = ( ZEND_THREAD_SAFE ) ? 'TS' : 'NTS';
 		$isFastCGI    = ( strpos( PHP_SAPI, 'cgi-fcgi' ) !== false ) ? 'FastCGI' : 'Non-FastCGI';
-		echo "<span class='php-info'>PHP: <a href='#' id='toggle-phpinfo' role='button' aria-expanded='false' aria-controls='phpinfo-panel'>{$phpVersion} {$isThreadSafe} {$isFastCGI}</a> <span class='status' aria-hidden='true'>✔️</span></span>";
+		echo "<span class='php-info'>PHP: <a href='#' id='toggle-phpinfo'>{$phpVersion} {$isThreadSafe} {$isFastCGI}</a> <span class='status' aria-hidden='true'>✔️</span></span>";
 	}
 
 	try {
@@ -524,7 +524,7 @@ function renderServerInfo( string $dbUser, string $dbPass ): void {
 	} catch ( Exception $e ) {
 		$msg = htmlspecialchars( $e->getMessage(), ENT_QUOTES, 'UTF-8' );
 
-		echo "<span class='mysql-error-info'>MySQL: <a href='#' id='toggle-mysql-inspector' role='button' aria-expanded='false' aria-controls='mysql-inspector'>{$msg}</a> <span class='status' aria-hidden='true'>❌</span></span>";
+		echo "<span class='mysql-error-info'>MySQL: <a href='#' id='toggle-mysql-inspector'>{$msg}</a> <span class='status' aria-hidden='true'>❌</span></span>";
 	}
 }
 
@@ -1027,4 +1027,47 @@ function renderCollapseToggle( string $region = 'header', array $options = [] ):
 	$html .= '</button>';
 
 	return $html;
+}
+
+/**
+ * Render a drag handle button with a prefixed SVG icon.
+ *
+ * This helper:
+ * - Loads the hamburger SVG from the assets/images location
+ * - Prefixes IDs to avoid collisions when multiple handles exist
+ * - Wraps the SVG in a <button> with proper ARIA attributes
+ * - Adds data-drag-allow to support dragging inside the button
+ *
+ * @param string $label Visible name of the thing being reordered (used for aria-label)
+ * @param string $iconFile Optional SVG filename (default: hamburger.svg)
+ *
+ * @return string HTML markup for the drag handle button
+ */
+function renderDragHandle( string $label, string $iconFile = 'hamburger.svg' ): string {
+	global $config;
+
+	$idPrefix = 'drag-' . bin2hex( random_bytes( 3 ) );
+
+	$iconPath = rtrim( $config['paths']['assets'], '/' ) . '/images/' . ltrim( $iconFile, '/' );
+
+	$svg = '';
+	if ( is_file( $iconPath ) ) {
+		if ( function_exists( 'injectSvgWithUniqueIds' ) ) {
+			$svg = injectSvgWithUniqueIds( $iconPath, $idPrefix );
+		} else {
+			// Fallback: raw SVG (not ideal, but prevents fatal error)
+			$svg = file_get_contents( $iconPath );
+		}
+	}
+
+	$ariaLabel = sprintf(
+		'Reorder %s',
+		trim( htmlspecialchars( $label, ENT_QUOTES, 'UTF-8' ) )
+	);
+
+	return sprintf(
+		'<button class="drag-handle reset" data-drag-allow aria-label="%s" aria-describedby="drag-help">%s</button>',
+		$ariaLabel,
+		$svg
+	);
 }
