@@ -490,12 +490,12 @@ function renderServerInfo( string $dbUser, string $dbPass ): void {
 	}
 
 	if ( $apacheVersion && preg_match( '/Server version: Apache\/([\d.]+)/', $apacheVersion, $matches ) ) {
-		echo '<span class="apache-info">Apache: <a href="#" id="toggle-apache-inspector">' . $matches[1] . '</a> <span class="status" aria-hidden="true">✔️</span></span>';
+		echo '<span class="apache-info">Apache: <a href="?view=apache-inspector" id="toggle-apache-inspector">' . $matches[1] . '</a> <span class="status" aria-hidden="true">✔️</span></span>';
 	} else {
 		if ( ! empty( $_SERVER['SERVER_SOFTWARE'] ) && stripos( $_SERVER['SERVER_SOFTWARE'], 'Apache' ) !== false ) {
-			echo '<span class="apache-unknown-info">Apache: <a href="#" id="toggle-apache-inspector">Version unknown</a> <span class="status" aria-hidden="true">⚠️</span></span>';
+			echo '<span class="apache-unknown-info">Apache: <a href="?view=apache-inspector" id="toggle-apache-inspector">Version unknown</a> <span class="status" aria-hidden="true">⚠️</span></span>';
 		} else {
-			echo '<span class="apache-error-info">Apache: <a href="#" id="toggle-apache-inspector">Not detected</a> <span class="status" aria-hidden="true">❌</span></span>';
+			echo '<span class="apache-error-info">Apache: <a href="?view=apache-inspector" id="toggle-apache-inspector">Not detected</a> <span class="status" aria-hidden="true">❌</span></span>';
 		}
 	}
 
@@ -505,7 +505,7 @@ function renderServerInfo( string $dbUser, string $dbPass ): void {
 	} else {
 		$isThreadSafe = ( ZEND_THREAD_SAFE ) ? 'TS' : 'NTS';
 		$isFastCGI    = ( strpos( PHP_SAPI, 'cgi-fcgi' ) !== false ) ? 'FastCGI' : 'Non-FastCGI';
-		echo "<span class='php-info'>PHP: <a href='#' id='toggle-phpinfo'>{$phpVersion} {$isThreadSafe} {$isFastCGI}</a> <span class='status' aria-hidden='true'>✔️</span></span>";
+		echo "<span class='php-info'>PHP: <a href='?view=phpinfo' id='toggle-phpinfo'>{$phpVersion} {$isThreadSafe} {$isFastCGI}</a> <span class='status' aria-hidden='true'>✔️</span></span>";
 	}
 
 	try {
@@ -517,14 +517,14 @@ function renderServerInfo( string $dbUser, string $dbPass ): void {
 		}
 
 		$prettyMySql = normaliseDbServerInfo( $mysqli->server_info );
-		echo "<span class='mysql-info'>MySQL: <a href='#' id='toggle-mysql-inspector'>{$prettyMySql}</a> <span class='status' aria-hidden='true'>✔️</span></span>";
+		echo "<span class='mysql-info'>MySQL: <a href='?view=mysql-inspector' id='toggle-mysql-inspector'>{$prettyMySql}</a> <span class='status' aria-hidden='true'>✔️</span></span>";
 
 		$mysqli->close();
 
 	} catch ( Exception $e ) {
 		$msg = htmlspecialchars( $e->getMessage(), ENT_QUOTES, 'UTF-8' );
 
-		echo "<span class='mysql-error-info'>MySQL: <a href='#' id='toggle-mysql-inspector'>{$msg}</a> <span class='status' aria-hidden='true'>❌</span></span>";
+		echo "<span class='mysql-error-info'>MySQL: <a href='?view=mysql-inspector' id='toggle-mysql-inspector'>{$msg}</a> <span class='status' aria-hidden='true'>❌</span></span>";
 	}
 }
 

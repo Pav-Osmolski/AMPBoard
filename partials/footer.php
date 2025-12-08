@@ -12,13 +12,13 @@
 		<nav class="footer-nav" aria-label="Footer AMPBoard views and shortcuts">
 			<ul class="footer-links">
 				<li>
-					<a href="#"
+					<a href="?view=index"
 					   id="toggle-index">
 						Folders
 					</a>
 				</li>
 				<li>
-					<a href="#"
+					<a href="?view=settings"
 					   id="toggle-settings">
 						Settings
 					</a>

@@ -105,12 +105,16 @@ export function initViewToggles() {
 		// Attach toggle click handlers
 		Object.entries( toggleMap ).forEach( ( [ toggleId, routeKey ] ) => {
 			const toggle = document.getElementById( toggleId );
-			if ( toggle ) {
-				toggle.addEventListener( 'click', ( e ) => {
-					e.preventDefault();
-					showView( routeKey, true );
-				} );
-			}
+			if ( !toggle ) return;
+
+			toggle.addEventListener( 'click', ( e ) => {
+				// Only intercept plain left-clicks in the same tab
+				if ( e.button !== 0 ) return; // not left button
+				if ( e.metaKey || e.ctrlKey || e.shiftKey || e.altKey ) return; // modifier keys (new tab/window)
+
+				e.preventDefault();
+				showView( routeKey, true );
+			} );
 		} );
 
 		// Initial load
