@@ -1,3 +1,5 @@
+@use '../utils/mixins' as *;
+
 /* Index page styles */
 body {
 	font-family: var(--font-main);
@@ -15,12 +17,14 @@ body {
 				min-height: calc(100vh - var(--header-footer-height));
 			}
 		}
+
 		&.footer-inactive {
 			main {
 				min-height: calc(100vh - var(--header-height));
 			}
 		}
 	}
+
 	&.header-inactive {
 		&.footer-active {
 			main {
@@ -68,9 +72,13 @@ a {
 	text-decoration: none;
 	transition: color .3s;
 
-	&:hover {
+	@include hover-or-active {
 		text-decoration: none;
 		color: var(--hover-color) !important;
+	}
+
+	&.active-page {
+		color: var(--hover-color);
 	}
 }
 

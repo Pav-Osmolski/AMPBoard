@@ -1,84 +1,86 @@
+@use '../utils/mixins' as *;
+
 /* Accordion Toggle */
 .toggle-content-container {
-    background: var(--header-background-color);
-    border: var(--border-width) solid var(--border-color);
-    border-radius: var(--container-border-radius);
-    padding: 0 15px;
-    box-shadow: 0 4px 12px var(--box-shadow);
-    transition: background-color var(--transition-ease);
+	background: var(--header-background-color);
+	border: var(--border-width) solid var(--border-color);
+	border-radius: var(--container-border-radius);
+	padding: 0 15px;
+	box-shadow: 0 4px 12px var(--box-shadow);
+	transition: background-color var(--transition-ease);
 
-    &.open {
-        .toggle-accordion .icon > svg {
-            transform: rotate(-180deg);
-        }
-    }
+	&.open {
+		.toggle-accordion .icon > svg {
+			transform: rotate(-180deg);
+		}
+	}
 
-    &.open, &:hover {
-        background: var(--background-color);
-    }
+	&.open, &:hover {
+		background: var(--background-color);
+	}
 
-    &.disabled {
-        border-color: var(--disabled-color) !important;
-        background: var(--disabled-color) !important;
-        color: var(--text-color) !important;
+	&.disabled {
+		border-color: var(--disabled-color) !important;
+		background: var(--disabled-color) !important;
+		color: var(--text-color) !important;
 
-        .toggle-accordion {
-            &:hover {
-                h3 {
-                    color: unset;
-                }
+		.toggle-accordion {
+			&:hover {
+				h3 {
+					color: unset;
+				}
 
-                .icon > svg {
-                    fill: var(--text-color);
-                }
-            }
-        }
-    }
+				.icon > svg {
+					fill: var(--text-color);
+				}
+			}
+		}
+	}
 
-    .toggle-accordion {
-        align-items: center;
-        cursor: pointer;
-        display: flex;
-        height: 48px;
-        margin: 0 -16px;
-        padding: 10px 45px 10px 15px;
-        position: relative;
-        border-radius: var(--container-border-radius);
-        user-select: none;
+	.toggle-accordion {
+		align-items: center;
+		cursor: pointer;
+		display: flex;
+		height: 48px;
+		margin: 0 -16px;
+		padding: 10px 45px 10px 15px;
+		position: relative;
+		border-radius: var(--container-border-radius);
+		user-select: none;
 
-        h3 {
-            transition: color var(--transition-ease);
-        }
+		h3 {
+			transition: color var(--transition-ease);
+		}
 
-        .icon > svg {
-            position: absolute;
-            width: 48px;
-            height: 48px;
-            top: 0;
-            right: 0;
-            padding: 5px;
-            fill: var(--text-color);
-            z-index: 1;
-            transition: transform var(--transition-ease), fill var(--transition-ease);
-        }
+		.icon > svg {
+			position: absolute;
+			width: 48px;
+			height: 48px;
+			top: 0;
+			right: 0;
+			padding: 5px;
+			fill: var(--text-color);
+			z-index: 1;
+			transition: transform var(--transition-ease), fill var(--transition-ease);
+		}
 
-        &:hover {
-            h3 {
-                color: var(--hover-color);
-            }
+		@include hover-or-active {
+			h3 {
+				color: var(--hover-color);
+			}
 
-            .icon > svg {
-                fill: var(--hover-color);
-            }
-        }
-    }
+			.icon > svg {
+				fill: var(--hover-color);
+			}
+		}
+	}
 
-    .toggle-content {
-        position: relative;
-        height: 0px;
-        margin: 0 -4px; // Prevent focus outline from being clipped
-        padding: 0 4px; // Prevent focus outline from being clipped
-        overflow: hidden;
-        transition: height var(--transition-ease);
-    }
+	.toggle-content {
+		position: relative;
+		height: 0px;
+		margin: 0 -4px; // Prevent focus outline from being clipped
+		padding: 0 4px; // Prevent focus outline from being clipped
+		overflow: hidden;
+		transition: height var(--transition-ease);
+	}
 }

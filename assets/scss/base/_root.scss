@@ -4,7 +4,7 @@ $theme-type: 'Dark';
 
 :root {
 	// Typography
-	--font-main: 'Ubuntu', sans-serif; /* Main body font */
+	--font-main: 'Ubuntu', 'Roboto', sans-serif; /* Main body font */
 	--font-editor: 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace; /* <code>, <pre> and HTML Editor font */
 
 	// Measurements
@@ -48,11 +48,11 @@ $theme-type: 'Dark';
 	--scrollbar-secondary: #1d1c1f;
 
 	// Syntax Editor Colours
-    --syntax-text: #b8bcb6; /* Text - HTML Editor */
-    --syntax-pun: #949494; /* Punctuation - HTML Editor */
-    --syntax-tag: #149ad4; /* Tag - HTML Editor */
-    --syntax-attr: #2777b0; /* Attribute - HTML Editor */
-    --syntax-value: #5084ea; /* Value - HTML Editor */
+	--syntax-text: #b8bcb6; /* Text - HTML Editor */
+	--syntax-pun: #949494; /* Punctuation - HTML Editor */
+	--syntax-tag: #149ad4; /* Tag - HTML Editor */
+	--syntax-attr: #2777b0; /* Attribute - HTML Editor */
+	--syntax-value: #5084ea; /* Value - HTML Editor */
 }
 
 /* Unique theme type settings */

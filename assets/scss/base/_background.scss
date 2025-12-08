@@ -1,34 +1,34 @@
 /* Background */
 .background-image {
-    position: relative;
-    z-index: 0;
+	position: relative;
+	z-index: 0;
 
-    &::before, &::after {
-        content: '';
-        position: fixed;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none;
-    }
+	&::before, &::after {
+		content: '';
+		position: fixed;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		pointer-events: none;
+	}
 
-    &::before {
-        background-image: var(--background-image);
-        background-size: cover;
-        background-repeat: no-repeat;
-        background-attachment: fixed;
-        filter: hue-rotate(var(--bg-hue-angle)) grayscale(var(--bg-grayscale));
-        z-index: -2;
-    }
+	&::before {
+		background-image: var(--background-image);
+		background-size: cover;
+		background-repeat: no-repeat;
+		background-attachment: fixed;
+		filter: hue-rotate(var(--bg-hue-angle)) grayscale(var(--bg-grayscale));
+		z-index: -2;
+	}
 
-    &::after {
-        background: var(--background-overlay);
-        z-index: -1;
-    }
+	&::after {
+		background: var(--background-overlay);
+		z-index: -1;
+	}
 }
 
 .light-mode.background-image {
-    &::after {
-        background: var(--light-mode-bg-overlay);
-    }
+	&::after {
+		background: var(--light-mode-bg-overlay);
+	}
 }

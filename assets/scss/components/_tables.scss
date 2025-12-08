@@ -1,23 +1,23 @@
 /* Tables */
 table {
-    width: auto;
-    border-collapse: collapse;
-    border-radius: var(--input-border-radius);
-    background: var(--header-background-color);
+	width: auto;
+	border-collapse: collapse;
+	border-radius: var(--input-border-radius);
+	background: var(--header-background-color);
 
-    th,
-    td {
-        padding: .5em;
-        border: 1px solid var(--border-color);
-        text-align: left;
-    }
+	th,
+	td {
+		padding: .5em;
+		border: 1px solid var(--border-color);
+		text-align: left;
+	}
 
-    tbody tr:nth-child(even) {
-        background: var(--background-color);
-    }
+	tbody tr:nth-child(even) {
+		background: var(--background-color);
+	}
 
-    code {
-        font-size: .9rem;
-        background-color: transparent;
-    }
+	code {
+		font-size: .9rem;
+		background-color: transparent;
+	}
 }

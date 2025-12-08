@@ -48,8 +48,25 @@ export function initViewToggles() {
 			document.title = prefix + subtitle;
 		}
 
+		function updateActiveNav( routeKey ) {
+			Object.entries( toggleMap ).forEach( ( [ toggleId, viewKey ] ) => {
+				const toggle = document.getElementById( toggleId );
+				if ( !toggle ) return;
+
+				if ( viewKey === routeKey ) {
+					toggle.classList.add( 'active-page' );
+					toggle.setAttribute( 'aria-current', 'page' );
+				} else {
+					toggle.classList.remove( 'active-page' );
+					toggle.removeAttribute( 'aria-current' );
+				}
+			} );
+		}
+
 		function showView( routeKey, push = false ) {
 			const key = pathMap[routeKey] || 'index';
+
+			updateActiveNav( routeKey );
 
 			Object.entries( views ).forEach( ( [ k, el ] ) => {
 				if ( el ) el.classList.toggle( 'visible', k === key );

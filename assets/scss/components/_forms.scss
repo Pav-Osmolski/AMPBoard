@@ -1,3 +1,5 @@
+@use '../utils/mixins' as *;
+
 /* Form Elements */
 label, legend, .uid-container span {
 	display: flex;
@@ -85,7 +87,7 @@ button {
 		border: none;
 	}
 
-	&:hover {
+	@include hover-or-active {
 		background: var(--text-color);
 		color: var(--header-background-color);
 	}

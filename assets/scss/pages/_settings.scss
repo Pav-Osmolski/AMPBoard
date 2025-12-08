@@ -71,13 +71,13 @@
 }
 
 .post-confirmation-container {
-    position: fixed;
-    top: 15%;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 1000;
-    animation: fadeIn 1s ease-out;
-    user-select: none;
+	position: fixed;
+	top: 15%;
+	left: 50%;
+	transform: translateX(-50%);
+	z-index: 1000;
+	animation: fadeIn 1s ease-out;
+	user-select: none;
 
 	.post-confirmation-message {
 		background-color: var(--header-background-color);

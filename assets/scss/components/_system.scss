@@ -1,8 +1,10 @@
+@use '../utils/mixins' as *;
+
 /* System Monitor and Error Log */
-.system-monitor, 
-#apache-error-log-section, 
-#php-error-log-section, 
-#apache-error-log, 
+.system-monitor,
+#apache-error-log-section,
+#php-error-log-section,
+#apache-error-log,
 #php-error-log { //Initial display should be none unless class is detected in the body
 	display: none;
 }
@@ -35,7 +37,7 @@ body.error-log-active {
 				margin-right: 5px;
 			}
 
-			&:hover {
+			@include hover-or-active {
 				color: var(--hover-color) !important;
 			}
 		}

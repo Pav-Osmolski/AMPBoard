@@ -3,43 +3,47 @@
 /* Utilities */
 
 @each $class, $width in $column-widths {
-  .#{$class} {
-    max-width: $width;
-  }
+	.#{$class} {
+		max-width: $width;
+	}
 }
 
 .separator-line {
-  &.xs {
-    height: .5rem;
-  }
-  &.sm {
-    height: 1rem;
-  }
-  &.md{
-    height: 1.5rem;
-  }
-  &.lg {
-    height: 2rem;
-  }
-  &.xl {
-    height: 2.5rem;
-  }
+	&.xs {
+		height: .5rem;
+	}
+
+	&.sm {
+		height: 1rem;
+	}
+
+	&.md {
+		height: 1.5rem;
+	}
+
+	&.lg {
+		height: 2rem;
+	}
+
+	&.xl {
+		height: 2.5rem;
+	}
 }
 
 .visible {
-  display: flex !important;
-  flex-direction: column;
+	display: flex !important;
+	flex-direction: column;
 }
 
 /* Screen reader only */
 .sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
 }
