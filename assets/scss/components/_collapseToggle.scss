@@ -8,7 +8,7 @@
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	background: var(--header-background-color) !important;
+	background: var(--header-background-color);
 	width: 1.75rem;
 	height: 1.25rem;
 	font-size: 1rem;
@@ -56,6 +56,12 @@
 		border-top-right-radius: 0;
 		top: calc(var(--header-height) - 1px);
 		box-shadow: 0 6px 8px rgba(0, 0, 0, .1), 0 12px 20px -8px var(--box-shadow);
+		background: linear-gradient(
+						to top,
+						var(--header-background-color) 0%,
+						var(--header-background-color) 30%,
+						var(--header-background-solid) 100%
+					);
 	}
 
 	&-footer {
@@ -63,6 +69,12 @@
 		border-bottom-left-radius: 0;
 		border-bottom-right-radius: 0;
 		bottom: calc(var(--footer-height) - 1px);
+		background: linear-gradient(
+						to bottom,
+						var(--header-background-color) 0%,
+						var(--header-background-color) 30%,
+						var(--header-background-solid) 100%
+					);
 
 		.icon {
 			transform: rotate(0deg);

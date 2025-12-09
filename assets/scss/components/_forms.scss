@@ -88,8 +88,10 @@ button {
 	}
 
 	@include hover-or-active {
-		background: var(--text-color);
-		color: var(--header-background-color);
+		&:not(.collapse-toggle) {
+			background: var(--text-color);
+			color: var(--header-background-color);
+		}
 	}
 
 	&:disabled {

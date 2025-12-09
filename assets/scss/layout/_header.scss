@@ -1,12 +1,19 @@
 /* Header */
 header {
 	display: flex;
+	flex-direction: row;
 	justify-content: space-between;
 	align-items: center;
 	gap: 1.25rem;
 	height: var(--header-height);
 	padding: 15px;
-	background-color: var(--header-background-color);
+	background: var(--header-background-color);
+	background: linear-gradient(
+					to bottom,
+					var(--header-background-color) 0%,
+					var(--header-background-color) 30%,
+					var(--header-background-solid) 100%
+				);
 	border-bottom: 1px solid var(--border-color);
 	box-shadow: 0 4px 12px var(--box-shadow);
 	position: -webkit-sticky;
@@ -16,10 +23,10 @@ header {
 	right: 0;
 	z-index: 1000;
 	animation: slideInDown 1s ease-out;
-	transition: transform var(--transition-ease), background-color var(--transition-ease);
+	transition: transform var(--transition-ease), background var(--transition-ease), border var(--transition-ease);
 
 	&.is-collapsed {
-		transform: translateY(-90%);
+		transform: translateY(calc(var(--header-height) * -1 + 9px));
 	}
 
 	&.is-open {

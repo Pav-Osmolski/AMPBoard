@@ -8,7 +8,13 @@ footer {
 	padding: 15px;
 	line-height: 1.6;
 	text-align: center;
-	background-color: var(--header-background-color);
+	background: var(--header-background-color);
+	background: linear-gradient(
+					to top,
+					var(--header-background-color) 0%,
+					var(--header-background-color) 30%,
+					var(--header-background-solid) 100%
+				);
 	border-top: 1px solid var(--border-color);
 	position: fixed;
 	bottom: 0;
@@ -16,10 +22,10 @@ footer {
 	right: 0;
 	z-index: 2;
 	animation: slideInUp 1s ease-out;
-	transition: transform var(--transition-ease), background-color var(--transition-ease);
+	transition: transform var(--transition-ease), background var(--transition-ease), border var(--transition-ease);
 
 	&.is-collapsed {
-		transform: translateY(90%);
+		transform: translateY(calc(var(--footer-height) * 1 + -9px));
 	}
 
 	&.is-open {

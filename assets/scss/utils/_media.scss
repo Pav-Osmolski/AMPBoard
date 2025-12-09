@@ -47,7 +47,7 @@
 	body.system-monitor-active .system-monitor {
 		position: static;
 		width: 100%;
-		margin: -90px auto 90px auto;
+		margin: calc(var(--footer-height) * -1) auto var(--footer-height) auto;
 		border-radius: 0;
 		align-items: center;
 	}
