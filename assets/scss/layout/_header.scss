@@ -23,7 +23,9 @@ header {
 	right: 0;
 	z-index: 1000;
 	animation: slideInDown 1s ease-out;
-	transition: transform var(--transition-ease), background var(--transition-ease), border var(--transition-ease);
+	transition: transform var(--transition-ease),
+				background var(--transition-ease),
+				border var(--transition-ease);
 
 	&.is-collapsed {
 		transform: translateY(calc(var(--header-height) * -1 + 9px));
@@ -62,6 +64,7 @@ header {
 	.clock {
 		font-size: 2.1rem;
 		font-weight: 700;
+		transition: color var(--transition-ease);
 	}
 }
 

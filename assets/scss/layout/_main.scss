@@ -42,14 +42,17 @@ body {
 
 h1 {
 	font-size: 2rem;
+	transition: color var(--transition-ease);
 }
 
 h2 {
 	font-size: 1.5rem;
+	transition: color var(--transition-ease);
 }
 
 h3 {
 	font-size: 1.17rem;
+	transition: color var(--transition-ease);
 }
 
 p {

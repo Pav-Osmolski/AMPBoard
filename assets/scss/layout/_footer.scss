@@ -22,7 +22,9 @@ footer {
 	right: 0;
 	z-index: 2;
 	animation: slideInUp 1s ease-out;
-	transition: transform var(--transition-ease), background var(--transition-ease), border var(--transition-ease);
+	transition: transform var(--transition-ease),
+				background var(--transition-ease),
+				border var(--transition-ease);
 
 	&.is-collapsed {
 		transform: translateY(calc(var(--footer-height) * 1 + -9px));

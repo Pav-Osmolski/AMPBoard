@@ -1,0 +1,30 @@
+$theme-name: 'Synthwave';
+$theme-type: 'Dark';
+
+:root.synthwave-theme {
+    --bg-hue-angle: 45deg;
+    --logo-hue-angle: 25deg;
+    --logo-grayscale: 15%;
+    --background-color: #2a2139e8;
+    --background-overlay: #443363a9;
+    --text-color: #a5a5a5;
+    --header-background-color: #463465e8;
+    --header-background-solid: #483667;
+    --border-color: #3a2d59;
+    --disabled-color: #6b60a3bf;
+    --link-color: #e776c8;
+    --hover-color: #1dd1ce;
+    --input-bg: #2a2139;
+    --input-text: #a5a5a5;
+    --input-placeholder: #848bbd;
+    --button-text: #a5a5a5;
+    --error-text: #fe4450;
+    --error-bg: #832229;
+    --scrollbar-primary: #8c65c3;
+    --scrollbar-secondary: #463465;
+    --syntax-text: #a5a5a5;
+    --syntax-pun: #a5a5a5;
+    --syntax-tag: #f92aad;
+    --syntax-attr: #fede5d;
+    --syntax-value: #ff8b39;
+}
