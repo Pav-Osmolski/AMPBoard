@@ -34,8 +34,10 @@
 			}
 
 			.settings-row {
+				position: relative;
 				display: flex;
-				gap: .6rem;
+				gap: .4rem;
+				align-items: center;
 
 				&.full {
 					width: 100%;
@@ -45,8 +47,16 @@
 					margin-bottom: 0;
 				}
 
+				input {
+					flex: 1 1;
+				}
+
 				select {
 					flex-grow: 1;
+				}
+
+				.tooltip-icon {
+					margin-left: 0;
 				}
 			}
 		}

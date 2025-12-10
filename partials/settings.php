@@ -83,7 +83,7 @@ require_once __DIR__ . '/../config/config.php';
 			$settingsFormPanels = [
 				'amp_paths',
 				'user_interface',
-				'php_error',
+				'php_manager',
 				'folders_config',
 				'link_templates',
 				'dock_config'

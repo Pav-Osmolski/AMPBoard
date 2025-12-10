@@ -50,7 +50,7 @@ It is intended to be used with AMP stacks such as:
 - **Apache and MySQL Inspector** – Inspect configuration and uptime for Apache and MySQL servers
 - **Reusable Link Templates** – Define and reuse HTML templates across folder listings
 - **Quick Config Panel** – Update paths, ports, and settings without breaking a sweat
-- **PHP Error Management** – Toggle error display and logging on the fly
+- **PHP Management** – Adjust the PHP memory limit and toggle error display/logging on the fly
 - **Virtual Hosts Overview** – View and validate active VHosts, with SSL certificate management
 - **Apache and PHP Error Log Toggle** – One-click access to the latest server logs
 - **Export Files & Database** – Export folders as ZIP or 7-Zip; include/only WP uploads; exclude junk
@@ -59,7 +59,7 @@ It is intended to be used with AMP stacks such as:
 - **Custom Dock** – macOS-style dock with editable shortcuts to your key tools and sites
 - **Real-Time Clock** – Because knowing the time is still a thing
 - **Responsive Interface** – Sleek, modern design that adapts to all screen sizes
-- **Theme Switcher** – Seven themes, one destiny. Pick your favourite
+- **Theme Switcher** – Many themes, one destiny. Pick your favourite
 - **Demo Mode** – Disables exports and obfuscates credentials for demonstrative purposes
 - **Low-Stress Local Dev** – Designed to stay out of your way 🧘 so you can focus on building
 

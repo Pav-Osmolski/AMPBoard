@@ -10,7 +10,7 @@
  * - An optional label (`label`)
  *
  * Configuration:
- * - Reads from `/config/dock.json`
+ * - Reads from `/config/profiles/{$config['paths']['userProfile']}/dock.json`
  *
  * Output:
  * - A horizontal dock bar with anchor elements linking to external tools or resources

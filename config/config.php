@@ -32,7 +32,9 @@
  * - UI state: `$theme`, `$currentTheme`, `$bodyClasses`
  * - Toggle flags: header, footer, clock, search, stats, logs, AJAX
  * - Theme metadata: `$themeOptions`, `$themeTypes`
- * - Misc: `$user`, `$currentPhpErrorLevel`, `DEMO_MODE`, `EXPORT_EXCLUDE`
+ * - PHP: $currentPhpDisplayErrors, $currentPhpErrorReporting,
+ * - `$currentPhpLogErrors`, `$currentPhpMemoryLimit`
+ * - Misc: `$user`, `DEMO_MODE`, `EXPORT_EXCLUDE`
  *
  * Depends On Helpers:
  * - `resolveCurrentUser()`, `sanitizeFolderName()`
@@ -42,7 +44,7 @@
  * - `getDefaultTooltips()`, `getDefaultTooltipMessage()`
  *
  * @author  Pawel Osmolski
- * @version 2.8
+ * @version 2.9
  */
 
 if ( ! defined( 'AMPBOARD_NO_HELPERS' ) ) {
@@ -186,8 +188,11 @@ $mySqlHostValid = checkMysqlCredentialsStatus( 'host' );
 $mySqlUserValid = checkMysqlCredentialsStatus( 'user' );
 $mySqlPassValid = checkMysqlCredentialsStatus( 'pass' );
 
-// Current PHP error reporting level
-$currentPhpErrorLevel = ini_get( 'error_reporting' );
+// Current PHP ini settings
+$currentPhpDisplayErrors  = ini_get( 'display_errors' );
+$currentPhpErrorReporting = ini_get( 'error_reporting' );
+$currentPhpLogErrors      = ini_get( 'log_errors' );
+$currentPhpMemoryLimit    = ini_get( 'memory_limit' );
 
 // Resolve display user (respecting DEMO_MODE)
 $user = ( defined( 'DEMO_MODE' ) && DEMO_MODE ) ? 'demo' : $rawUser;
@@ -289,9 +294,12 @@ $config['status'] = [
 ];
 
 $config['user'] = [
-	'name'     => $user,
-	'isDemo'   => (bool) ( defined( 'DEMO_MODE' ) && DEMO_MODE ),
-	'phpError' => $currentPhpErrorLevel,
+	'name'              => $user,
+	'isDemo'            => (bool) ( defined( 'DEMO_MODE' ) && DEMO_MODE ),
+	'phpDisplayErrors'  => $currentPhpDisplayErrors,
+	'phpErrorReporting' => $currentPhpErrorReporting,
+	'phpLogErrors'      => $currentPhpLogErrors,
+	'phpMemoryLimit'    => $currentPhpMemoryLimit,
 ];
 
 $config['interface'] = [

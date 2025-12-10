@@ -6,8 +6,12 @@
   "User Interface": {
     "key": "user_interface"
   },
-  "PHP Error Handling & Logging": {
-    "key": "php_error",
+  "PHP Manager": {
+    "key": "php_manager",
+    "suffix": "PHP_VALIDITY_DEPENDENT"
+  },
+  "PHP Memory Limit": {
+    "key": "php_memory_limit",
     "suffix": "PHP_VALIDITY_DEPENDENT"
   },
   "Folders Configuration": {

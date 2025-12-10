@@ -12,7 +12,7 @@
  *     - /config/profiles/{$config['paths']['userProfile']}/folders.json
  *     - /config/profiles/{$config['paths']['userProfile']}/link_templates.json
  *     - /config/profiles/{$config['paths']['userProfile']}/dock.json
- * - Optionally patch php.ini for display_errors and error_reporting
+ * - Optionally patch php.ini for display_errors, error_reporting and memory_limit
  * - Invalidate OPcache where applicable
  * - Redirect with 303 on success
  *
@@ -23,7 +23,7 @@
  * @var array<string, mixed> $config
  *
  * @author  Pawel Osmolski
- * @version 3.1
+ * @version 3.2
  */
 
 require_once __DIR__ . '/../config/config.php';
@@ -95,10 +95,11 @@ $defs = [
 	'useAjaxForStats'       => FILTER_DEFAULT,
 	'useAjaxForErrorLog'    => FILTER_DEFAULT,
 
-	// PHP error handling
+	// PHP error and memory limit handling
 	'displayPhpErrors'      => FILTER_DEFAULT,
 	'logPhpErrors'          => FILTER_DEFAULT,
 	'phpErrorLevel'         => FILTER_DEFAULT,
+	'phpMemoryLimit'        => FILTER_DEFAULT,
 
 	// JSON blobs
 	'folders_json'          => FILTER_UNSAFE_RAW,
@@ -139,8 +140,9 @@ $displayFolderBadges   = normalise_bool( $in['displayFolderBadges'] ?? null );
 $displaySystemStats    = normalise_bool( $in['displaySystemStats'] ?? null );
 $displayApacheErrorLog = normalise_bool( $in['displayApacheErrorLog'] ?? null );
 $displayPhpErrorLog    = normalise_bool( $in['displayPhpErrorLog'] ?? null );
-$useAjaxForStats       = normalise_bool( $in['useAjaxForStats'] ?? null );
-$useAjaxForErrorLog    = normalise_bool( $in['useAjaxForErrorLog'] ?? null );
+
+$useAjaxForStats    = normalise_bool( $in['useAjaxForStats'] ?? null );
+$useAjaxForErrorLog = normalise_bool( $in['useAjaxForErrorLog'] ?? null );
 
 $displayPhpErrors = normalise_bool( $in['displayPhpErrors'] ?? null );
 $logPhpErrors     = normalise_bool( $in['logPhpErrors'] ?? null );
@@ -155,6 +157,23 @@ if ( isset( $in['theme'] ) && is_string( $in['theme'] ) ) {
 	$t = trim( $in['theme'] );
 	if ( $t !== '' && preg_match( '/^[A-Za-z0-9_\-]{1,64}$/', $t ) ) {
 		$theme = $t;
+	}
+}
+
+/* ------------------------------------------------------------------ */
+/* PHP memory limit                                                   */
+/* ------------------------------------------------------------------ */
+
+$phpMemoryLimit = null;
+if ( isset( $in['phpMemoryLimit'] ) && is_string( $in['phpMemoryLimit'] ) ) {
+	$val = trim( $in['phpMemoryLimit'] );
+
+	// Allow "-1" for no limit
+	if ( $val === '-1' ) {
+		$phpMemoryLimit = '-1';
+	} elseif ( preg_match( '/^[1-9]\d*(K|M|G)$/i', $val ) ) {
+		// normalise unit
+		$phpMemoryLimit = strtoupper( $val );
 	}
 }
 
@@ -193,8 +212,13 @@ $DB_HOST = isset( $in['DB_HOST'] ) && is_string( $in['DB_HOST'] ) ? trim( $in['D
 $DB_USER = isset( $in['DB_USER'] ) && is_string( $in['DB_USER'] ) ? trim( $in['DB_USER'] ) : '';
 $DB_PASS = isset( $in['DB_PASSWORD'] ) && is_string( $in['DB_PASSWORD'] ) ? trim( $in['DB_PASSWORD'] ) : '';
 
-if ( $DB_HOST !== '' && ! filter_var( $DB_HOST, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME ) && ! filter_var( $DB_HOST, FILTER_VALIDATE_IP ) ) {
-	submit_fail( 'DB_HOST invalid.' );
+if ( $DB_HOST !== '' ) {
+	if ( $DB_HOST === 'localhost' ) {
+		// always accept
+	} elseif ( ! filter_var( $DB_HOST, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME )
+	           && ! filter_var( $DB_HOST, FILTER_VALIDATE_IP ) ) {
+		submit_fail( 'DB_HOST invalid.' );
+	}
 }
 
 $encUser = $DB_USER !== '' ? encryptValue( $DB_USER ) : null;
@@ -256,10 +280,13 @@ $user_config .= "\$apacheFastMode = {$apacheFastMode};\n";
 $user_config .= "\$mysqlFastMode = {$mysqlFastMode};\n";
 $user_config .= "\$theme = '" . addslashes( $theme ) . "';\n";
 
-// PHP error handling
+// PHP error and memory limit handling
 $user_config .= "ini_set('display_errors', {$displayPhpErrors});\n";
 $user_config .= "error_reporting({$phpErrorLevelExpr});\n";
 $user_config .= "ini_set('log_errors', {$logPhpErrors});\n";
+if ( $phpMemoryLimit !== null ) {
+	$user_config .= "ini_set('memory_limit', '" . addslashes( $phpMemoryLimit ) . "');\n";
+}
 
 // User Config
 atomic_write( $config['paths']['userProfile'] . '/user_config.php', $user_config );
@@ -282,11 +309,14 @@ if ( function_exists( 'normalise_path' ) && $php_ini_path !== '' ) {
 	$php_ini_path = normalise_path( $php_ini_path );
 }
 
+// error_reporting_value allows the form to override the resolved PHP error level.
 $error_reporting_value = isset( $in['error_reporting_value'] ) && is_string( $in['error_reporting_value'] ) ? trim( $in['error_reporting_value'] ) : '';
 if ( $error_reporting_value === '' ) {
 	$error_reporting_value = $phpErrorLevelExpr;
 }
 
+// If a valid php.ini path is available and the file is accessible for modification,
+// update only the specific directives controlled by the UI.
 if ( $php_ini_path !== '' && is_file( $php_ini_path ) && is_readable( $php_ini_path ) && is_writable( $php_ini_path ) ) {
 	$ini_content = file_get_contents( $php_ini_path );
 	if ( $ini_content !== false ) {
@@ -302,6 +332,19 @@ if ( $php_ini_path !== '' && is_file( $php_ini_path ) && is_readable( $php_ini_p
 			$ini_content = preg_replace( '/^\s*error_reporting\s*=.*/mi', 'error_reporting = ' . $error_reporting_value, $ini_content );
 		} else {
 			$ini_content .= "\nerror_reporting = " . $error_reporting_value;
+		}
+
+		// Patch memory_limit
+		if ( $phpMemoryLimit !== null ) {
+			if ( preg_match( '/^\s*memory_limit\s*=.*/mi', $ini_content ) ) {
+				$ini_content = preg_replace(
+					'/^\s*memory_limit\s*=.*/mi',
+					'memory_limit = ' . $phpMemoryLimit,
+					$ini_content
+				);
+			} else {
+				$ini_content .= "\nmemory_limit = " . $phpMemoryLimit;
+			}
 		}
 
 		file_put_contents( $php_ini_path, $ini_content );

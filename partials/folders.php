@@ -11,8 +11,8 @@
  * - Disable links entirely if required
  *
  * Configuration is read from:
- * - `/config/folders.json`
- * - `/config/link_templates.json`
+ * - `/config/profiles/{$config['paths']['userProfile']}/folders.json`
+ * - `/config/profiles/{$config['paths']['userProfile']}/link_templates.json`
  *
  * Output:
  * - HTML markup with columns and folder links
