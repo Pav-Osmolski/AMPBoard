@@ -29,7 +29,11 @@ label, legend, .uid-container span {
 	}
 }
 
-input[type="text"], input[type="password"], select, textarea {
+input[type="text"],
+input[type="password"],
+input[type="number"],
+select,
+textarea {
 	font-family: var(--font-main);
 	color: var(--input-text);
 	width: 100%;
@@ -43,8 +47,12 @@ input[type="text"], input[type="password"], select, textarea {
 	}
 }
 
-input[type="text"], input[type="password"], select {
+input[type="text"],
+input[type="password"],
+input[type="number"],
+select {
 	max-width: 300px;
+	min-width: 100px;
 	height: 36px;
 	transition: all var(--transition-ease);
 }

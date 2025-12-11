@@ -1,6 +1,6 @@
 <?php
 /**
- * User Configuration Submit Handler (Hardened)
+ * User Configuration Submit Handler
  *
  * Responsibilities:
  * - Validate request method, content type, origin, CSRF token
@@ -12,7 +12,8 @@
  *     - /config/profiles/{$config['paths']['userProfile']}/folders.json
  *     - /config/profiles/{$config['paths']['userProfile']}/link_templates.json
  *     - /config/profiles/{$config['paths']['userProfile']}/dock.json
- * - Optionally patch php.ini for display_errors, error_reporting and memory_limit
+ * - Optionally patch php.ini for display_errors, error_reporting, memory_limit
+ *   and related runtime limits (execution time, input vars, upload/post size, timezone)
  * - Invalidate OPcache where applicable
  * - Redirect with 303 on success
  *
@@ -23,7 +24,7 @@
  * @var array<string, mixed> $config
  *
  * @author  Pawel Osmolski
- * @version 3.2
+ * @version 3.3
  */
 
 require_once __DIR__ . '/../config/config.php';
@@ -95,25 +96,30 @@ $defs = [
 	'useAjaxForStats'       => FILTER_DEFAULT,
 	'useAjaxForErrorLog'    => FILTER_DEFAULT,
 
-	// PHP error and memory limit handling
+	// Performance flags and theme
+	'apacheFastMode'        => FILTER_DEFAULT,
+	'mysqlFastMode'         => FILTER_DEFAULT,
+	'theme'                 => FILTER_DEFAULT,
+
+	// PHP management
 	'displayPhpErrors'      => FILTER_DEFAULT,
 	'logPhpErrors'          => FILTER_DEFAULT,
 	'phpErrorLevel'         => FILTER_DEFAULT,
 	'phpMemoryLimit'        => FILTER_DEFAULT,
-
-	// JSON blobs
-	'folders_json'          => FILTER_UNSAFE_RAW,
-	'link_templates_json'   => FILTER_UNSAFE_RAW,
-	'dock_json'             => FILTER_UNSAFE_RAW,
+	'phpMaxExecution'       => FILTER_DEFAULT,
+	'phpMaxInputVars'       => FILTER_DEFAULT,
+	'phpUploadMaxFile'      => FILTER_DEFAULT,
+	'phpPostMaxSize'        => FILTER_DEFAULT,
+	'phpTimezone'           => FILTER_DEFAULT,
 
 	// php.ini path and error_reporting value (override-able)
 	'php_ini_path'          => FILTER_DEFAULT,
 	'error_reporting_value' => FILTER_DEFAULT,
 
-	// Performance flags and theme
-	'apacheFastMode'        => FILTER_DEFAULT,
-	'mysqlFastMode'         => FILTER_DEFAULT,
-	'theme'                 => FILTER_DEFAULT,
+	// JSON blobs
+	'folders_json'          => FILTER_UNSAFE_RAW,
+	'link_templates_json'   => FILTER_UNSAFE_RAW,
+	'dock_json'             => FILTER_UNSAFE_RAW,
 ];
 
 $in = filter_input_array( INPUT_POST, $defs, false );
@@ -161,19 +167,38 @@ if ( isset( $in['theme'] ) && is_string( $in['theme'] ) ) {
 }
 
 /* ------------------------------------------------------------------ */
-/* PHP memory limit                                                   */
+/* PHP runtime / limits normalisation                                 */
 /* ------------------------------------------------------------------ */
 
-$phpMemoryLimit = null;
-if ( isset( $in['phpMemoryLimit'] ) && is_string( $in['phpMemoryLimit'] ) ) {
-	$val = trim( $in['phpMemoryLimit'] );
+/* memory_limit: 256M, 1G, or -1 for unlimited */
+$phpMemoryLimit = isset( $in['phpMemoryLimit'] ) && is_string( $in['phpMemoryLimit'] )
+	? normaliseIniSizeOption( $in['phpMemoryLimit'], true, true )
+	: null;
 
-	// Allow "-1" for no limit
-	if ( $val === '-1' ) {
-		$phpMemoryLimit = '-1';
-	} elseif ( preg_match( '/^[1-9]\d*(K|M|G)$/i', $val ) ) {
-		// normalise unit
-		$phpMemoryLimit = strtoupper( $val );
+/* max_execution_time: integer seconds, or -1 for unlimited */
+$phpMaxExecution = normaliseIniIntOption( $in['phpMaxExecution'] ?? null, true );
+
+/* max_input_vars: positive integer */
+$phpMaxInputVars = normaliseIniIntOption( $in['phpMaxInputVars'] ?? null, false );
+
+/* upload_max_filesize: size string (e.g. 20M, 50M), unit optional */
+$phpUploadMaxFile = isset( $in['phpUploadMaxFile'] ) && is_string( $in['phpUploadMaxFile'] )
+	? normaliseIniSizeOption( $in['phpUploadMaxFile'], false, false )
+	: null;
+
+/* post_max_size: size string (e.g. 20M, 50M), unit optional */
+$phpPostMaxSize = isset( $in['phpPostMaxSize'] ) && is_string( $in['phpPostMaxSize'] )
+	? normaliseIniSizeOption( $in['phpPostMaxSize'], false, false )
+	: null;
+
+/* date.timezone: light sanity check, not overly strict */
+$phpTimezone = null;
+if ( isset( $in['phpTimezone'] ) && is_string( $in['phpTimezone'] ) ) {
+	$val = trim( $in['phpTimezone'] );
+
+	// Rough pattern: "Region/Name" or similar
+	if ( $val !== '' && preg_match( '/^[A-Za-z0-9_\/+\-]+$/', $val ) ) {
+		$phpTimezone = $val;
 	}
 }
 
@@ -182,25 +207,33 @@ if ( isset( $in['phpMemoryLimit'] ) && is_string( $in['phpMemoryLimit'] ) ) {
 /* ------------------------------------------------------------------ */
 
 // Accept names (E_ALL, E_ERROR, E_WARNING, E_NOTICE) or numeric values.
-$allowedNames = [ 'E_ALL', 'E_ERROR', 'E_WARNING', 'E_NOTICE' ];
-$allowedInts  = [ E_ALL, E_ERROR, E_WARNING, E_NOTICE ];
+$phpErrorLevels = [
+	'E_ALL'     => E_ALL,
+	'E_ERROR'   => E_ERROR,
+	'E_WARNING' => E_WARNING,
+	'E_NOTICE'  => E_NOTICE,
+];
 
 $phpErrorLevelExpr = 'E_ALL'; // default for error_reporting()
-if ( isset( $in['phpErrorLevel'] ) ) {
-	$val = $in['phpErrorLevel'];
 
-	if ( is_string( $val ) ) {
-		$val = trim( $val );
-		if ( in_array( $val, $allowedNames, true ) ) {
+if ( isset( $in['phpErrorLevel'] ) ) {
+	$raw = $in['phpErrorLevel'];
+
+	if ( is_string( $raw ) ) {
+		$val = trim( $raw );
+
+		// Named constant, e.g. "E_ALL"
+		if ( isset( $phpErrorLevels[ $val ] ) ) {
 			$phpErrorLevelExpr = $val;
-		} elseif ( is_numeric( $val ) ) {
+		} // Numeric value, e.g. "32767"
+		elseif ( is_numeric( $val ) ) {
 			$ival = (int) $val;
-			if ( in_array( $ival, $allowedInts, true ) ) {
+			if ( in_array( $ival, $phpErrorLevels, true ) ) {
 				$phpErrorLevelExpr = (string) $ival;
 			}
 		}
-	} elseif ( is_int( $val ) && in_array( $val, $allowedInts, true ) ) {
-		$phpErrorLevelExpr = (string) $val;
+	} elseif ( is_int( $raw ) && in_array( $raw, $phpErrorLevels, true ) ) {
+		$phpErrorLevelExpr = (string) $raw;
 	}
 }
 
@@ -284,8 +317,35 @@ $user_config .= "\$theme = '" . addslashes( $theme ) . "';\n";
 $user_config .= "ini_set('display_errors', {$displayPhpErrors});\n";
 $user_config .= "error_reporting({$phpErrorLevelExpr});\n";
 $user_config .= "ini_set('log_errors', {$logPhpErrors});\n";
-if ( $phpMemoryLimit !== null ) {
-	$user_config .= "ini_set('memory_limit', '" . addslashes( $phpMemoryLimit ) . "');\n";
+
+// Emit PHP ini_set directives only when values are configured
+$iniRuntimeSettings = [
+	'memory_limit'        => [ $phpMemoryLimit, 'string' ],
+	'max_execution_time'  => [ $phpMaxExecution, 'int' ],
+	'max_input_vars'      => [ $phpMaxInputVars, 'int' ],
+	'upload_max_filesize' => [ $phpUploadMaxFile, 'string' ],
+	'post_max_size'       => [ $phpPostMaxSize, 'string' ],
+	'date.timezone'       => [ $phpTimezone, 'string', 'timezone' ],
+];
+
+foreach ( $iniRuntimeSettings as $directive => $meta ) {
+	// Ensure we always have 3 elements: [raw, type, mode]
+	$meta += [ null, null, null ];
+	list( $raw, $type, $mode ) = $meta;
+
+	if ( $raw === null ) {
+		continue;
+	}
+
+	$value = $type === 'int'
+		? (string) (int) $raw
+		: "'" . addslashes( $raw ) . "'";
+
+	$user_config .= "ini_set('{$directive}', {$value});\n";
+
+	if ( $mode === 'timezone' ) {
+		$user_config .= "date_default_timezone_set({$value});\n";
+	}
 }
 
 // User Config
@@ -319,31 +379,33 @@ if ( $error_reporting_value === '' ) {
 // update only the specific directives controlled by the UI.
 if ( $php_ini_path !== '' && is_file( $php_ini_path ) && is_readable( $php_ini_path ) && is_writable( $php_ini_path ) ) {
 	$ini_content = file_get_contents( $php_ini_path );
+
 	if ( $ini_content !== false ) {
-		// Patch display_errors
-		if ( preg_match( '/^\s*display_errors\s*=.*/mi', $ini_content ) ) {
-			$ini_content = preg_replace( '/^\s*display_errors\s*=.*/mi', 'display_errors = ' . ( $displayPhpErrors === 'true' ? 'On' : 'Off' ), $ini_content );
-		} else {
-			$ini_content .= "\ndisplay_errors = " . ( $displayPhpErrors === 'true' ? 'On' : 'Off' );
-		}
+		// Normalised values for ini directives
+		$iniUpdates = [
+			'display_errors'      => $displayPhpErrors === 'true' ? 'On' : 'Off',
+			'error_reporting'     => $error_reporting_value,
+			'memory_limit'        => $phpMemoryLimit,
+			'max_execution_time'  => $phpMaxExecution !== null ? (string) (int) $phpMaxExecution : null,
+			'max_input_vars'      => $phpMaxInputVars !== null ? (string) (int) $phpMaxInputVars : null,
+			'upload_max_filesize' => $phpUploadMaxFile,
+			'post_max_size'       => $phpPostMaxSize,
+			'date.timezone'       => $phpTimezone,
+		];
 
-		// Patch error_reporting
-		if ( preg_match( '/^\s*error_reporting\s*=.*/mi', $ini_content ) ) {
-			$ini_content = preg_replace( '/^\s*error_reporting\s*=.*/mi', 'error_reporting = ' . $error_reporting_value, $ini_content );
-		} else {
-			$ini_content .= "\nerror_reporting = " . $error_reporting_value;
-		}
+		foreach ( $iniUpdates as $directive => $value ) {
+			// Skip directives that were not provided / not changed
+			if ( $value === null ) {
+				continue;
+			}
 
-		// Patch memory_limit
-		if ( $phpMemoryLimit !== null ) {
-			if ( preg_match( '/^\s*memory_limit\s*=.*/mi', $ini_content ) ) {
-				$ini_content = preg_replace(
-					'/^\s*memory_limit\s*=.*/mi',
-					'memory_limit = ' . $phpMemoryLimit,
-					$ini_content
-				);
+			$pattern = '/^\s*' . preg_quote( $directive, '/' ) . '\s*=.*/mi';
+			$line    = $directive . ' = ' . $value;
+
+			if ( preg_match( $pattern, $ini_content ) ) {
+				$ini_content = preg_replace( $pattern, $line, $ini_content );
 			} else {
-				$ini_content .= "\nmemory_limit = " . $phpMemoryLimit;
+				$ini_content .= "\n" . $line;
 			}
 		}
 

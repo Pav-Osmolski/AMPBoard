@@ -21,22 +21,23 @@
 				align-content: center;
 				white-space: nowrap;
 				padding: 2px 10px;
+				border: 1px solid;
 				border-radius: var(--container-border-radius);
 				opacity: .4;
 
 				&-default {
 					color: var(--input-placeholder);
-					border: var(--border-width) solid var(--input-placeholder);
+					border-color: var(--input-placeholder);
 				}
 
 				&-error {
 					color: var(--error-text);
-					border: var(--border-width) solid var(--error-text);
+					border-color: var(--error-text);
 				}
 
 				&-vhost {
 					color: var(--link-color);
-					border: var(--border-width) solid var(--link-color);
+					border-color: var(--link-color);
 				}
 			}
 

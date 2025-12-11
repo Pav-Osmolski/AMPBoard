@@ -23,6 +23,3 @@ $useAjaxForErrorLog = true;
 $apacheFastMode = false;
 $mysqlFastMode = false;
 $theme = 'default';
-ini_set('display_errors', true);
-error_reporting(E_ALL);
-ini_set('log_errors', true);

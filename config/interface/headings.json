@@ -14,6 +14,26 @@
     "key": "php_memory_limit",
     "suffix": "PHP_VALIDITY_DEPENDENT"
   },
+  "PHP Max Execution Time": {
+    "key": "php_max_execution_time",
+    "suffix": "PHP_VALIDITY_DEPENDENT"
+  },
+  "PHP Max Input Vars": {
+    "key": "php_max_input_vars",
+    "suffix": "PHP_VALIDITY_DEPENDENT"
+  },
+  "PHP Upload Max File Size": {
+    "key": "php_upload_max_file_size",
+    "suffix": "PHP_VALIDITY_DEPENDENT"
+  },
+  "PHP Post Max Size": {
+    "key": "php_post_max_size",
+    "suffix": "PHP_VALIDITY_DEPENDENT"
+  },
+  "PHP Timezone": {
+    "key": "php_timezone",
+    "suffix": "PHP_VALIDITY_DEPENDENT"
+  },
   "Folders Configuration": {
     "key": "folders_config"
   },

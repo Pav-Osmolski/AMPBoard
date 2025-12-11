@@ -45,6 +45,7 @@
 
 				label {
 					margin-bottom: 0;
+					flex-wrap: wrap;
 				}
 
 				input {
@@ -57,6 +58,21 @@
 
 				.tooltip-icon {
 					margin-left: 0;
+				}
+			}
+
+			&.settings-xs-label {
+				.settings-row {
+					label > span {
+						width: 110px;
+					}
+				}
+			}
+			&.settings-sm-label {
+				.settings-row {
+					label > span {
+						width: 135px;
+					}
 				}
 			}
 		}

@@ -463,7 +463,11 @@ function defineEncrypted( string $name, string $value ): string {
  */
 function obfuscate_value( string $value ): string {
 	if ( defined( 'DEMO_MODE' ) && DEMO_MODE ) {
-		return str_repeat( '*', strlen( $value ) );
+		$len = strlen( $value );
+
+		if ( $len <= 4 )  return '****';
+		if ( $len <= 12 ) return '************';
+		return '****************';
 	}
 
 	return $value;

@@ -193,6 +193,11 @@ $currentPhpDisplayErrors  = ini_get( 'display_errors' );
 $currentPhpErrorReporting = ini_get( 'error_reporting' );
 $currentPhpLogErrors      = ini_get( 'log_errors' );
 $currentPhpMemoryLimit    = ini_get( 'memory_limit' );
+$currentPhpMaxExecution   = ini_get( 'max_execution_time' );
+$currentPhpMaxInputVars   = ini_get( 'max_input_vars' );
+$currentPhpUploadMaxFile  = ini_get( 'upload_max_filesize' );
+$currentPhpPostMaxSize    = ini_get( 'post_max_size' );
+$currentPhpTimezone       = ini_get( 'date.timezone' );
 
 // Resolve display user (respecting DEMO_MODE)
 $user = ( defined( 'DEMO_MODE' ) && DEMO_MODE ) ? 'demo' : $rawUser;
@@ -300,6 +305,11 @@ $config['user'] = [
 	'phpErrorReporting' => $currentPhpErrorReporting,
 	'phpLogErrors'      => $currentPhpLogErrors,
 	'phpMemoryLimit'    => $currentPhpMemoryLimit,
+	'phpMaxExecution'   => $currentPhpMaxExecution,
+	'phpMaxInputVars'   => $currentPhpMaxInputVars,
+	'phpUploadMaxFile'  => $currentPhpUploadMaxFile,
+	'phpPostMaxSize'    => $currentPhpPostMaxSize,
+	'phpTimezone'       => $currentPhpTimezone,
 ];
 
 $config['interface'] = [

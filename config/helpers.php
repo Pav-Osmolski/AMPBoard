@@ -28,6 +28,7 @@ $helperModules = [
 
     // Integrations
     'apache',
+    'php',
     'mysql',
 ];
 

@@ -31,34 +31,50 @@ renderAccordionSectionStart(
 	<?php echo injectSvgWithUniqueIds( $config['paths']['assets'] . '/images/PHP.svg', 'PHP2' ); ?>
 </div>
 <div class="settings-container">
-	<label>DB Host:
-		<input type="text" name="DB_HOST" value="<?= obfuscate_value( $config['db']['host'] ) ?>">
-		<?= $config['status']['mySqlHostValid'] ? '✔️' : '❌' ?>
-	</label>
-	<label>DB User:
-		<input type="text" name="DB_USER" value="<?= obfuscate_value( htmlspecialchars( $config['db']['user'] ) ) ?>">
-		<?= $config['status']['mySqlUserValid'] ? '✔️' : '❌' ?>
-	</label>
-	<label>DB Password:
-		<input type="password" name="DB_PASSWORD"
-		       value="<?= obfuscate_value( htmlspecialchars( $config['db']['pass'] ) ) ?>">
-		<?= $config['status']['mySqlPassValid'] ? '✔️' : '❌' ?>
-	</label>
+	<div class="settings-features-group settings-xs-label">
+		<div class="settings-row">
+			<label><span>DB Host:</span>
+				<input type="text" name="DB_HOST" value="<?= obfuscate_value( $config['db']['host'] ) ?>">
+				<?= $config['status']['mySqlHostValid'] ? '✔️' : '❌' ?>
+			</label>
+		</div>
 
-	<label>Apache Path:
-		<input type="text" name="APACHE_PATH" value="<?= obfuscate_value( $config['paths']['apache'] ) ?>">
-		<?= $config['status']['apachePathValid'] ? '✔️' : '❌' ?>
-	</label>
+		<div class="settings-row">
+			<label><span>DB User:</span>
+				<input type="text" name="DB_USER" value="<?= obfuscate_value( htmlspecialchars( $config['db']['user'] ) ) ?>">
+				<?= $config['status']['mySqlUserValid'] ? '✔️' : '❌' ?>
+			</label>
+		</div>
 
-	<label>HTDocs Path:
-		<input type="text" name="HTDOCS_PATH" value="<?= obfuscate_value( $config['paths']['htdocs'] ) ?>">
-		<?= $config['paths']['htdocs'] ? '✔️' : '❌' ?>
-	</label>
+		<div class="settings-row">
+			<label><span>DB Password:</span>
+				<input type="password" name="DB_PASSWORD"
+				       value="<?= obfuscate_value( htmlspecialchars( $config['db']['pass'] ) ) ?>">
+				<?= $config['status']['mySqlPassValid'] ? '✔️' : '❌' ?>
+			</label>
+		</div>
 
-	<label>PHP Path:
-		<input type="text" name="PHP_PATH" value="<?= obfuscate_value( $config['paths']['php'] ) ?>">
-		<?= $config['status']['phpPathValid'] ? '✔️' : '❌' ?>
-	</label>
+		<div class="settings-row">
+			<label><span>Apache Path:</span>
+				<input type="text" name="APACHE_PATH" value="<?= obfuscate_value( $config['paths']['apache'] ) ?>">
+				<?= $config['status']['apachePathValid'] ? '✔️' : '❌' ?>
+			</label>
+		</div>
+
+		<div class="settings-row">
+			<label><span>HTDocs Path:</span>
+				<input type="text" name="HTDOCS_PATH" value="<?= obfuscate_value( $config['paths']['htdocs'] ) ?>">
+				<?= $config['paths']['htdocs'] ? '✔️' : '❌' ?>
+			</label>
+		</div>
+
+		<div class="settings-row">
+			<label><span>PHP Path:</span>
+				<input type="text" name="PHP_PATH" value="<?= obfuscate_value( $config['paths']['php'] ) ?>">
+				<?= $config['status']['phpPathValid'] ? '✔️' : '❌' ?>
+			</label>
+		</div>
+	</div>
 	<?php renderSeparatorLine( 'xs' ); ?>
 	<fieldset>
 		<legend>Inspector settings</legend>
