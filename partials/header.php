@@ -10,7 +10,7 @@
  * @var array<string, mixed> $config
  *
  * @author  Pawel Osmolski
- * @version 1.4
+ * @version 1.5
  */
 
 require_once __DIR__ . '/../config/config.php';
@@ -19,10 +19,13 @@ require_once __DIR__ . '/../config/config.php';
 	<?= renderCollapseToggle( 'header' ); ?>
 	<h1>
 		<span><?php echo getServerLabel(); ?> is ready, <?php echo htmlspecialchars( $config['user']['name'], ENT_QUOTES, 'UTF-8' ) ?>! <img
-					src="./assets/favicon/AMPBoard.png" alt="AMPBoard Logo" aria-hidden="true"></span></h1>
-	<?= $config['ui']['flags']['search'] ? '<input type="text" class="search-bar" placeholder="Search projects..." aria-label="Search projects">' : '' ?>
-	<?= $config['ui']['flags']['clock'] ? '<div class="clock" aria-live="polite"></div>' : '' ?>
-	<div class="server-info" role="status" aria-label="Server environment information">
+					src="./assets/favicon/AMPBoard.png" alt="" aria-hidden="true"></span></h1>
+	<?= $config['ui']['flags']['search'] ? '
+		<label for="project-search" class="sr-only">Search projects</label>
+		<input type="text" id="project-search" class="search-bar" placeholder="Search projects...">
+	' : '' ?>
+	<?= $config['ui']['flags']['clock'] ? '<div class="clock" aria-hidden="true"></div>' : '' ?>
+	<div class="server-info" aria-label="Server environment information">
 		<?php renderServerInfo( $config['db']['user'], $config['db']['pass'] ); ?>
 	</div>
 </header>

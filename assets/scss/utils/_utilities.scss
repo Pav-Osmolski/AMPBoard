@@ -35,6 +35,27 @@
 	flex-direction: column;
 }
 
+.skip-link {
+	position: fixed;
+	z-index: 1001;
+	outline-offset: 0;
+	padding: 2px 5px;
+	top: 15px;
+	left: 15px;
+	background-color: var(--input-bg);
+	border-radius: var(--button-border-radius);
+	transition: all var(--transition-ease);
+
+	/* hide visually but keep focusable */
+	transform: translateY(-150%);
+	opacity: 0;
+
+	&:focus {
+		transform: translateY(0);
+		opacity: 1;
+	}
+}
+
 /* Screen reader only */
 .sr-only {
 	position: absolute;

@@ -50,9 +50,10 @@ require_once __DIR__ . '/config/bootstrap.php';
 	<?= $config['ui']['flags']['useAjaxForErrorLog'] ? ' data-ajax-error-log-enabled="true"' : ''; ?>
 		class="<?php echo htmlspecialchars( $config['ui']['bodyClasses'], ENT_QUOTES, 'UTF-8' ); ?>"
 >
+<a class="skip-link" href="#main-content">Skip to main content</a>
 <div class="container">
 	<?php $config['ui']['flags']['header'] && require_once $config['paths']['partials'] . '/header.php'; ?>
-	<main role="main">
+	<main role="main" id="main-content">
 		<section class="folders">
 			<?php require_once $config['paths']['partials'] . '/folders.php'; ?>
 			<?php require_once $config['paths']['partials'] . '/settings.php'; ?>
