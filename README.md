@@ -80,6 +80,12 @@ It is intended to be used with AMP stacks such as:
 
 ![search functionality](screenshots/index-light.png)
 
+## PHP development
+
+The modernization is incremental. See [architecture and migration notes](docs/architecture.md) for the new namespaced services, compatibility boundaries, and next steps. Published release history is recorded in [CHANGELOG.md](CHANGELOG.md).
+
+Run `php -n tests/run.php` for the isolated regression suite. It uses a database double and temporary profiles, so no running Apache or MySQL server is needed. See the architecture notes for the separate real-MySQL check.
+
 ## Project Structure
 
 A quick overview of the core files and folders in this project, so you’re never left wondering what does what.
@@ -95,6 +101,17 @@ A quick overview of the core files and folders in this project, so you’re neve
 | `webpack.config.js`      | Webpack build pipeline for JS and SCSS. |
 
 ---
+
+### Namespaced PHP (`src/`)
+
+| File | Responsibility |
+| --- | --- |
+| `Config/Loader.php` | Resolve existing profiles and return the central config array. |
+| `Ui/ThemeCatalog.php` | Read theme metadata and assemble body classes. |
+| `Ui/Renderer.php` | Render components using explicitly supplied configuration. |
+| `Database/ConnectionFactory.php` | Open connections and validate injected credentials. |
+
+Classes are loaded by `config/autoload.php`; Composer is not required.
 
 ### ⚙️ Config (`config/`)
 

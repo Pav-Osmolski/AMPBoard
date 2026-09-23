@@ -15,8 +15,6 @@
  * - Tooltips are provided via the `$tooltips` array
  * - Certificate files (CRT/KEY) are stored per-host in `APACHE_PATH/crt/{servername}/`
  *
- * @var string[] $tooltips
- * @var string $defaultTooltipMessage
  *
  * @package AMPBoard
  * @author  Pawel Osmolski
@@ -26,14 +24,14 @@
 
 require_once __DIR__ . '/../config/config.php';
 
-$pageClasses = buildPageViewClasses( $settingsView ?? null );
+$pageClasses = $ui->buildPageViewClasses( $settingsView ?? null );
 ?>
 <div id="vhosts-manager" class="<?= $pageClasses ?>">
 	<?php if ( empty( $settingsView ) ): ?>
-		<?= renderVersionedAssetsWithBase(); ?>
+		<?= $ui->renderVersionedAssetsWithBase(); ?>
 
 		<div class="heading">
-			<?= renderHeading( 'Virtual Hosts Manager', 'h2', true ) ?>
+			<?= $ui->renderHeading( 'Virtual Hosts Manager', 'h2', true ) ?>
 		</div>
 	<?php endif; ?>
 

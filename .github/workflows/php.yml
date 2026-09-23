@@ -1,0 +1,55 @@
+name: PHP regression checks
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  regression:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        php: ['8.0', '8.2', '8.4']
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+      - name: Lint PHP
+        shell: bash
+        run: git ls-files -z '*.php' | xargs -0 -n1 php -n -l
+      - name: Isolated regression suite
+        run: php -n tests/run.php
+
+  mysql:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: ampboard-test-only
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -pampboard-test-only"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mysqli
+          coverage: none
+      - name: Real MySQL connection lifecycle
+        env:
+          AMPBOARD_TEST_DB_HOST: 127.0.0.1
+          AMPBOARD_TEST_DB_USER: root
+          AMPBOARD_TEST_DB_PASSWORD: ampboard-test-only
+        run: php tests/mysqli.php

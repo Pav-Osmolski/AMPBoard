@@ -3,14 +3,13 @@
  * Link Templates Configuration
  * Included as part of `partials/settings.php`
  *
- * @var array $tooltips Tooltip copy map
- * @var string $defaultTooltipMessage Default tooltip fallback message
+ * @var \AMPBoard\Ui\Renderer $ui
  * @var array<string, mixed> $config
  */
 
-renderAccordionSectionStart(
+$ui->renderAccordionSectionStart(
 	'link-templates-config',
-	renderHeading( 'Link Templates' ),
+	$ui->renderHeading( 'Link Templates' ),
 	[
 		'expanded'  => false,
 		'caretPath' => $config['paths']['assets'] . '/images/caret-down.svg',
@@ -34,7 +33,7 @@ renderAccordionSectionStart(
 			out of the editor.
 		</p>
 
-		<?php renderSeparatorLine( 'sm' ) ?>
+		<?php $ui->renderSeparatorLine( 'sm' ) ?>
 
 		<ul
 				id="link-templates-list"
@@ -46,6 +45,6 @@ renderAccordionSectionStart(
 	</div>
 	<input type="hidden" id="link_templates_json_input" name="link_templates_json" value="">
 </div>
-<?php renderButtonBlock( [ 'label' => 'Save Settings', 'type' => 'submit' ] ); ?>
+<?php $ui->renderButtonBlock( [ 'label' => 'Save Settings', 'type' => 'submit' ] ); ?>
 
-<?php renderAccordionSectionEnd(); ?>
+<?php $ui->renderAccordionSectionEnd(); ?>

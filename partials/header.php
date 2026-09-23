@@ -2,11 +2,9 @@
 /**
  * AMPBoard Header
  *
- * @var string $user
- * @var string $dbUser
- * @var string $dbPass
  * @var bool $displayClock
  * @var bool $displaySearch
+ * @var \AMPBoard\Ui\Renderer $ui
  * @var array<string, mixed> $config
  *
  * @author  Pawel Osmolski
@@ -16,7 +14,7 @@
 require_once __DIR__ . '/../config/config.php';
 ?>
 <header role="banner">
-	<?= renderCollapseToggle( 'header' ); ?>
+	<?= $ui->renderCollapseToggle( 'header' ); ?>
 	<h1>
 		<span><?php echo getServerLabel(); ?> is ready, <?php echo htmlspecialchars( $config['user']['name'], ENT_QUOTES, 'UTF-8' ) ?>! <img
 					src="./assets/favicon/AMPBoard.png" alt="" aria-hidden="true"></span></h1>
@@ -26,6 +24,6 @@ require_once __DIR__ . '/../config/config.php';
 	' : '' ?>
 	<?= $config['ui']['flags']['clock'] ? '<div class="clock" aria-hidden="true"></div>' : '' ?>
 	<div class="server-info" aria-label="Server environment information">
-		<?php renderServerInfo( $config['db']['user'], $config['db']['pass'] ); ?>
+		<?php $ui->renderServerInfo(); ?>
 	</div>
 </header>

@@ -7,7 +7,7 @@
  */
 ?>
 <footer>
-	<?= renderCollapseToggle( 'footer' ); ?>
+	<?= $ui->renderCollapseToggle( 'footer' ); ?>
 	<div class="footer-wrapper">
 		<nav class="footer-nav" aria-label="Footer AMPBoard views and shortcuts">
 			<ul class="footer-links">

@@ -28,7 +28,7 @@ require_once __DIR__ . '/config/bootstrap.php';
 	      content="<?php echo htmlspecialchars( $config['user']['name'], ENT_QUOTES, 'UTF-8' ); ?>'s AMPBoard.">
 	<meta name="robots" content="noindex, nofollow">
 	<meta name="color-scheme"
-	      content="<?php echo htmlspecialchars( getThemeColorScheme( $config['ui']['themes']['theme'] ), ENT_QUOTES, 'UTF-8' ); ?>">
+	      content="<?php echo htmlspecialchars( $config['ui']['themes']['colorScheme'], ENT_QUOTES, 'UTF-8' ); ?>">
 	<title>
 		<?php echo htmlspecialchars( $config['user']['name'], ENT_QUOTES, 'UTF-8' ); ?>
 		's AMPBoard — Modern Localhost and Remote Dashboard for Apache, MySQL &amp; PHP

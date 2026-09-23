@@ -23,7 +23,6 @@ $helperModules = [
 
     // System + UI helpers
     'system',
-    'ui',
     'export',
 
     // Integrations

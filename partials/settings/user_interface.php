@@ -3,10 +3,7 @@
  * User Interface
  * Included as part of `partials/settings.php`
  *
- * @var array $tooltips Tooltip copy map
- * @var string $defaultTooltipMessage Default tooltip fallback message
  * @var array $themeOptions Theme options for the select box
- * @var string $currentTheme Active theme key
  * @var bool $displayHeader UI flag to show header
  * @var bool $displayFooter UI flag to show footer
  * @var bool $displayClock UI flag to show clock
@@ -20,12 +17,13 @@
  * @var bool $useAjaxForErrorLog UI flag to fetch error logs via AJAX
  * @var bool $apacheFastMode Fast mode flag for Apache inspector
  * @var bool $mysqlFastMode Fast mode flag for MySQL inspector
+ * @var \AMPBoard\Ui\Renderer $ui
  * @var array<string, mixed> $config
  */
 
-renderAccordionSectionStart(
+$ui->renderAccordionSectionStart(
 	'user-interface',
-	renderHeading( 'User Interface' ),
+	$ui->renderHeading( 'User Interface' ),
 	[
 		'expanded'  => false,
 		'caretPath' => $config['paths']['assets'] . '/images/caret-down.svg',
@@ -46,7 +44,7 @@ renderAccordionSectionStart(
 			</select>
 		</div>
 	</div>
-	<?php renderSeparatorLine( 'sm' ); ?>
+	<?php $ui->renderSeparatorLine( 'sm' ); ?>
 	<fieldset class="settings-features-group autofit">
 		<legend>Interface settings</legend>
 
@@ -138,6 +136,6 @@ renderAccordionSectionStart(
 
 	</fieldset>
 </div>
-<?php renderButtonBlock( [ 'label' => 'Save Settings', 'type' => 'submit' ] ); ?>
+<?php $ui->renderButtonBlock( [ 'label' => 'Save Settings', 'type' => 'submit' ] ); ?>
 
-<?php renderAccordionSectionEnd(); ?>
+<?php $ui->renderAccordionSectionEnd(); ?>

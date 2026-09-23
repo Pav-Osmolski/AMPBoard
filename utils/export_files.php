@@ -13,11 +13,7 @@
  *   POST action=dumpdb → dump a database to SQL and compress (ZIP preferred, tar.gz fallback)
  *   ?action=token   → return a fresh CSRF token (for rotating-tokens setups)
  *
- * @var string[] $tooltips
- * @var string $defaultTooltipMessage
- * @var string $dbUser
- * @var string $dbPass
- * @var bool $phpPathValid
+ * @var \AMPBoard\Ui\Renderer $ui
  * @var array<string, mixed> $config
  *
  * @package AMPBoard
@@ -28,7 +24,7 @@
 
 require_once __DIR__ . '/../config/config.php';
 
-$pageClasses = buildPageViewClasses( $settingsView ?? null );
+$pageClasses = $ui->buildPageViewClasses( $settingsView ?? null );
 
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $action = $_GET['action'] ?? $_POST['action'] ?? null;
@@ -361,14 +357,14 @@ if ( $action ) {
 
 <div id="export" class="<?= $pageClasses ?>">
 	<?php if ( empty( $settingsView ) ): ?>
-		<?= renderVersionedAssetsWithBase(); ?>
+		<?= $ui->renderVersionedAssetsWithBase(); ?>
 
 		<div class="heading">
-			<?= renderHeading( 'Export Files & Database', 'h2', true ) ?>
+			<?= $ui->renderHeading( 'Export Files & Database', 'h2', true ) ?>
 		</div>
 	<?php endif; ?>
 
-	<?php if ( $phpPathValid ) { ?>
+	<?php if ( $config['status']['phpPathValid'] ) { ?>
 		<div class="export-engine" role="group" aria-labelledby="export-engine-title">
 			<h3 id="export-engine-title">Archive engine</h3>
 			<p id="export-engine-help" class="description small">
@@ -376,7 +372,7 @@ if ( $action ) {
 				If using <strong>External 7-Zip / system archiver</strong>, ensure <code>7z</code>, <code>7za</code>,
 				<code>7zz</code>, or <code>zip</code> is available on your system <code>PATH</code>.
 			</p>
-			<?php renderSeparatorLine( 'sm' ) ?>
+			<?php $ui->renderSeparatorLine( 'sm' ) ?>
 			<fieldset class="radio-group" aria-describedby="export-engine-help">
 				<legend>Archive engine</legend>
 				<label>
@@ -388,7 +384,7 @@ if ( $action ) {
 					PHP ZipArchive / Phar
 				</label>
 			</fieldset>
-			<?php renderSeparatorLine( 'sm' ) ?>
+			<?php $ui->renderSeparatorLine( 'sm' ) ?>
 		</div>
 		<div class="export-grid">
 			<!-- Files export -->
@@ -398,7 +394,7 @@ if ( $action ) {
 					compressed archive. WordPress
 					uploads are excluded by
 					default.</p>
-				<?php renderSeparatorLine( 'sm' ) ?>
+				<?php $ui->renderSeparatorLine( 'sm' ) ?>
 				<form id="export-files-form" method="post" aria-describedby="export-files-help export-files-status"
 				      novalidate>
 					<input type="hidden" name="csrf" value="<?= htmlspecialchars( csrf_get_token(), ENT_QUOTES ) ?>">
@@ -443,9 +439,9 @@ if ( $action ) {
 							</label>
 						</fieldset>
 					</div>
-					<?php renderSeparatorLine( 'sm' ) ?>
+					<?php $ui->renderSeparatorLine( 'sm' ) ?>
 					<div>
-						<?php renderButtonBlock( [
+						<?php $ui->renderButtonBlock( [
 							'label'      => 'Create Archive',
 							'class'      => 'button',
 							'type'       => 'submit',
@@ -469,7 +465,7 @@ if ( $action ) {
 				<h3 id="export-db-title">Database</h3>
 				<p id="export-db-help" class="description small">Choose a database to dump into a compressed
 					archive.</p>
-				<?php renderSeparatorLine( 'sm' ) ?>
+				<?php $ui->renderSeparatorLine( 'sm' ) ?>
 				<form id="export-db-form" method="post" aria-describedby="export-db-help export-db-status" novalidate>
 					<input type="hidden" name="csrf" value="<?= htmlspecialchars( csrf_get_token(), ENT_QUOTES ) ?>">
 					<div class="row">
@@ -483,9 +479,9 @@ if ( $action ) {
 							<option value="">Loading…</option>
 						</select>
 					</div>
-					<?php renderSeparatorLine( 'sm' ) ?>
+					<?php $ui->renderSeparatorLine( 'sm' ) ?>
 					<div>
-						<?php renderButtonBlock( [
+						<?php $ui->renderButtonBlock( [
 							'label'      => 'Export Database',
 							'class'      => 'button',
 							'type'       => 'submit',
@@ -501,7 +497,7 @@ if ( $action ) {
 								aria-atomic="true"
 						></small>
 					</div>
-					<?php renderSeparatorLine( 'sm' ) ?>
+					<?php $ui->renderSeparatorLine( 'sm' ) ?>
 				</form>
 			</div>
 		</div>

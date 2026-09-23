@@ -18,10 +18,7 @@
  * - HTML markup with columns and folder links
  * - Error or warning messages for invalid or empty directories
  *
- * @var string[] $tooltips
- * @var string $defaultTooltipMessage
- * @var bool $apachePathValid
- * @var array $linkTemplatesConfig
+ * @var \AMPBoard\Ui\Renderer $ui
  * @var array<string, mixed> $config
  *
  * @author  Pawel Osmolski
@@ -46,7 +43,7 @@ $hasVhostFilteredColumns = false;
 <?php if ( empty( $config['profile']['folders'] ) || empty( $templatesByName ) ) : ?>
 	<div id="folders-view" class="visible" aria-labelledby="folders-view-heading">
 		<div class="heading">
-			<?= renderHeading( 'Document Folders', 'h2', true ) ?>
+			<?= $ui->renderHeading( 'Document Folders', 'h2', true ) ?>
 		</div>
 		<div class="columns width-resizable max-md">
 			<div class="column">
@@ -65,9 +62,9 @@ $hasVhostFilteredColumns = false;
 	</div>
 <?php else : ?>
 	<div id="folders-view" class="visible">
-		<?= renderWidthControls( 'width_columns', 'Column', 'column-controls' ); ?>
+		<?= $ui->renderWidthControls( 'width_columns', 'Column', 'column-controls' ); ?>
 		<div class="heading">
-			<?= renderHeading( 'Document Folders', 'h2', true ) ?>
+			<?= $ui->renderHeading( 'Document Folders', 'h2', true ) ?>
 		</div>
 		<div class="columns width-resizable" role="list" data-width-key="width_columns">
 			<?php foreach ( $config['profile']['folders'] as $column ): ?>
@@ -97,7 +94,7 @@ $hasVhostFilteredColumns = false;
 				$folders = $dir ? list_subdirs( $dir ) : [];
 				?>
 				<div class="column" id="<?php echo 'column_' . ( ++ $columnCounter ); ?>" role="listitem">
-					<?= renderDragHandle( $title ); ?>
+					<?= $ui->renderDragHandle( $title ); ?>
 					<h3 class="<?= $requireVhost ? 'with-badges' : '' ?><?= $config['status']['apachePathValid'] ? ' valid-apache-path' : ' invalid-apache-path' ?>">
 						<?php if ( $href !== '' ): ?>
 							<a href="<?= htmlspecialchars( $href ) ?>"><?= htmlspecialchars( $title ) ?></a>
@@ -106,7 +103,7 @@ $hasVhostFilteredColumns = false;
 						<?php endif; ?>
 
 						<?php if ( $disable ): ?>
-							<?= renderBadge(
+							<?= $ui->renderBadge(
 								'default',
 								'No Links',
 								'This column only lists folders that contain no link entries.',
@@ -114,7 +111,7 @@ $hasVhostFilteredColumns = false;
 							); ?>
 						<?php endif; ?>
 						<?php if ( $requireVhost ): ?>
-							<?= renderBadge(
+							<?= $ui->renderBadge(
 								'vhost',
 								'vHost',
 								'This column only lists folders with valid Apache vHosts.',
