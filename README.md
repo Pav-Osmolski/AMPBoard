@@ -1,7 +1,7 @@
 # AMPBoard — Modern Localhost and Remote Dashboard for Apache, MySQL & PHP
 
 ![Version](https://img.shields.io/github/v/release/Pav-Osmolski/AMPBoard)
-![PHP Compatibility](https://img.shields.io/badge/PHP-7.1--8.3-blue)
+![PHP Compatibility](https://img.shields.io/badge/PHP-8.0%2B-blue)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)
 ![License](https://img.shields.io/badge/license-GPL--3.0-blue)
 ![Webpack](https://img.shields.io/badge/Bundler-Webpack-orange)
@@ -19,7 +19,7 @@ It replaces the plain Apache index page with a responsive, feature-rich control 
 > [!NOTE]
 > Advanced Apache specific tools like Vhosts Management, Restart Apache, Inspector and Log Viewer, require server-level access when deployed remotely.
 
-✅ Requires **PHP 7.1+**  
+✅ Requires **PHP 8.0+**, with mysqli and OpenSSL enabled<br>
 ✅ Works on **Windows, macOS, and Linux**  
 ✅ Built with **Webpack, Babel, Sass, and module-based JS**
 
@@ -80,6 +80,12 @@ It is intended to be used with AMP stacks such as:
 
 ![search functionality](screenshots/index-light.png)
 
+## PHP development
+
+The modernization is incremental. See [architecture and migration notes](docs/architecture.md) for the new namespaced services, compatibility boundaries, and next steps. Published release history is recorded in [CHANGELOG.md](CHANGELOG.md).
+
+Run `php -n tests/run.php` for the isolated regression suite. It uses a database double and temporary profiles, so no running Apache or MySQL server is needed. See the architecture notes for the separate real-MySQL check.
+
 ## Project Structure
 
 A quick overview of the core files and folders in this project, so you’re never left wondering what does what.
@@ -96,6 +102,17 @@ A quick overview of the core files and folders in this project, so you’re neve
 
 ---
 
+### Namespaced PHP (`src/`)
+
+| File | Responsibility |
+| --- | --- |
+| `Config/Loader.php` | Resolve existing profiles and return the central config array. |
+| `Ui/ThemeCatalog.php` | Read theme metadata and assemble body classes. |
+| `Ui/Renderer.php` | Render components using explicitly supplied configuration. |
+| `Database/ConnectionFactory.php` | Open connections and validate injected credentials. |
+
+Classes are loaded by `config/autoload.php`; Composer is not required.
+
 ### ⚙️ Config (`config/`)
 
 | File                     | Description |
@@ -104,8 +121,9 @@ A quick overview of the core files and folders in this project, so you’re neve
 | `interface/`             | Heading configuration and tooltip descriptions for settings and panels. |
 | `profiles/`              | Profile folder for auto generated user-defined overrides saved from the settings UI. |
 | `bootstrap.php`          | Init headers, session, security, and config; starts session early for CSRF rendering. |
-| `config.php`             | Default configuration including MySQL credentials and Apache path settings. |
-| `helpers.php`            | One include to rule them all: loads modular helpers and common utilities. |
+| `config.php`             | Composition entry point exposing `$config`, `$database`, and `$ui`. |
+| `autoload.php`           | Loads `AMPBoard\` classes from `src/` without Composer. |
+| `helpers.php`            | Loads remaining procedural helpers during the incremental migration. |
 | `debug.php`              | Logs raw shell commands (with optional context) to `logs/localhost-page.log`. |
 
 ---

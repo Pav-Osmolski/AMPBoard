@@ -3,16 +3,14 @@
  * Apache Control
  * Included as part of `partials/settings.php`
  *
- * @var array $tooltips Tooltip copy map
- * @var string $defaultTooltipMessage Default tooltip fallback message
- * @var bool $apachePathValid Validation state for Apache path
  * @var bool $apacheToggle True if Apache restart endpoint is available
+ * @var \AMPBoard\Ui\Renderer $ui
  * @var array<string, mixed> $config
  */
 
-renderAccordionSectionStart(
+$ui->renderAccordionSectionStart(
 	'apache-control',
-	renderHeading( 'Apache Control' ),
+	$ui->renderHeading( 'Apache Control' ),
 	[
 		'disabled'  => ! $config['status']['apachePathValid'],
 		'expanded'  => false,
@@ -21,7 +19,7 @@ renderAccordionSectionStart(
 );
 ?>
 <?php if ( $config['status']['apacheToggleAvailable'] && $config['status']['apachePathValid'] ): ?>
-	<?php renderButtonBlock( [
+	<?php $ui->renderButtonBlock( [
 		'label' => 'Restart Apache',
 		'id'    => 'restart-apache-button'
 	], [ 'top' => 'sm' ] ); ?>
@@ -40,11 +38,11 @@ renderAccordionSectionStart(
 		}
 		?>
 	</p>
-	<?php renderButtonBlock( [
+	<?php $ui->renderButtonBlock( [
 		'label'    => 'Restart Apache',
 		'id'       => 'restart-apache-button',
 		'disabled' => true,
 	], [ 'top' => 'sm' ] ); ?>
 
 <?php endif; ?>
-<?php renderAccordionSectionEnd(); ?>
+<?php $ui->renderAccordionSectionEnd(); ?>

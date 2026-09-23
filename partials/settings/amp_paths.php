@@ -3,22 +3,13 @@
  * Apache, MySQL and PHP Paths
  * Included as part of `partials/settings.php`
  *
- * @var array $tooltips Tooltip copy map
- * @var string $defaultTooltipMessage Default tooltip fallback message
- * @var bool $apachePathValid Validation state for Apache path
- * @var bool $htdocsPathValid Validation state for HTDocs path
- * @var bool $phpPathValid Validation state for PHP path
- * @var bool $mySqlHostValid Validation state for MySQL Host
- * @var bool $mySqlUserValid Validation state for MySQL Username
- * @var bool $mySqlPassValid Validation state for MySQL Password
- * @var string $dbUser Database user for display (obfuscated on output)
- * @var string $dbPass Database password for display (obfuscated on output)
+ * @var \AMPBoard\Ui\Renderer $ui
  * @var array<string, mixed> $config
  */
 
-renderAccordionSectionStart(
+$ui->renderAccordionSectionStart(
 	'amp-paths',
-	renderHeading( 'Database & Paths' ),
+	$ui->renderHeading( 'Database & Paths' ),
 	[
 		'expanded'  => false,
 		'caretPath' => $config['paths']['assets'] . '/images/caret-down.svg',
@@ -26,9 +17,9 @@ renderAccordionSectionStart(
 );
 ?>
 <div class="background-logos">
-	<?php echo injectSvgWithUniqueIds( $config['paths']['assets'] . '/images/Apache.svg', 'Apache2' ); ?>
-	<?php echo injectSvgWithUniqueIds( $config['paths']['assets'] . '/images/MariaDB.svg', 'MariaDB1' ); ?>
-	<?php echo injectSvgWithUniqueIds( $config['paths']['assets'] . '/images/PHP.svg', 'PHP2' ); ?>
+	<?php echo $ui->injectSvgWithUniqueIds( $config['paths']['assets'] . '/images/Apache.svg', 'Apache2' ); ?>
+	<?php echo $ui->injectSvgWithUniqueIds( $config['paths']['assets'] . '/images/MariaDB.svg', 'MariaDB1' ); ?>
+	<?php echo $ui->injectSvgWithUniqueIds( $config['paths']['assets'] . '/images/PHP.svg', 'PHP2' ); ?>
 </div>
 <div class="settings-container">
 	<div class="settings-features-group settings-xs-label">
@@ -75,7 +66,7 @@ renderAccordionSectionStart(
 			</label>
 		</div>
 	</div>
-	<?php renderSeparatorLine( 'xs' ); ?>
+	<?php $ui->renderSeparatorLine( 'xs' ); ?>
 	<fieldset>
 		<legend>Inspector settings</legend>
 
@@ -91,6 +82,6 @@ renderAccordionSectionStart(
 			Fast Mode for MySQL Inspector
 		</label>
 	</fieldset>
-	<?php renderButtonBlock( [ 'label' => 'Save Settings', 'type' => 'submit' ] ); ?>
+	<?php $ui->renderButtonBlock( [ 'label' => 'Save Settings', 'type' => 'submit' ] ); ?>
 </div>
-<?php renderAccordionSectionEnd(); ?>
+<?php $ui->renderAccordionSectionEnd(); ?>

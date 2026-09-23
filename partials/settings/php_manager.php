@@ -3,16 +3,13 @@
  * PHP Manager
  * Included as part of `partials/settings.php`
  *
- * @var array $tooltips Tooltip copy map
- * @var string $defaultTooltipMessage Default tooltip fallback message
- * @var bool $phpPathValid Validation state for PHP path
- * @var string $currentPhpErrorReporting Current PHP error reporting level constant value
+ * @var \AMPBoard\Ui\Renderer $ui
  * @var array<string, mixed> $config
  */
 
-renderAccordionSectionStart(
+$ui->renderAccordionSectionStart(
 	'php-manager',
-	renderHeading( 'PHP Manager' ),
+	$ui->renderHeading( 'PHP Manager' ),
 	[
 		'disabled'  => ! $config['status']['phpPathValid'],
 		'expanded'  => false,
@@ -25,7 +22,7 @@ renderAccordionSectionStart(
 		<p><strong>Warning:</strong> PHP Error Handling &amp; Logging will save to <code>user_config.php</code>
 			but will not be reflected in <code>php.ini</code> (invalid PHP path).
 		</p>
-		<?php renderSeparatorLine( 'sm' ) ?>
+		<?php $ui->renderSeparatorLine( 'sm' ) ?>
 	<?php endif; ?>
 
 	<div class="settings-features-group settings-sm-label">
@@ -69,7 +66,7 @@ renderAccordionSectionStart(
 						placeholder="e.g. 256M, 1G or -1"
 				>
 			</label>
-			<?= renderHeading( 'PHP Memory Limit', 'label', false, true ); ?>
+			<?= $ui->renderHeading( 'PHP Memory Limit', 'label', false, true ); ?>
 		</div>
 
 		<div class="settings-row">
@@ -80,7 +77,7 @@ renderAccordionSectionStart(
 				       min="-1"
 				       step="1">
 			</label>
-			<?= renderHeading( 'PHP Max Execution Time', 'label', false, true ); ?>
+			<?= $ui->renderHeading( 'PHP Max Execution Time', 'label', false, true ); ?>
 		</div>
 
 		<div class="settings-row">
@@ -91,7 +88,7 @@ renderAccordionSectionStart(
 				       min="1"
 				       step="1">
 			</label>
-			<?= renderHeading( 'PHP Max Input Vars', 'label', false, true ); ?>
+			<?= $ui->renderHeading( 'PHP Max Input Vars', 'label', false, true ); ?>
 		</div>
 
 		<div class="settings-row">
@@ -101,7 +98,7 @@ renderAccordionSectionStart(
 				       value="<?= htmlspecialchars( (string) $config['user']['phpUploadMaxFile'], ENT_QUOTES, 'UTF-8' ) ?>"
 				       placeholder="e.g. 20M, 50M">
 			</label>
-			<?= renderHeading( 'PHP Upload Max File Size', 'label', false, true ); ?>
+			<?= $ui->renderHeading( 'PHP Upload Max File Size', 'label', false, true ); ?>
 		</div>
 
 		<div class="settings-row">
@@ -111,7 +108,7 @@ renderAccordionSectionStart(
 				       value="<?= htmlspecialchars( (string) $config['user']['phpPostMaxSize'], ENT_QUOTES, 'UTF-8' ) ?>"
 				       placeholder="e.g. 20M, 50M">
 			</label>
-			<?= renderHeading( 'PHP Post Max Size', 'label', false, true ); ?>
+			<?= $ui->renderHeading( 'PHP Post Max Size', 'label', false, true ); ?>
 		</div>
 
 		<div class="settings-row">
@@ -121,10 +118,10 @@ renderAccordionSectionStart(
 				       value="<?= htmlspecialchars( (string) $config['user']['phpTimezone'], ENT_QUOTES, 'UTF-8' ) ?>"
 				       placeholder="e.g. Europe/London">
 			</label>
-			<?= renderHeading( 'PHP Timezone', 'label', false, true ); ?>
+			<?= $ui->renderHeading( 'PHP Timezone', 'label', false, true ); ?>
 		</div>
 	</div>
 </div>
-<?php renderButtonBlock( [ 'label' => 'Save Settings', 'type' => 'submit' ], [ 'top' => 'sm' ] ); ?>
+<?php $ui->renderButtonBlock( [ 'label' => 'Save Settings', 'type' => 'submit' ], [ 'top' => 'sm' ] ); ?>
 
-<?php renderAccordionSectionEnd(); ?>
+<?php $ui->renderAccordionSectionEnd(); ?>

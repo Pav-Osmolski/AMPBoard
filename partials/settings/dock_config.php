@@ -3,14 +3,13 @@
  * Dock Configuration
  * Included as part of `partials/settings.php`
  *
- * @var array $tooltips Tooltip copy map
- * @var string $defaultTooltipMessage Default tooltip fallback message
+ * @var \AMPBoard\Ui\Renderer $ui
  * @var array<string, mixed> $config
  */
 
-renderAccordionSectionStart(
+$ui->renderAccordionSectionStart(
 	'dock-config',
-	renderHeading( 'Dock Configuration' ),
+	$ui->renderHeading( 'Dock Configuration' ),
 	[
 		'expanded'  => false,
 		'caretPath' => $config['paths']['assets'] . '/images/caret-down.svg',
@@ -24,6 +23,6 @@ renderAccordionSectionStart(
 	</div>
 	<input type="hidden" id="dock_json_input" name="dock_json">
 </div>
-<?php renderButtonBlock( [ 'label' => 'Save Settings', 'type' => 'submit' ] ); ?>
+<?php $ui->renderButtonBlock( [ 'label' => 'Save Settings', 'type' => 'submit' ] ); ?>
 
-<?php renderAccordionSectionEnd(); ?>
+<?php $ui->renderAccordionSectionEnd(); ?>

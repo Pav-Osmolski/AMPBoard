@@ -13,8 +13,7 @@
  *
  * Optional: ?fast=1 to skip size aggregation
  *
- * @var string $dbUser
- * @var string $dbPass
+ * @var \AMPBoard\Ui\Renderer $ui
  * @var array<string, mixed> $config
  *
  * @package AMPBoard
@@ -41,12 +40,12 @@ $start = microtime( true );
 
 echo '
 <div class="heading">
-    ' . renderHeading( 'MySQL Inspector', 'h2', true ) . '
+    ' . $ui->renderHeading( 'MySQL Inspector', 'h2', true ) . '
 </div>
 <pre>';
 
 try {
-	$mysqli = getMysqliConnection(); // strictMode defaults to true
+	$mysqli = $database->connect(); // strictMode defaults to true
 } catch ( Exception $e ) {
 	exit( "❌ " . htmlspecialchars( $e->getMessage() ) . "\n" );
 }

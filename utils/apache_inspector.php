@@ -14,6 +14,7 @@
  * - Apache environment variables
  * - PHP config info
  *
+ * @var \AMPBoard\Ui\Renderer $ui
  * @var array<string, mixed> $config
  *
  * @package AMPBoard
@@ -42,7 +43,7 @@ $arch = ( PHP_INT_SIZE === 8 ) ? '64-bit' : '32-bit';
 
 echo '
 <div class="heading">
-    ' . renderHeading( 'Apache Inspector', 'h2', true ) . '
+    ' . $ui->renderHeading( 'Apache Inspector', 'h2', true ) . '
 </div>
 <pre>';
 echo "🖥️ Operating System: $os ($arch)\n";

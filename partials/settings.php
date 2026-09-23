@@ -35,9 +35,7 @@
  * - Sensitive values are obfuscated for display via `obfuscate_value()`
  *
  * @var array $themeTypes Theme type metadata for client-side use
- * @var string $currentTheme Active theme key
- * @var array $tooltips Tooltip copy map
- * @var string $defaultTooltipMessage Default tooltip fallback message
+ * @var \AMPBoard\Ui\Renderer $ui
  * @var array<string, mixed> $config
  *
  * @author  Pawel Osmolski
@@ -45,6 +43,9 @@
  */
 
 require_once __DIR__ . '/../config/config.php';
+
+// Explicit include context for embedded utility panels and the following phpinfo panel.
+$settingsView = true;
 ?>
 
 <script>
@@ -63,10 +64,10 @@ require_once __DIR__ . '/../config/config.php';
 
 <div id="settings-view">
 	<div class="heading">
-		<?= renderHeading( 'User Configuration', 'h2', true ) ?>
+		<?= $ui->renderHeading( 'User Configuration', 'h2', true ) ?>
 	</div>
 
-	<?= renderWidthControls( 'width_settings', 'Accordion', 'accordion-controls' ); ?>
+	<?= $ui->renderWidthControls( 'width_settings', 'Accordion', 'accordion-controls' ); ?>
 
 	<?php if ( defined( 'DEMO_MODE' ) && DEMO_MODE ): ?>
 		<div class="demo-mode" role="alert">
@@ -91,7 +92,7 @@ require_once __DIR__ . '/../config/config.php';
 
 			foreach ( $settingsFormPanels as $formPanel ) {
 				require_once __DIR__ . "/settings/{$formPanel}.php";
-				renderSeparatorLine();
+				$ui->renderSeparatorLine();
 			}
 			?>
 		</form>
@@ -110,7 +111,7 @@ require_once __DIR__ . '/../config/config.php';
 			require_once __DIR__ . "/settings/{$panel}.php";
 
 			if ( $index !== $lastIndex ) {
-				renderSeparatorLine();
+				$ui->renderSeparatorLine();
 			}
 		}
 		?>

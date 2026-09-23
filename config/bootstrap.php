@@ -27,6 +27,6 @@ if ( session_status() !== PHP_SESSION_ACTIVE ) {
 }
 
 // Load core bits after session is up
-include __DIR__ . '/config.php';
+require_once __DIR__ . '/config.php';
 //include __DIR__ . '/debug.php';
 include $config['paths']['partials'] . '/submit.php';

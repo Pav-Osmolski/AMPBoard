@@ -3,14 +3,13 @@
  * Folders Configuration
  * Included as part of `partials/settings.php`
  *
- * @var array $tooltips Tooltip copy map
- * @var string $defaultTooltipMessage Default tooltip fallback message
+ * @var \AMPBoard\Ui\Renderer $ui
  * @var array<string, mixed> $config
  */
 
-renderAccordionSectionStart(
+$ui->renderAccordionSectionStart(
 	'folders-config',
-	renderHeading( 'Folders Configuration' ),
+	$ui->renderHeading( 'Folders Configuration' ),
 	[
 		'expanded'  => false,
 		'caretPath' => $config['paths']['assets'] . '/images/caret-down.svg',
@@ -24,6 +23,6 @@ renderAccordionSectionStart(
 	</div>
 	<input type="hidden" id="folders_json_input" name="folders_json">
 </div>
-<?php renderButtonBlock( [ 'label' => 'Save Settings', 'type' => 'submit' ] ); ?>
+<?php $ui->renderButtonBlock( [ 'label' => 'Save Settings', 'type' => 'submit' ] ); ?>
 
-<?php renderAccordionSectionEnd(); ?>
+<?php $ui->renderAccordionSectionEnd(); ?>
