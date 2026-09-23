@@ -1,0 +1,56 @@
+name: Publish AMPBoard v3.5
+
+on:
+  push:
+    branches:
+      - release/v3.5
+    paths:
+      - .github/workflows/release-v3.5.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish-ampboard-v3.5
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the tested merge commit
+        uses: actions/checkout@v4
+        with:
+          ref: e44a3ef2b7bfc21c5532b0df6841bbf9efacb00b
+          persist-credentials: false
+      - name: Prepare notes and archive from the release commit
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          text = Path("CHANGELOG.md").read_text(encoding="utf-8")
+          section = text.split("## [v3.5]", 1)[1].split("\n\n", 1)[1].split("\n## [v3.4]", 1)[0].strip()
+          Path(os.environ["RUNNER_TEMP"], "release-notes.md").write_text(section + "\n", encoding="utf-8")
+          PY
+          git archive --format=zip --output="$RUNNER_TEMP/AMPBoard.zip" HEAD
+          python3 - <<'PY'
+          import os
+          import zipfile
+          with zipfile.ZipFile(os.path.join(os.environ["RUNNER_TEMP"], "AMPBoard.zip")) as archive:
+              assert archive.testzip() is None
+              assert "src/Config/Loader.php" in archive.namelist()
+              assert ".key" not in archive.namelist()
+              assert "config/local.php" not in archive.namelist()
+          PY
+      - name: Publish tag and release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: Pav-Osmolski/AMPBoard
+        shell: bash
+        run: |
+          gh release create v3.5 "$RUNNER_TEMP/AMPBoard.zip" \
+            --target e44a3ef2b7bfc21c5532b0df6841bbf9efacb00b \
+            --title "A Place for Everything 🗂️ – AMPBoard" \
+            --notes-file "$RUNNER_TEMP/release-notes.md" \
+            --latest
