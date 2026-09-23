@@ -1,7 +1,7 @@
 # AMPBoard — Modern Localhost and Remote Dashboard for Apache, MySQL & PHP
 
 ![Version](https://img.shields.io/github/v/release/Pav-Osmolski/AMPBoard)
-![PHP Compatibility](https://img.shields.io/badge/PHP-7.1--8.3-blue)
+![PHP Compatibility](https://img.shields.io/badge/PHP-8.0%2B-blue)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)
 ![License](https://img.shields.io/badge/license-GPL--3.0-blue)
 ![Webpack](https://img.shields.io/badge/Bundler-Webpack-orange)
@@ -19,7 +19,7 @@ It replaces the plain Apache index page with a responsive, feature-rich control 
 > [!NOTE]
 > Advanced Apache specific tools like Vhosts Management, Restart Apache, Inspector and Log Viewer, require server-level access when deployed remotely.
 
-✅ Requires **PHP 7.1+**  
+✅ Requires **PHP 8.0+**, with mysqli and OpenSSL enabled<br>
 ✅ Works on **Windows, macOS, and Linux**  
 ✅ Built with **Webpack, Babel, Sass, and module-based JS**
 
@@ -121,8 +121,9 @@ Classes are loaded by `config/autoload.php`; Composer is not required.
 | `interface/`             | Heading configuration and tooltip descriptions for settings and panels. |
 | `profiles/`              | Profile folder for auto generated user-defined overrides saved from the settings UI. |
 | `bootstrap.php`          | Init headers, session, security, and config; starts session early for CSRF rendering. |
-| `config.php`             | Default configuration including MySQL credentials and Apache path settings. |
-| `helpers.php`            | One include to rule them all: loads modular helpers and common utilities. |
+| `config.php`             | Composition entry point exposing `$config`, `$database`, and `$ui`. |
+| `autoload.php`           | Loads `AMPBoard\` classes from `src/` without Composer. |
+| `helpers.php`            | Loads remaining procedural helpers during the incremental migration. |
 | `debug.php`              | Logs raw shell commands (with optional context) to `logs/localhost-page.log`. |
 
 ---
