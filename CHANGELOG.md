@@ -4,26 +4,33 @@ Published entries below are imported from the project's GitHub releases. Their w
 
 ## Unreleased
 
-Changes already on main after v3.4: expanded PHP settings and input validation (`1885030`), the deployment workflow (`73ece19`), and accessibility improvements (`bb62f14`). The entries below describe this modernization branch.
+## [v3.5](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.5) — 2026-09-23
 
-### Changed
+Everything in its right place... well, a few more things anyway 🗂️
 
-- Continue the central-config migration with namespaced configuration, UI rendering, theme, and database services under `src/`.
-- Keep legacy profile files, local overrides, config-array keys, endpoint URLs, and the existing frontend assets compatible.
-- Make embedded settings context explicit instead of changing it inside accordion rendering.
-- Check database credential status once per configuration load.
-- Correct the documented minimum PHP version to 8.0, matching syntax already present before this refactor.
+The centralised config array was step 0. This is step 1: giving configuration, UI rendering, themes, and database connections a proper home under the `AMPBoard\` namespace.
 
-### Fixed
+**Please note: PHP 8.0+ is now the supported minimum.** The existing code already used PHP 8 type declarations that function polyfills could not cover. Existing user profiles and local overrides remain compatible; no settings migration is required.
 
-- Populate the central tooltip map directly from the loaded interface configuration.
-- Preserve the actual MySQLi reporting mode after successful and failed connections in both strict and non-strict modes.
-- Use the central PHP-path validity flag in the export view.
+- Moves configuration initialisation into `AMPBoard\Config\Loader`, keeping temporary profile variables out of the page scope.
+- Introduces `AMPBoard\Ui\Renderer` for UI components, with configuration supplied explicitly instead of read through globals.
+- Moves theme discovery, colour-scheme detection, and body classes into `AMPBoard\Ui\ThemeCatalog`.
+- Introduces `AMPBoard\Database\ConnectionFactory`, using explicitly supplied credentials instead of global database variables.
+- Adds a lightweight class autoloader. Composer is not required.
+- Preserves existing profile files, local overrides, utility URLs, and frontend assets.
+- Makes the embedded settings view explicit rather than changing global state when rendering an accordion.
+- Checks MySQL credential status once during configuration loading instead of opening three separate connections.
+- Correctly restores MySQLi reporting flags after successful and failed connections, in both strict and non-strict modes.
+- Populates the central tooltip map directly from the loaded interface configuration.
+- Updates the export view to read PHP path validity from the central config array.
+- Expands PHP settings management and input validation for execution time, input variables, upload size, POST size, and timezone.
+- Improves accessibility with a skip link, keyboard focus styling, and header refinements.
+- Adds a deployment workflow for updates to `main`.
+- Adds automated PHP regression checks on Windows and Linux, alongside real MySQL connection tests.
+- Introduces `CHANGELOG.md`, preserving the previous GitHub release notes.
+- Documents the new structure and the next stages of moving away from globals. A few are still making themselves comfortable for now 🤓
 
-### Added
-
-- Dependency-free PHP regression tests and a CI matrix.
-- Architecture notes and a staged modernization roadmap.
+**Full Changelog**: https://github.com/Pav-Osmolski/AMPBoard/compare/v3.4...v3.5
 
 ## [v3.4](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.4) — 2025-12-10
 
