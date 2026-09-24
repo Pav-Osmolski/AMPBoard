@@ -4,143 +4,45 @@ namespace AMPBoard\Config;
 
 use AMPBoard\Database\ConnectionFactory;
 use AMPBoard\Ui\ThemeCatalog;
+use AMPBoard\Security\CredentialCipher;
 
-/** Loads legacy profiles into the central configuration without leaking local variables. */
+/** Assembles the dashboard configuration from resolved profile data. */
 final class Loader {
 	private string $directory;
+	private ProfileRepository $profiles;
 
-	public function __construct( string $directory ) {
+	public function __construct( string $directory, ?ProfileRepository $profiles = null ) {
 		$this->directory = $directory;
+		$this->profiles = $profiles ?? new ProfileRepository( $directory, new CredentialCipher( dirname( $directory ) . '/.key' ), null, LegacyConstants::read() );
 	}
 
-	/** Load once per request; legacy profiles still define process-wide constants. */
-	public function load(): array {
-		// Initialise local overrides (e.g. demo mode)
-		$localOverrides = $this->directory . '/local.php';
-
-		if ( file_exists( $localOverrides ) ) {
-			require_once $localOverrides;
-		}
-
-		// Sanitize username for user config folder creation
-		$rawUser    = resolveCurrentUser();
-		$userFolder = sanitizeFolderName( $rawUser );
-
-		// Default + user config paths
-		$defaultConfigDir = $this->directory . '/profiles/default';
-		$userConfigDir    = $this->directory . '/profiles/' . $userFolder;
-
-		// Determine active config directory (user specific or default)
-		$activeConfigDir  = is_dir( $userConfigDir ) ? $userConfigDir : $defaultConfigDir;
-		$activeUserConfig = $activeConfigDir . '/user_config.php';
-
-		// AMPBoard interface configuration directory (shared, non user specific)
+	/** New profiles can load without constants; opt in only at the legacy entry point. */
+	public function load( bool $publishLegacyConstants = false ): array {
+		$rawUser = resolveCurrentUser();
+		$profile = $this->profiles->load( $rawUser );
+		$settings = $profile['settings'];
+		if ( $publishLegacyConstants ) { LegacyConstants::publish( $settings ); }
+		( new PhpSettings() )->apply( $profile['php'] );
+		$defaultConfigDir = $profile['default'];
+		$userConfigDir = $profile['target'];
+		$activeConfigDir = $profile['active'];
+		$foldersConfig = $profile['profile']['folders'];
+		$linkTemplatesConfig = $profile['profile']['linkTemplates'];
+		$dockConfig = $profile['profile']['dock'];
 		$interfaceDir = $this->directory . '/interface';
-
-		// Load user-specific PHP overrides (if present)
-		if ( file_exists( $activeUserConfig ) ) {
-			require_once $activeUserConfig;
-		}
-
-		// AMPBoard general application paths
-		$assetsDir   = $this->directory . '/../assets';
-		$crtDir      = $this->directory . '/../crt';
-		$partialsDir = $this->directory . '/../partials';
-		$utilsDir    = $this->directory . '/../utils';
-		$logsDir     = $this->directory . '/../logs';
-
-		// Initialise user configs
-		$foldersConfig       = read_json_array_safely( $activeConfigDir . '/folders.json' );
-		$linkTemplatesConfig = read_json_array_safely( $activeConfigDir . '/link_templates.json' );
-		$dockConfig          = read_json_array_safely( $activeConfigDir . '/dock.json' );
-
-		// Initialise AMPBoard interface configs
 		$headingsConfig = read_json_array_safely( $interfaceDir . '/headings.json' );
 		$tooltipsConfig = read_json_array_safely( $interfaceDir . '/tooltips.json' );
-
-		// Enable Demo Mode (disables saving settings and obfuscates credentials)
-		if ( ! defined( 'DEMO_MODE' ) ) {
-			$demoEnv = getenv( 'AMPBOARD_DEMO_MODE' );
-
-			if ( $demoEnv !== false ) {
-				define( 'DEMO_MODE', filter_var( $demoEnv, FILTER_VALIDATE_BOOLEAN ) );
-			} else {
-				define( 'DEMO_MODE', false );
-			}
-		}
-
-		// Export files exclusion list
-		if ( ! defined( 'EXPORT_EXCLUDE' ) ) {
-			define( 'EXPORT_EXCLUDE', [
-				'.git',
-				'.idea',
-				'node_modules',
-				'vendor',
-				'dist',
-				'build',
-				'.vscode',
-				'.DS_Store',
-				'Thumbs.db',
-				'.cache',
-				'.parcel-cache',
-				'.sass-cache',
-				'.next',
-				'.nuxt',
-				'.turbo',
-			] );
-		}
-
-		// Database connection defaults
-		foreach (
-			[
-				'DB_HOST'     => 'localhost',
-				'DB_USER'     => 'user',
-				'DB_PASSWORD' => 'password',
-			] as $const => $default
-		) {
-			if ( ! defined( $const ) ) {
-				define( $const, $default );
-			}
-		}
-
-		// Path defaults (can be overridden by user_config.php)
-		define_path_constant( 'APACHE_PATH', 'C:/xampp/apache' );
-		define_path_constant( 'HTDOCS_PATH', 'C:/htdocs' );
-		define_path_constant( 'PHP_PATH', 'C:/xampp/php' );
-
-		// UI defaults (if user_config.php did not define them)
-		$defaults = [
-			'theme'                 => 'default',
-			'apacheFastMode'        => false,
-			'mysqlFastMode'         => false,
-			'displayHeader'         => true,
-			'displayFooter'         => true,
-			'displayClock'          => true,
-			'displaySearch'         => true,
-			'displayTooltips'       => true,
-			'displayFolderBadges'   => true,
-			'displaySystemStats'    => true,
-			'displayApacheErrorLog' => true,
-			'displayPhpErrorLog'    => true,
-			'useAjaxForStats'       => true,
-			'useAjaxForErrorLog'    => true,
-		];
-
-		foreach ( $defaults as $key => $value ) {
-			if ( ! isset( $$key ) ) {
-				$$key = $value;
-			}
-		}
-
-		// Decrypt DB credentials using the current key storage
-		$dbUser = getDecrypted( 'DB_USER' );
-		$dbPass = getDecrypted( 'DB_PASSWORD' );
-		$database = new ConnectionFactory( [ 'host' => DB_HOST, 'user' => $dbUser, 'pass' => $dbPass ] );
-
-		// Validate paths for Apache, htdocs, and PHP
-		$apachePathValid = file_exists( APACHE_PATH );
-		$htdocsPathValid = file_exists( HTDOCS_PATH );
-		$phpPathValid    = file_exists( PHP_PATH );
+		$assetsDir = $this->directory . '/../assets';
+		$crtDir = $this->directory . '/../crt';
+		$partialsDir = $this->directory . '/../partials';
+		$utilsDir = $this->directory . '/../utils';
+		$logsDir = $this->directory . '/../logs';
+		$dbUser = $profile['db']['user'];
+		$dbPass = $profile['db']['pass'];
+		$database = new ConnectionFactory( $profile['db'] );
+		$apachePathValid = file_exists( $settings['APACHE_PATH'] );
+		$htdocsPathValid = file_exists( $settings['HTDOCS_PATH'] );
+		$phpPathValid = file_exists( $settings['PHP_PATH'] );
 
 		// Check if utilities are available
 		$apacheToggleAvailable   = file_exists( $utilsDir . '/toggle_apache.php' );
@@ -166,13 +68,13 @@ final class Loader {
 		$currentPhpTimezone       = ini_get( 'date.timezone' );
 
 		// Resolve display user (respecting DEMO_MODE)
-		$user = ( defined( 'DEMO_MODE' ) && DEMO_MODE ) ? 'demo' : $rawUser;
+		$user = $settings['DEMO_MODE'] ? 'demo' : $rawUser;
 
 		// Base config structure (paths are available early for helpers)
 		$config['paths'] = [
-			'apache'         => APACHE_PATH,
-			'htdocs'         => HTDOCS_PATH,
-			'php'            => PHP_PATH,
+			'apache'         => $settings['APACHE_PATH'],
+			'htdocs'         => $settings['HTDOCS_PATH'],
+			'php'            => $settings['PHP_PATH'],
 			'defaultProfile' => $defaultConfigDir,
 			'userProfile'    => $userConfigDir,
 			'activeProfile'  => $activeConfigDir,
@@ -187,15 +89,15 @@ final class Loader {
 		// Class list for the <body> based on the UI options set by `user_config.php`
 		$themes = new ThemeCatalog( $assetsDir );
 		$bodyClasses = $themes->buildBodyClasses(
-			$theme,
-			$displayHeader,
-			$displayFooter,
-			$displayClock,
-			$displaySearch,
-			$displayTooltips,
-			$displaySystemStats,
-			$displayApacheErrorLog,
-			$displayPhpErrorLog,
+			$settings['theme'],
+			$settings['displayHeader'],
+			$settings['displayFooter'],
+			$settings['displayClock'],
+			$settings['displaySearch'],
+			$settings['displayTooltips'],
+			$settings['displaySystemStats'],
+			$settings['displayApacheErrorLog'],
+			$settings['displayPhpErrorLog'],
 			$systemStatsAvailable,
 			$apacheErrorLogAvailable,
 			$phpErrorLogAvailable
@@ -204,7 +106,7 @@ final class Loader {
 		[ $themeOptions, $themeTypes ] = $themes->loadThemes( $this->directory . '/../assets/scss/themes/' );
 
 		// Set the current theme
-		$currentTheme = $theme;
+		$currentTheme = $settings['theme'];
 
 		// Initialise Tooltips
 		$tooltips              = $tooltipsConfig;
@@ -220,24 +122,24 @@ final class Loader {
 		$config['ui'] = [
 			'bodyClasses' => $bodyClasses,
 			'flags'       => [
-				'header'             => $displayHeader,
-				'footer'             => $displayFooter,
-				'clock'              => $displayClock,
-				'search'             => $displaySearch,
-				'tooltips'           => $displayTooltips,
-				'folderBadges'       => $displayFolderBadges,
-				'systemStats'        => $displaySystemStats,
-				'apacheErrorLog'     => $displayApacheErrorLog,
-				'phpErrorLog'        => $displayPhpErrorLog,
-				'useAjaxForStats'    => $useAjaxForStats,
-				'useAjaxForErrorLog' => $useAjaxForErrorLog,
-				'apacheFastMode'     => $apacheFastMode,
-				'mysqlFastMode'      => $mysqlFastMode,
+				'header'             => $settings['displayHeader'],
+				'footer'             => $settings['displayFooter'],
+				'clock'              => $settings['displayClock'],
+				'search'             => $settings['displaySearch'],
+				'tooltips'           => $settings['displayTooltips'],
+				'folderBadges'       => $settings['displayFolderBadges'],
+				'systemStats'        => $settings['displaySystemStats'],
+				'apacheErrorLog'     => $settings['displayApacheErrorLog'],
+				'phpErrorLog'        => $settings['displayPhpErrorLog'],
+				'useAjaxForStats'    => $settings['useAjaxForStats'],
+				'useAjaxForErrorLog' => $settings['useAjaxForErrorLog'],
+				'apacheFastMode'     => $settings['apacheFastMode'],
+				'mysqlFastMode'      => $settings['mysqlFastMode'],
 			],
 			'themes'      => [
-				'theme'        => $theme,
+				'theme'        => $settings['theme'],
 				'currentTheme' => $currentTheme,
-				'colorScheme'  => $themes->getThemeColorScheme( $theme ),
+				'colorScheme'  => $themes->getThemeColorScheme( $settings['theme'] ),
 				'options'      => $themeOptions,
 				'types'        => $themeTypes,
 			],
@@ -248,7 +150,7 @@ final class Loader {
 		];
 
 		$config['db'] = [
-			'host' => DB_HOST,
+			'host' => $settings['DB_HOST'],
 			'user' => $dbUser,
 			'pass' => $dbPass,
 		];
@@ -268,7 +170,7 @@ final class Loader {
 
 		$config['user'] = [
 			'name'              => $user,
-			'isDemo'            => (bool) ( defined( 'DEMO_MODE' ) && DEMO_MODE ),
+			'isDemo'            => (bool) $settings['DEMO_MODE'],
 			'phpDisplayErrors'  => $currentPhpDisplayErrors,
 			'phpErrorReporting' => $currentPhpErrorReporting,
 			'phpLogErrors'      => $currentPhpLogErrors,

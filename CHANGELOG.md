@@ -4,6 +4,29 @@ Published entries below are imported from the project's GitHub releases. Their w
 
 ## Unreleased
 
+## [v3.6](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.6) — 2026-09-24
+
+Profiles with a little more independence... and the same keys to the house 🗝️
+
+Step 2 of the modernisation moves profile loading, saving, and credential encryption into their own namespaced services. Settings get a clearer structure, while existing profiles continue to feel right at home.
+
+**Existing profiles and encryption keys remain compatible.** Legacy profiles move to the new returned-array format when settings are successfully saved. PHP 8.0+ remains the supported minimum.
+
+- Extracts profile loading and saving into `Config\ProfileRepository`, with `ProfileReader` and `ProfileSchema` handling the supported formats and defaults.
+- Introduces versioned returned-array profiles, keeping configuration data separate from global constants and PHP runtime changes.
+- Preserves legacy profiles and `local.php` overrides, with a returned-array example for new local configurations.
+- Moves credential encryption into `Security\CredentialCipher`, preserving the existing AES-256-CBC format and `.key` file.
+- Stops silently replacing malformed encryption keys, and avoids creating keys during read-only requests.
+- Separates settings form normalisation and PHP directives into `Config\SettingsInput` and `Config\PhpSettings`.
+- Stages profile saves and rolls back ordinary write failures. A failed first save leaves the default profile available.
+- Uses the loaded profile snapshot for settings JSON and exports, keeping related settings consistent during saves.
+- Preserves the existing request guards and best-effort php.ini updates.
+- Adds regression coverage for saving and reloading settings, encrypted credentials, legacy migration, invalid input, and failed writes.
+- Expands Windows and Linux checks to include PHP 8.3, alongside PHP 8.0, 8.2, and 8.4.
+- Updates the architecture notes with the new format, compatibility boundaries, and the next steps. A few globals still have their feet up for now 🤓
+
+**Full Changelog**: https://github.com/Pav-Osmolski/AMPBoard/compare/v3.5...v3.6
+
 ## [v3.5](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.5) — 2026-09-23
 
 Everything in its right place... well, a few more things anyway 🗂️
