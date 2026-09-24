@@ -4,6 +4,13 @@ Published entries below are imported from the project's GitHub releases. Their w
 
 ## Unreleased
 
+- Extracts profile reading, saving, form normalization, and PHP settings into namespaced services with explicit dependencies.
+- Saves profiles as versioned returned arrays; legacy profiles and local overrides remain readable and migrate when settings are saved.
+- Isolates credential encryption while preserving existing `.key` files and ciphertext; malformed keys are no longer silently replaced.
+- Stages profile files and rolls back ordinary write failures, preserving default fallback after a failed first save.
+- Adds profile, encryption, migration, and submit-handler regression tests, plus PHP 8.3 in the Windows/Linux CI matrix.
+- Updates the architecture notes with the profile format, compatibility rules, and remaining modernization work.
+
 ## [v3.5](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.5) — 2026-09-23
 
 Everything in its right place... well, a few more things anyway 🗂️

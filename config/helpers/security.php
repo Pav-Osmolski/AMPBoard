@@ -23,234 +23,25 @@
  * @version 1.4
  */
 
-define( 'CRYPTO_KEY_FILE', __DIR__ . '/../../.key' );
+require_once __DIR__ . '/../autoload.php';
+if ( ! defined( 'CRYPTO_KEY_FILE' ) ) { define( 'CRYPTO_KEY_FILE', __DIR__ . '/../../.key' ); }
 
-/**
- * Generate cryptographically secure random bytes with a portable fallback.
- *
- * Uses PHP's native random_bytes() when available, otherwise falls back to
- * openssl_random_pseudo_bytes().
- *
- * @param int $length Number of bytes to generate.
- *
- * @return string Raw binary string of length $length.
- */
-function _secure_random_bytes( int $length ): string {
-	if ( function_exists( 'random_bytes' ) ) {
-		return random_bytes( $length );
-	}
+function _secure_random_bytes( int $length ): string { return random_bytes( $length ); }
 
-	return openssl_random_pseudo_bytes( $length );
-}
-
-/**
- * Read the raw key material from the key file.
- *
- * @return string Raw contents of CRYPTO_KEY_FILE (trimmed), or empty string if missing.
- */
-function _read_keyfile(): string {
-	if ( ! file_exists( CRYPTO_KEY_FILE ) ) {
-		return '';
-	}
-	$raw = @file_get_contents( CRYPTO_KEY_FILE );
-
-	return $raw === false ? '' : trim( $raw );
-}
-
-/**
- * Ensure the encryption key file exists, creating a new-format key if missing.
- *
- * Behaviour:
- * - If CRYPTO_KEY_FILE does not exist, a new 256-bit key is generated and stored
- *   as a 64-character hexadecimal string.
- * - If the file already exists, it is not modified here (validation/healing is handled
- *   inside _get_key_candidates()).
- *
- * Security:
- * - The stored key is immediately chmod()'d to 0600 when supported.
- *
- * @return void
- */
-function _ensure_key_exists(): void {
-	if ( file_exists( CRYPTO_KEY_FILE ) ) {
-		return;
-	}
-	// New format: 32 random bytes, stored as 64 hex chars
-	$hex64 = bin2hex( _secure_random_bytes( 32 ) );
-	@file_put_contents( CRYPTO_KEY_FILE, $hex64, LOCK_EX );
-	if ( function_exists( 'chmod' ) ) {
-		@chmod( CRYPTO_KEY_FILE, 0600 );
-	}
-}
-
-/**
- * Retrieve the candidate AES-256 key(s) derived from the key file, enforcing new-format only.
- *
- * Behaviour:
- * - If CRYPTO_KEY_FILE contains a valid 64-hex key, it is decoded to a 32-byte binary key
- *   and returned as the sole candidate.
- * - If the file is missing, legacy format, partial, or malformed, a backup is written
- *   (best-effort), and a new 64-hex key is generated and persisted.
- * - This function never throws; it always returns exactly one usable 32-byte key.
- *
- * Guarantees:
- * - All future encryption is performed using the new-format 64-hex key.
- * - Any pre-existing legacy-format key is automatically rotated upon detection.
- *
- * @return array{keys: string[], preferred: int} An array with exactly one binary key at index 0 and preferred=0.
- */
-function _get_key_candidates(): array {
-	_ensure_key_exists();
-	$raw = _read_keyfile();
-
-	// OK: 64 hex chars -> decode to 32 bytes
-	if ( $raw !== '' && strlen( $raw ) === 64 && ctype_xdigit( $raw ) ) {
-		$bin = @hex2bin( $raw );
-		if ( $bin !== false && strlen( $bin ) === 32 ) {
-			return [ 'keys' => [ $bin ], 'preferred' => 0 ];
-		}
-	}
-
-	// Not OK (missing/legacy/malformed): backup (best effort) and regenerate as 64-hex
-	if ( $raw !== '' ) {
-		$ts = date( 'Ymd-His' );
-		@copy( CRYPTO_KEY_FILE, CRYPTO_KEY_FILE . ".bak.$ts" );
-		error_log( '[crypto] Non-64hex key detected; backed up and regenerated new 64-hex key.' );
-	} else {
-		error_log( '[crypto] Key file empty/missing; generated new 64-hex key.' );
-	}
-
-	$hex64 = bin2hex( _secure_random_bytes( 32 ) );
-	@file_put_contents( CRYPTO_KEY_FILE, $hex64, LOCK_EX );
-	if ( function_exists( 'chmod' ) ) {
-		@chmod( CRYPTO_KEY_FILE, 0600 );
-	}
-
-	$bin = hex2bin( $hex64 ); // always valid here
-
-	return [ 'keys' => [ $bin ], 'preferred' => 0 ];
-}
-
-/**
- * Retrieve the active AES-256 encryption key for all cryptographic operations.
- *
- * Behaviour:
- * - Always returns a 32-byte binary key derived from a valid 64-hex key file.
- * - If the key file is missing or malformed, it will be automatically replaced
- *   with a new 64-hex key before returning.
- *
- * Guarantees:
- * - No legacy (32-char ASCII) key format is returned.
- * - Returned key is always suitable for AES-256-CBC encryption.
- *
- * @return string 32-byte binary encryption key.
- */
+/** Compatibility wrappers for legacy custom integrations. New code injects CredentialCipher. */
 function getEncryptionKey(): string {
-	$kc = _get_key_candidates();
-
-	return $kc['keys'][ $kc['preferred'] ];
+	return ( new \AMPBoard\Security\CredentialCipher( CRYPTO_KEY_FILE ) )->key( true );
 }
-
-/**
- * Encrypt a plaintext string using AES-256-CBC and return base64-encoded "IV || ciphertext".
- *
- * Key policy:
- * - Assumes the key file is in the new format only (64-hex → 32-byte binary).
- * - Any legacy or malformed key will have been rotated before this is called.
- *
- * @param string $plaintext The raw value to encrypt.
- *
- * @return string Base64-encoded string containing IV and ciphertext.
- */
 function encryptValue( string $plaintext ): string {
-	$key = getEncryptionKey();
-	$iv  = _secure_random_bytes( 16 );
-
-	$encrypted = openssl_encrypt(
-		$plaintext,
-		'AES-256-CBC',
-		$key,
-		OPENSSL_RAW_DATA,
-		$iv
-	);
-
-	return base64_encode( $iv . $encrypted );
+	return ( new \AMPBoard\Security\CredentialCipher( CRYPTO_KEY_FILE ) )->encrypt( $plaintext );
 }
-
-/**
- * Decrypt a base64-encoded AES-256-CBC string.
- *
- * Key policy:
- * - Assumes the key has already been rotated to the new 64-hex format
- *   (i.e. getEncryptionKey() always returns a 32-byte binary key).
- * - Legacy key format is no longer supported.
- *
- * Behaviour:
- * - Returns an empty string on failure or invalid input.
- *
- * @param string $encoded The encrypted base64 string in the form base64(IV || ciphertext).
- *
- * @return string Decrypted plaintext, or empty string on failure.
- */
 function decryptValue( string $encoded ): string {
-	$kc   = _get_key_candidates();
-	$data = base64_decode( $encoded, true );
-	if ( $data === false || strlen( $data ) < 17 ) {
-		return '';
-	}
-	$iv         = substr( $data, 0, 16 );
-	$ciphertext = substr( $data, 16 );
-
-	foreach ( $kc['keys'] as $key ) {
-		$plain = openssl_decrypt(
-			$ciphertext,
-			'AES-256-CBC',
-			$key,
-			OPENSSL_RAW_DATA,
-			$iv
-		);
-		if ( $plain !== false ) {
-			return $plain;
-		}
-	}
-
-	return '';
+	try { return ( new \AMPBoard\Security\CredentialCipher( CRYPTO_KEY_FILE ) )->decrypt( $encoded ); }
+	catch ( \RuntimeException $error ) { return ''; }
 }
-
-/**
- * Retrieve a decrypted version of a whitelisted constant, or fall back to its raw value.
- *
- * Key policy:
- * - Assumes all encrypted constants were produced using the new-format (64-hex) key.
- * - Legacy-encrypted values will not decrypt once the key has been rotated.
- *
- * Behaviour:
- * - Only decrypts values for whitelisted constant names.
- * - If the constant does not look like an encrypted value, the raw value is returned
- *   when $allowFallback is true.
- *
- * @param string $const The constant name (e.g. 'DB_USER').
- * @param bool $allowFallback If true, returns the raw value when decryption fails.
- *
- * @return string Decrypted value, raw fallback, or empty string if not permitted.
- */
 function getDecrypted( string $const, bool $allowFallback = true ): string {
-	static $allowed = [ 'DB_USER', 'DB_PASSWORD', 'DB_HOST', 'DB_NAME' ];
-
-	if ( ! defined( $const ) || ! in_array( $const, $allowed, true ) ) {
-		return '';
-	}
-
-	$value = constant( $const );
-
-	// Only attempt decrypt if it looks base64-like and is long enough to contain IV+ciphertext.
-	if ( base64_decode( $value, true ) === false || strlen( $value ) < 24 ) {
-		return $allowFallback ? $value : '';
-	}
-
-	$decrypted = decryptValue( $value );
-
-	return $decrypted !== '' ? $decrypted : ( $allowFallback ? $value : '' );
+	if ( ! defined( $const ) || ! in_array( $const, [ 'DB_USER', 'DB_PASSWORD', 'DB_HOST', 'DB_NAME' ], true ) ) { return ''; }
+	return ( new \AMPBoard\Security\CredentialCipher( CRYPTO_KEY_FILE ) )->resolveLegacy( constant( $const ), $allowFallback );
 }
 
 /**

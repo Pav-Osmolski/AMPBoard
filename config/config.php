@@ -14,6 +14,8 @@ if ( ! defined( 'AMPBOARD_NO_HELPERS' ) ) {
 	require_once __DIR__ . '/helpers.php';
 }
 
-$config = ( new \AMPBoard\Config\Loader( __DIR__ ) )->load();
+$cipher = new \AMPBoard\Security\CredentialCipher( defined( 'CRYPTO_KEY_FILE' ) ? CRYPTO_KEY_FILE : dirname( __DIR__ ) . '/.key' );
+$profiles = new \AMPBoard\Config\ProfileRepository( __DIR__, $cipher, null, \AMPBoard\Config\LegacyConstants::read() );
+$config = ( new \AMPBoard\Config\Loader( __DIR__, $profiles ) )->load( true );
 $database = new \AMPBoard\Database\ConnectionFactory( $config['db'] );
 $ui = new \AMPBoard\Ui\Renderer( $config, $database );

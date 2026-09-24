@@ -12,19 +12,22 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
-        php: ['8.0', '8.2', '8.4']
+        php: ['8.0', '8.2', '8.3', '8.4']
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
       - uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
+          extensions: openssl
           coverage: none
       - name: Lint PHP
         shell: bash
         run: git ls-files -z '*.php' | xargs -0 -n1 php -n -l
       - name: Isolated regression suite
         run: php -n tests/run.php
+      - name: Profile and credential integration
+        run: php tests/profiles.php
 
   mysql:
     runs-on: ubuntu-latest

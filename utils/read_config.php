@@ -30,25 +30,11 @@ if ( ! function_exists( 'request_is_same_origin' ) || ! request_is_same_origin()
 	exit;
 }
 
-$map = [
-	'folders'        => $config['paths']['activeProfile'] . '/folders.json',
-	'link_templates' => $config['paths']['activeProfile'] . '/link_templates.json',
-	'dock'           => $config['paths']['activeProfile'] . '/dock.json',
-];
-
+$map = [ 'folders' => 'folders', 'link_templates' => 'linkTemplates', 'dock' => 'dock' ];
 $key = $_GET['file'] ?? '';
-if ( ! isset( $map[ $key ] ) ) {
+if ( ! is_string( $key ) || ! isset( $map[ $key ] ) ) {
 	http_response_code( 400 );
 	echo json_encode( [ 'error' => 'Unknown file' ] );
 	exit;
 }
-
-$path = $map[ $key ];
-if ( ! is_readable( $path ) ) {
-	// Return an empty array rather than leaking filesystem details
-	echo "[]";
-	exit;
-}
-
-$raw = file_get_contents( $path );
-echo ( $raw !== false && $raw !== '' ) ? $raw : "[]";
+echo json_encode( $config['profile'][ $map[ $key ] ] );

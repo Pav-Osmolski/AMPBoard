@@ -20,7 +20,18 @@
  *  - Do not include project-wide settings that belong in user_config.php.
  *  - The modified file must stay out of Git.
  *
- *  Safe overrides:
+ *  Preferred returned-array format (uncomment and adapt as a complete block):
+ *
+ *      return [
+ *          'version' => 1,
+ *          'settings' => [ 'DEMO_MODE' => true, 'DB_HOST' => '127.0.0.1' ],
+ *          'php' => [],
+ *      ];
+ *
+ *  Returned-array settings override profile settings, including false values.
+ *  The legacy constant examples below remain supported. Use one format per file.
+ *
+ *  Safe legacy overrides:
  *
  *      define( 'DEMO_MODE', true );
  *
