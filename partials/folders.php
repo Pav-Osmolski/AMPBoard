@@ -153,7 +153,7 @@ $hasVhostFilteredColumns = false;
 									$hasValidHost = false;
 
 									foreach ( $hostsForItem as $host ) {
-										if ( isValidVhostHost( $host ) ) {
+										if ( $vhosts->isValidVhostHost( $host ) ) {
 											$hasValidHost = true;
 											break;
 										}

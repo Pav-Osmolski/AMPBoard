@@ -1,4 +1,4 @@
-# PHP modernization: steps 1 and 2
+# PHP modernization: steps 1–3
 
 This follows the central config migration beginning at `a54ac0d` and retains the behavior on `bb62f14`. The published releases, now copied into `CHANGELOG.md`, remain the source for historical changes. The frontend bundles and HTTP URLs are unchanged.
 
@@ -12,6 +12,9 @@ Pages continue to `require_once config/config.php`. That file loads the small `A
 | `$profiles` | `Config\ProfileRepository`, responsible for profile data and persistence. |
 | `$config` | Existing nested array, returned by `AMPBoard\Config\Loader`. |
 | `$database` | `AMPBoard\Database\ConnectionFactory`, constructed from `$config['db']`. |
+| `$apacheCommands` | `Apache\CommandRunner`, implemented by `ShellCommandRunner` in normal requests. |
+| `$apacheControl` | `Apache\Controller`, constructed with the configured Apache path and OS. |
+| `$vhosts` | `Apache\VhostCatalog`, constructed with the Apache path and hosts-file paths. |
 | `$ui` | `AMPBoard\Ui\Renderer`, constructed from the config and database factory. |
 
 The renderer owns a config snapshot. Methods no longer read `global $config`, and separate renderers can use separate settings. Theme metadata and body classes live in `Ui\ThemeCatalog`, which takes an asset directory. Database connections use supplied credentials rather than `$dbUser`, `$dbPass`, or `DB_HOST`. Credential validation runs once when config loads. Both connection modes restore the caller's actual MySQLi report flags, including on failure.
@@ -58,9 +61,25 @@ The old UI free functions and the two database connection/status free functions 
 
 PHP 8.0 is the minimum dictated by existing `mixed` and union type declarations. This refactor does not introduce a higher syntax requirement. A supported PHP release is preferable for an actual installation. Composer installation is not required.
 
+## Apache services (step 3)
+
+`Apache\Inspector` receives the Apache path, command runner, and fast-mode flag. The inspector endpoint resolves the saved flag, query override, and demo-mode override before constructing it. No helper reads `$GLOBALS['fastMode']`; full and fast inspectors can coexist. Fast mode skips uptime, config/vhost commands, and `/proc/self/environ` reading, while retaining binary discovery as before. Environment/SAPI information still comes from the current PHP process.
+
+`Apache\VhostCatalog` owns parsing and a per-instance snapshot used by both the folder filter and virtual-host manager. It receives hosts-file paths explicitly, so separate installations cannot reuse each other's cache. Duplicate names still use the last block and retain their duplicate marker. Certificate availability still follows the existing managed `crt/{servername}/server.crt` and `server.key` convention; this is an existence check, not certificate-chain validation. Include directives remain display-only and are not recursively expanded.
+
+`Apache\Controller` selects the existing Windows, Linux, or macOS restart strategy. `restartCommand()` may run diagnostic commands to choose that strategy but never executes the restart itself; `restart()` executes it. The HTTP endpoint retains its action/demo guards, status codes, and JSON response fields. Config construction does not run Apache commands. Certificate generation and log workflows remain separate procedural endpoints for a later increment.
+
+`Apache\CommandRunner` is the injection boundary for diagnostics and control. `ShellCommandRunner` captures combined output and exit status using `exec()`, or `proc_open()` with a temporary stream when `exec()` is disabled. If neither is available, execution reports failure rather than claiming success. It accepts trusted commands built by application code, **not raw request input**. Binary paths are quoted; Windows control paths containing shell-expansion characters are rejected. Platform restart permissions and tools are still installation-specific, and command success means the command exited successfully, not that a subsequent health check passed.
+
+The old `config/helpers/apache.php` free functions have been removed after migrating every repository caller. Custom integrations must construct `Apache\Inspector` for diagnostics, use `$apacheControl->restart()`, and use `$vhosts->getVhostServerData()` or `$vhosts->isValidVhostHost(...)`. These services do not read `APACHE_PATH` or other compatibility constants. `getIniFilesInfo()` returns raw runtime information; the view applies display obfuscation.
+
+The extraction also fixes binary discovery treating directories as executables, joining already-absolute config paths to `HTTPD_ROOT`, and treating inline hosts-file comments as host aliases.
+
 ## Validation
 
 Run `php -n tests/run.php`. Each scenario gets a fresh process because legacy profiles define constants. The suite uses a deterministic MySQLi double, temporary profiles, and read-only request fixtures. It checks profile fallback and overrides, false/default values, config isolation, theme and tooltip rendering, accessibility markup, asset paths, embedded versus standalone panels, connection credentials, report-mode restoration, and rendered entry points. It does not write real profiles, restart Apache, generate certificates, or export real data.
+
+The isolated suite includes `php -n tests/apache.php`: sample vhost/hosts configurations, independent caches and fast modes, quoted config paths, simulated Windows/Linux/macOS restart selection, and restart-handler responses. It runs only benign PHP output commands to exercise exit-code/stderr capture and disabled-function fallbacks. Request fixtures use private temporary session directories and force garbage collection, avoiding the runner system-directory permission failure. No automated check restarts Apache.
 
 Run `php tests/profiles.php` with OpenSSL enabled for temporary-file integration tests: defaults and overrides, independent profiles, credential round trips, historical ciphertext, key preservation, legacy migration, invalid profile data, partial-write rollback, and actual submit-handler success/rejection paths. These tests use temporary profile, session, and INI paths and do not contact a database.
 
@@ -70,8 +89,7 @@ The fixture checks do not replace manual testing against XAMPP/LAMP/MAMP. Before
 
 ## Next increments
 
-1. Extract Apache inspection and control from procedural helpers. Pass paths and fast-mode options explicitly, replacing the remaining `$GLOBALS['fastMode']` dependency. Keep platform commands behind a testable boundary.
-2. Move export and PHP-management workflows into services with explicit filesystem, database, and command dependencies. Keep thin HTTP handlers for validation and responses.
-3. Separate page rendering from system probes, then migrate the remaining pure helper functions into focused namespaces. Remove compatibility constants only after all consumers have moved.
+1. Move export and PHP-management workflows into services with explicit filesystem, database, and command dependencies. Keep thin HTTP handlers for validation and responses.
+2. Separate page rendering from system probes, then migrate the remaining pure helper functions into focused namespaces. Remove compatibility constants only after all consumers have moved.
 
 Avoid a service locator or static global config accessor: it would preserve the hidden dependencies under a new name. Each increment should retain the existing URLs and saved profiles until a separately documented migration is ready.

@@ -37,6 +37,8 @@ if ( defined( 'DEMO_MODE' ) && DEMO_MODE === true ) {
 	$fastMode = true;
 }
 
+$apacheInspector = new \AMPBoard\Apache\Inspector( $config['paths']['apache'], $apacheCommands, $fastMode );
+
 // SYSTEM INFO
 $os   = PHP_OS_FAMILY;
 $arch = ( PHP_INT_SIZE === 8 ) ? '64-bit' : '32-bit';
@@ -50,26 +52,26 @@ echo "🖥️ Operating System: $os ($arch)\n";
 echo "🚀 Fast Mode: " . ( $fastMode ? 'Enabled (some checks skipped)' : 'Disabled (full inspection)' ) . "\n";
 
 // ==== OUTPUT ====
-echo "🧠 Apache Context Detected: " . ( isApache() ? 'Yes' : 'No' ) . "\n";
-echo "📃 Apache SAPI: " . ( detectApacheSAPI() ?? 'Unknown or not Apache' ) . "\n";
+echo "🧠 Apache Context Detected: " . ( $apacheInspector->isApache() ? 'Yes' : 'No' ) . "\n";
+echo "📃 Apache SAPI: " . ( $apacheInspector->detectApacheSAPI() ?? 'Unknown or not Apache' ) . "\n";
 
-$version = getApacheVersion();
+$version = $apacheInspector->getApacheVersion();
 echo "📦 Apache Version: $version\n";
 
-$binary = detectApacheBinary();
+$binary = $apacheInspector->detectApacheBinary();
 echo "📓 Apache Binary: " . ( $binary ?: "Not found" ) . "\n";
 
 if ( ! $fastMode ) {
-	$uptime = getApacheUptimeEstimate( $os );
+	$uptime = $apacheInspector->getApacheUptimeEstimate( $os );
 	echo "🕒 Apache Uptime (estimated): " . ( $uptime !== 'Unavailable' ? $uptime : 'Not available on this platform or config' ) . "\n";
 }
 
 if ( $binary && ! $fastMode ) {
-	$apacheConfig = getApacheConfigPath( $binary );
+	$apacheConfig = $apacheInspector->getApacheConfigPath( $binary );
 	echo "📝 Config File: " . ( $apacheConfig ?: "Not detected" ) . "\n";
 
 	if ( $apacheConfig && file_exists( $apacheConfig ) ) {
-		$includes = getIncludes( $apacheConfig );
+		$includes = $apacheInspector->getIncludes( $apacheConfig );
 		if ( $includes ) {
 			echo "📂 Included Config Files:\n";
 			foreach ( $includes as $inc ) {
@@ -80,9 +82,9 @@ if ( $binary && ! $fastMode ) {
 		}
 	}
 
-	$vhosts = getVirtualHosts( $binary );
-	if ( $vhosts ) {
-		echo "\n🌐 Active Virtual Hosts:\n$vhosts\n";
+	$virtualHostOutput = $apacheInspector->getVirtualHosts( $binary );
+	if ( $virtualHostOutput ) {
+		echo "\n🌐 Active Virtual Hosts:\n$virtualHostOutput\n";
 	} else {
 		echo "❌ VirtualHost information not available (likely restricted).\n";
 	}
@@ -94,7 +96,7 @@ if ( $binary && ! $fastMode ) {
 
 // Output Apache environment vars
 echo "\n🌱 Apache Environment Variables:\n";
-$envVars = getApacheEnvVars();
+$envVars = $apacheInspector->getApacheEnvVars();
 if ( $envVars ) {
 	foreach ( $envVars as $k => $v ) {
 		echo "  $k: $v\n";
@@ -105,7 +107,8 @@ if ( $envVars ) {
 
 // Output PHP .ini info
 echo "\n⚙️ PHP Configuration:\n";
-foreach ( getIniFilesInfo() as $k => $v ) {
+foreach ( $apacheInspector->getIniFilesInfo() as $k => $v ) {
+	if ( $k === 'Loaded php.ini' ) { $v = obfuscate_value( $v ); }
 	echo "  $k: $v\n";
 }
 

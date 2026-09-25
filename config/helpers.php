@@ -26,7 +26,6 @@ $helperModules = [
     'export',
 
     // Integrations
-    'apache',
     'php',
     'mysql',
 ];

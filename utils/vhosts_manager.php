@@ -11,7 +11,7 @@
  * - Dynamic filter UI for SSL, host file presence, and cert state
  *
  * Assumptions:
- * - Apache path is defined via `APACHE_PATH`
+ * - Apache paths and host entries are supplied through `$vhosts`
  * - Tooltips are provided via the `$tooltips` array
  * - Certificate files (CRT/KEY) are stored per-host in `APACHE_PATH/crt/{servername}/`
  *
@@ -36,14 +36,14 @@ $pageClasses = $ui->buildPageViewClasses( $settingsView ?? null );
 	<?php endif; ?>
 
 	<?php
-	$vhostsPath = APACHE_PATH . '/conf/extra/httpd-vhosts.conf';
+	$vhostsPath = $vhosts->path();
 
 	if ( ! file_exists( $vhostsPath ) ) {
 		echo '<p><strong>Warning:</strong> The <code>httpd-vhosts.conf</code> file was not found at <code>' .
 		     obfuscate_value( htmlspecialchars( $vhostsPath ) ) .
 		     '</code>. Please ensure your Apache setup is correct and virtual hosts are enabled.</p>';
 	} else {
-		$serverData = getVhostServerData();
+		$serverData = $vhosts->getVhostServerData();
 		?>
 
 		<div class="vhost-filters">

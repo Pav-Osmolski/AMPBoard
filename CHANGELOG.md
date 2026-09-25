@@ -4,6 +4,32 @@ Published entries below are imported from the project's GitHub releases. Their w
 
 ## Unreleased
 
+## [v3.7](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.7) — 2026-09-25
+
+Apache gets its own quarters... and a little less global baggage 🪶
+
+Step 3 of the modernisation gives Apache inspection, virtual hosts, and restart control their own namespaced services. The same dashboard tools, with clearer responsibilities behind the scenes.
+
+**PHP 8.0+ remains the supported minimum.** Existing profiles, settings, and utility URLs remain compatible.
+
+- Moves Apache diagnostics into `Apache\Inspector`, with the configured path, command runner, and fast-mode option supplied explicitly.
+- Removes the global fast-mode dependency, allowing full and fast inspectors to operate independently.
+- Introduces `Apache\VhostCatalog` for virtual-host parsing and host validation, with a separate cache for each configured installation.
+- Moves restart command selection and execution into `Apache\Controller`, retaining the Windows, Linux, and macOS strategies.
+- Routes Apache commands through `CommandRunner`, capturing output and exit status with a working `proc_open()` fallback when `exec()` is disabled.
+- Preserves the restart endpoint's action and demo-mode guards, JSON responses, and existing managed certificate-path convention.
+- Corrects Apache binary discovery so installation directories are not mistaken for executables.
+- Keeps absolute Apache config paths intact instead of prepending `HTTPD_ROOT` twice, and quotes executable paths containing spaces.
+- Excludes inline hosts-file comments from hostname aliases.
+- Updates the inspector, virtual-host manager, and folder filtering to use the new services.
+- Adds sample-configuration tests, simulated platform restart commands, and full/fast inspector and restart-request checks.
+- Gives request tests their own session directories and forces cleanup, fixing the intermittent CI session-directory permission error.
+- Updates the architecture notes with the new boundaries and the next stages. A few more globals have packed their bags 🤓
+
+**For custom PHP integrations:** the former Apache free-function helpers have been replaced by the documented namespaced services. Command execution requires `exec()` or `proc_open()`; normal platform permissions still apply.
+
+**Full Changelog**: https://github.com/Pav-Osmolski/AMPBoard/compare/v3.6...v3.7
+
 ## [v3.6](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.6) — 2026-09-24
 
 Profiles with a little more independence... and the same keys to the house 🗝️

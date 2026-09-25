@@ -28,8 +28,6 @@ require_once __DIR__ . '/../config/config.php';
 header( 'Content-Type: application/json' );
 
 $action     = $_POST['action'] ?? '';
-$apachePath = defined( 'APACHE_PATH' ) ? rtrim( APACHE_PATH, '\\/' ) : '';
-$os         = PHP_OS_FAMILY;
 
 if ( ! in_array( $action, [ 'restart' ] ) ) {
 	ob_end_clean();
@@ -47,17 +45,11 @@ if ( defined( 'DEMO_MODE' ) && DEMO_MODE ) {
 	exit;
 }
 
-$cmd = findDefaultCommand( $action, $os, $apachePath );
-if ( ! $cmd ) {
-	ob_end_clean();
-	echo json_encode( [ 'success' => false, 'message' => 'Unable to determine command' ] );
-	exit;
+try {
+	$result = $apacheControl->restart();
+} catch ( \Throwable $error ) {
+	error_log( '[toggle_apache] ' . $error->getMessage() );
+	$result = [ 'success' => false, 'message' => 'Failed to restart Apache.', 'output' => '' ];
 }
-
-$result = runCommand( $cmd );
 ob_end_clean();
-echo json_encode( [
-	'success' => $result['success'],
-	'message' => $result['success'] ? "Apache $action command executed successfully." : "Failed to $action Apache.",
-	'output'  => $result['output']
-] );
+echo json_encode( $result );
