@@ -1,6 +1,18 @@
 <?php
 /** Read-only request fixture; never connects to a real stack. */
 if ( PHP_SAPI !== 'cli' ) { http_response_code( 404 ); exit; }
+// Isolate session GC from the runner's system session directory.
+$sessionDirectory = sys_get_temp_dir() . '/ampboard-request-' . bin2hex( random_bytes( 8 ) );
+mkdir( $sessionDirectory, 0700 );
+session_save_path( $sessionDirectory );
+// Exercise cleanup deterministically rather than waiting for random session GC.
+ini_set( 'session.gc_probability', '1' );
+ini_set( 'session.gc_divisor', '1' );
+register_shutdown_function( static function () use ( $sessionDirectory ): void {
+	if ( session_status() === PHP_SESSION_ACTIVE ) { session_write_close(); }
+	foreach ( glob( $sessionDirectory . '/*' ) ?: [] as $file ) { unlink( $file ); }
+	rmdir( $sessionDirectory );
+} );
 require __DIR__ . '/fixtures/database.php';
 mysqli::$error = 'Fixture database unavailable';
 $project = $argv[2] ?? dirname( __DIR__ );

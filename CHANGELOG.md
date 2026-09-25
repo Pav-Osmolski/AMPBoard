@@ -4,6 +4,13 @@ Published entries below are imported from the project's GitHub releases. Their w
 
 ## Unreleased
 
+- Extracts Apache inspection, virtual-host parsing, and restart control into namespaced services with explicit paths and options.
+- Removes the global fast-mode dependency and scopes virtual-host caching to each configured installation.
+- Routes Apache commands through an injectable runner with exit-status reporting and a working `proc_open()` fallback.
+- Corrects executable/config path handling and excludes inline hosts-file comments from host aliases.
+- Adds simulated platform-command and restart-request tests, preserving existing utility URLs and response formats.
+- Isolates regression-test sessions and forces cleanup to eliminate intermittent system session-directory permission failures in CI.
+
 ## [v3.6](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.6) — 2026-09-24
 
 Profiles with a little more independence... and the same keys to the house 🗝️

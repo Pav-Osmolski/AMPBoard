@@ -84,7 +84,7 @@ It is intended to be used with AMP stacks such as:
 
 The modernization is incremental. See [architecture and migration notes](docs/architecture.md) for the new namespaced services, compatibility boundaries, and next steps. Published release history is recorded in [CHANGELOG.md](CHANGELOG.md).
 
-Run `php -n tests/run.php` for the isolated regression suite. It uses a database double and temporary profiles, so no running Apache or MySQL server is needed. Run `php tests/profiles.php` with OpenSSL enabled for profile saving, encryption, migration, and submit-handler checks using temporary files. See the architecture notes for the separate real-MySQL check.
+Run `php -n tests/run.php` for the isolated regression suite. It uses a database double and temporary profiles, so no running Apache or MySQL server is needed. Run `php tests/profiles.php` with OpenSSL enabled for profile saving, encryption, migration, and submit-handler checks using temporary files. The isolated suite also covers Apache services and simulated restart requests without controlling a real server. See the architecture notes for the separate real-MySQL check.
 
 ## Project Structure
 
@@ -114,6 +114,10 @@ A quick overview of the core files and folders in this project, so you’re neve
 | `Security/CredentialCipher.php` | Encrypt credentials using an explicitly supplied existing key file. |
 | `Ui/ThemeCatalog.php` | Read theme metadata and assemble body classes. |
 | `Ui/Renderer.php` | Render components using explicitly supplied configuration. |
+| `Apache/Inspector.php` | Inspect Apache using explicit paths and fast-mode options. |
+| `Apache/VhostCatalog.php` | Parse virtual hosts and cache validity per configured installation. |
+| `Apache/Controller.php` | Select platform restart commands and return their execution results. |
+| `Apache/CommandRunner.php`, `ShellCommandRunner.php` | Injectable command execution with output and exit status. |
 | `Database/ConnectionFactory.php` | Open connections and validate injected credentials. |
 
 Classes are loaded by `config/autoload.php`; Composer is not required.
