@@ -2,17 +2,13 @@
 
 namespace AMPBoard\Ui;
 
-use AMPBoard\Database\ConnectionFactory;
-use Exception;
 
 /** Renders dashboard components from an explicit configuration snapshot. */
 final class Renderer {
 	private array $config;
-	private ConnectionFactory $database;
 
-	public function __construct( array $config, ConnectionFactory $database ) {
+	public function __construct( array $config ) {
 		$this->config = $config;
-		$this->database = $database;
 	}
 
 	/**
@@ -293,77 +289,18 @@ final class Renderer {
 	 *
 	 * @return void
 	 */
-	public function renderServerInfo(): void {
-		$os            = PHP_OS_FAMILY;
-		$apacheVersion = '';
-		$apacheBin     = '';
-
-		if ( isset( $this->config['paths']['apache'] ) ) {
-			$binCandidates = [
-				'bin/httpd',
-				'bin/httpd.exe',
-				'sbin/httpd',
-				'httpd',
-				'httpd.exe',
-				'bin/apachectl',
-				'apachectl',
-				'sbin/apachectl',
-			];
-			foreach ( $binCandidates as $subpath ) {
-				$testPath = rtrim( $this->config['paths']['apache'], DIRECTORY_SEPARATOR ) . DIRECTORY_SEPARATOR . $subpath;
-				if ( file_exists( $testPath ) ) {
-					$apacheBin = $testPath;
-					break;
-				}
-			}
-		}
-
-		if ( empty( $apacheBin ) ) {
-			if ( $os === 'Windows' ) {
-				$apachePath = trim( (string) ( function_exists( 'safe_shell_exec' ) ? safe_shell_exec( 'where httpd' ) : '' ) );
-				if ( ! empty( $apachePath ) && file_exists( $apachePath ) ) {
-					$apacheBin = $apachePath;
-				}
-			} elseif ( $os === 'Darwin' ) {
-				$macPaths = [
-					'/Applications/MAMP/Library/bin/httpd',
-					trim( (string) ( function_exists( 'safe_shell_exec' ) ? safe_shell_exec( 'which httpd' ) : '' ) ),
-				];
-				foreach ( $macPaths as $path ) {
-					if ( ! empty( $path ) && file_exists( $path ) ) {
-						$apacheBin = $path;
-						break;
-					}
-				}
-			} else {
-				$linuxPaths = [
-					trim( (string) ( function_exists( 'safe_shell_exec' ) ? safe_shell_exec( 'command -v apachectl 2>/dev/null' ) : '' ) ),
-					trim( (string) ( function_exists( 'safe_shell_exec' ) ? safe_shell_exec( 'command -v httpd 2>/dev/null' ) : '' ) ),
-				];
-				foreach ( $linuxPaths as $path ) {
-					if ( ! empty( $path ) && file_exists( $path ) ) {
-						$apacheBin = $path;
-						break;
-					}
-				}
-			}
-		}
-
-		if ( ! empty( $apacheBin ) ) {
-			$apacheVersion = function_exists( 'safe_shell_exec' ) ? safe_shell_exec( "$apacheBin -v" ) : '';
-		}
-
-		if ( $apacheVersion && preg_match( '/Server version: Apache\/([\d.]+)/', $apacheVersion, $matches ) ) {
-			echo '<span class="apache-info">Apache: <a href="?view=apache-inspector" id="toggle-apache-inspector">' . $matches[1] . '</a> <span class="status" aria-hidden="true">✔️</span></span>';
+	public function renderServerInfo( array $info ): void {
+		if ( $info['apache']['status'] === 'available' ) {
+			echo '<span class="apache-info">Apache: <a href="?view=apache-inspector" id="toggle-apache-inspector">' . htmlspecialchars( $info['apache']['version'], ENT_QUOTES, 'UTF-8' ) . '</a> <span class="status" aria-hidden="true">✔️</span></span>';
 		} else {
-			if ( ! empty( $_SERVER['SERVER_SOFTWARE'] ) && stripos( $_SERVER['SERVER_SOFTWARE'], 'Apache' ) !== false ) {
+			if ( $info['apache']['status'] === 'unknown' ) {
 				echo '<span class="apache-unknown-info">Apache: <a href="?view=apache-inspector" id="toggle-apache-inspector">Version unknown</a> <span class="status" aria-hidden="true">⚠️</span></span>';
 			} else {
 				echo '<span class="apache-error-info">Apache: <a href="?view=apache-inspector" id="toggle-apache-inspector">Not detected</a> <span class="status" aria-hidden="true">❌</span></span>';
 			}
 		}
 
-		$runtime = $this->config['php']['runtime'] ?? ( new \AMPBoard\Php\Runtime() )->inspect();
+		$runtime = $info['php'];
 		$phpVersion = htmlspecialchars( (string) $runtime['version'], ENT_QUOTES, 'UTF-8' );
 		if ( ! $phpVersion ) {
 			echo '<span class="php-unknown-info">PHP: Version unknown ⚠️</span>';
@@ -373,23 +310,11 @@ final class Renderer {
 			echo "<span class='php-info'>PHP: <a href='?view=phpinfo' id='toggle-phpinfo'>{$phpVersion} {$isThreadSafe} {$isFastCGI}</a> <span class='status' aria-hidden='true'>✔️</span></span>";
 		}
 
-		try {
-			$mysqli = $this->database->connect( [ 'strictMode' => false ] );
-
-			if ( $mysqli->connect_error ) {
-				// Throw plain text only — no HTML here
-				throw new Exception( $mysqli->connect_error );
-			}
-
-			$prettyMySql = normaliseDbServerInfo( $mysqli->server_info );
-			echo "<span class='mysql-info'>MySQL: <a href='?view=mysql-inspector' id='toggle-mysql-inspector'>{$prettyMySql}</a> <span class='status' aria-hidden='true'>✔️</span></span>";
-
-			$mysqli->close();
-
-		} catch ( Exception $e ) {
-			$msg = htmlspecialchars( $e->getMessage(), ENT_QUOTES, 'UTF-8' );
-
-			echo "<span class='mysql-error-info'>MySQL: <a href='?view=mysql-inspector' id='toggle-mysql-inspector'>{$msg}</a> <span class='status' aria-hidden='true'>❌</span></span>";
+		$label = htmlspecialchars( $info['database']['label'], ENT_QUOTES, 'UTF-8' );
+		if ( $info['database']['available'] ) {
+			echo "<span class='mysql-info'>MySQL: <a href='?view=mysql-inspector' id='toggle-mysql-inspector'>{$label}</a> <span class='status' aria-hidden='true'>✔️</span></span>";
+		} else {
+			echo "<span class='mysql-error-info'>MySQL: <a href='?view=mysql-inspector' id='toggle-mysql-inspector'>{$label}</a> <span class='status' aria-hidden='true'>❌</span></span>";
 		}
 	}
 
