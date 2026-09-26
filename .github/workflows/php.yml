@@ -19,7 +19,7 @@ jobs:
       - uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: openssl
+          extensions: openssl, zip, phar
           coverage: none
       - name: Lint PHP
         shell: bash
@@ -28,6 +28,8 @@ jobs:
         run: php -n tests/run.php
       - name: Profile and credential integration
         run: php tests/profiles.php
+      - name: Export integration
+        run: php -d phar.readonly=0 tests/exports.php
 
   mysql:
     runs-on: ubuntu-latest
@@ -55,4 +57,6 @@ jobs:
           AMPBOARD_TEST_DB_HOST: 127.0.0.1
           AMPBOARD_TEST_DB_USER: root
           AMPBOARD_TEST_DB_PASSWORD: ampboard-test-only
-        run: php tests/mysqli.php
+        run: |
+          php tests/mysqli.php
+          php tests/export-mysqli.php
