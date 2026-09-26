@@ -18,6 +18,14 @@ $_SERVER = array_replace( $_SERVER, [ 'REQUEST_METHOD' => 'POST', 'CONTENT_TYPE'
 $_POST = [ 'csrf' => 'fixture-token', 'theme' => 'dracula', 'folders_json' => '[{"title":"Saved"}]',
 	'php_ini_path' => $root . '/php.ini', 'phpMemoryLimit' => '256M' ];
 file_put_contents( $root . '/php.ini', "memory_limit = 128M\n" );
+$phpIni = new \AMPBoard\Php\IniFile( $root . '/php.ini' );
+if ( $scenario === 'ini-default' || $scenario === 'ini-failure' ) { unset( $_POST['php_ini_path'] ); }
+if ( $scenario === 'ini-failure' ) {
+	$phpIni = new class( $root . '/php.ini' ) extends \AMPBoard\Php\IniFile {
+		protected function replace( string $from, string $to ): bool { return false; }
+	};
+}
+if ( $scenario === 'ini-injection' ) { $_POST['error_reporting_value'] = "E_ALL\nextension=other"; }
 if ( $scenario === 'csrf' ) { $_POST['csrf'] = 'invalid'; }
 if ( $scenario === 'origin' ) { $_SERVER['HTTP_ORIGIN'] = 'https://other.example'; }
 if ( $scenario === 'json' ) { $_POST['folders_json'] = '{broken'; }
@@ -27,7 +35,7 @@ if ( $scenario === 'write' ) { file_put_contents( $root . '/config/profiles', 'b
 ob_start();
 register_shutdown_function( static function () use ( $root, $scenario, $profiles ): void {
 	$body = ob_get_clean();
-	$success = $scenario === 'valid';
+	$success = in_array( $scenario, [ 'valid', 'ini-default', 'ini-failure' ], true );
 	$status = $success || $scenario === 'demo' ? 303 : 400;
 	$exists = is_file( $root . '/config/profiles/request-user/user_config.php' );
 	$ok = http_response_code() === $status && $exists === $success;
@@ -37,7 +45,8 @@ register_shutdown_function( static function () use ( $root, $scenario, $profiles
 		$ok = $ok && $loaded['settings']['theme'] === 'dracula' && $loaded['profile']['folders'][0]['title'] === 'Saved';
 	}
 	$ini = file_get_contents( $root . '/php.ini' );
-	$ok = $ok && str_contains( $ini, $success ? '256M' : '128M' );
+	$ok = $ok && str_contains( $ini, $success && $scenario !== 'ini-failure' ? '256M' : '128M' );
+	$ok = $ok && glob( $root . '/*.tmp' ) === [];
 	if ( session_status() === PHP_SESSION_ACTIVE ) { session_destroy(); }
 	echo ( $ok ? 'PASS' : 'FAIL' ) . ' submit ' . $scenario . "\n";
 	exit( $ok ? 0 : 1 );

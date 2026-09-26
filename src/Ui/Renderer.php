@@ -363,12 +363,13 @@ final class Renderer {
 			}
 		}
 
-		$phpVersion = phpversion();
+		$runtime = $this->config['php']['runtime'] ?? ( new \AMPBoard\Php\Runtime() )->inspect();
+		$phpVersion = htmlspecialchars( (string) $runtime['version'], ENT_QUOTES, 'UTF-8' );
 		if ( ! $phpVersion ) {
 			echo '<span class="php-unknown-info">PHP: Version unknown ⚠️</span>';
 		} else {
-			$isThreadSafe = ( ZEND_THREAD_SAFE ) ? 'TS' : 'NTS';
-			$isFastCGI    = ( strpos( PHP_SAPI, 'cgi-fcgi' ) !== false ) ? 'FastCGI' : 'Non-FastCGI';
+			$isThreadSafe = ( $runtime['threadSafe'] ) ? 'TS' : 'NTS';
+			$isFastCGI    = ( strpos( $runtime['sapi'], 'cgi-fcgi' ) !== false ) ? 'FastCGI' : 'Non-FastCGI';
 			echo "<span class='php-info'>PHP: <a href='?view=phpinfo' id='toggle-phpinfo'>{$phpVersion} {$isThreadSafe} {$isFastCGI}</a> <span class='status' aria-hidden='true'>✔️</span></span>";
 		}
 

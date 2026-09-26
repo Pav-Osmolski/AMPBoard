@@ -3,6 +3,8 @@ if ( PHP_SAPI !== 'cli' ) { http_response_code( 404 ); exit; }
 $failed = false;
 passthru( escapeshellarg( PHP_BINARY ) . ' -n ' . escapeshellarg( __DIR__ . '/apache.php' ), $code );
 $failed = $code !== 0;
+passthru( escapeshellarg( PHP_BINARY ) . ' -n ' . escapeshellarg( __DIR__ . '/php-management.php' ), $code );
+$failed = $failed || $code !== 0;
 foreach ( [ 'database', 'renderer', 'config-default', 'config-user', 'config-local' ] as $scenario ) {
 	passthru( escapeshellarg( PHP_BINARY ) . ' -n ' . escapeshellarg( __DIR__ . '/scenario.php' ) . ' ' . escapeshellarg( $scenario ), $code );
 	$failed = $failed || $code !== 0;

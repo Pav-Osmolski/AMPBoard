@@ -66,8 +66,6 @@ final class SettingsInput {
 			}
 		}
 
-		$displayPhpErrors = normalise_bool( $in['displayPhpErrors'] ?? null );
-		$logPhpErrors = normalise_bool( $in['logPhpErrors'] ?? null );
 
 		// Theme: letters, numbers, dashes, underscores. Fallback to default.
 		$theme = 'default';
@@ -75,77 +73,6 @@ final class SettingsInput {
 			$t = trim( $in['theme'] );
 			if ( $t !== '' && preg_match( '/^[A-Za-z0-9_\-]{1,64}$/', $t ) ) {
 				$theme = $t;
-			}
-		}
-
-		/* ------------------------------------------------------------------ */
-		/* PHP runtime / limits normalisation                                 */
-		/* ------------------------------------------------------------------ */
-
-		/* memory_limit: 256M, 1G, or -1 for unlimited */
-		$phpMemoryLimit = isset( $in['phpMemoryLimit'] ) && is_string( $in['phpMemoryLimit'] )
-			? normaliseIniSizeOption( $in['phpMemoryLimit'], true, true )
-			: null;
-
-		/* max_execution_time: integer seconds, or -1 for unlimited */
-		$phpMaxExecution = normaliseIniIntOption( $in['phpMaxExecution'] ?? null, true );
-
-		/* max_input_vars: positive integer */
-		$phpMaxInputVars = normaliseIniIntOption( $in['phpMaxInputVars'] ?? null, false );
-
-		/* upload_max_filesize: size string (e.g. 20M, 50M), unit optional */
-		$phpUploadMaxFile = isset( $in['phpUploadMaxFile'] ) && is_string( $in['phpUploadMaxFile'] )
-			? normaliseIniSizeOption( $in['phpUploadMaxFile'], false, false )
-			: null;
-
-		/* post_max_size: size string (e.g. 20M, 50M), unit optional */
-		$phpPostMaxSize = isset( $in['phpPostMaxSize'] ) && is_string( $in['phpPostMaxSize'] )
-			? normaliseIniSizeOption( $in['phpPostMaxSize'], false, false )
-			: null;
-
-		/* date.timezone: light sanity check, not overly strict */
-		$phpTimezone = null;
-		if ( isset( $in['phpTimezone'] ) && is_string( $in['phpTimezone'] ) ) {
-			$val = trim( $in['phpTimezone'] );
-
-			// Rough pattern: "Region/Name" or similar
-			if ( $val !== '' && preg_match( '/^[A-Za-z0-9_\/+\-]+$/', $val ) ) {
-				$phpTimezone = $val;
-			}
-		}
-
-		/* ------------------------------------------------------------------ */
-		/* PHP error level handling (names or numeric)                        */
-		/* ------------------------------------------------------------------ */
-
-		// Accept names (E_ALL, E_ERROR, E_WARNING, E_NOTICE) or numeric values.
-		$phpErrorLevels = [
-			'E_ALL'     => E_ALL,
-			'E_ERROR'   => E_ERROR,
-			'E_WARNING' => E_WARNING,
-			'E_NOTICE'  => E_NOTICE,
-		];
-
-		$phpErrorLevelExpr = 'E_ALL'; // default for error_reporting()
-
-		if ( isset( $in['phpErrorLevel'] ) ) {
-			$raw = $in['phpErrorLevel'];
-
-			if ( is_string( $raw ) ) {
-				$val = trim( $raw );
-
-				// Named constant, e.g. "E_ALL"
-				if ( isset( $phpErrorLevels[ $val ] ) ) {
-					$phpErrorLevelExpr = $val;
-				} // Numeric value, e.g. "32767"
-				elseif ( is_numeric( $val ) ) {
-					$ival = (int) $val;
-					if ( in_array( $ival, $phpErrorLevels, true ) ) {
-						$phpErrorLevelExpr = (string) $ival;
-					}
-				}
-			} elseif ( is_int( $raw ) && in_array( $raw, $phpErrorLevels, true ) ) {
-				$phpErrorLevelExpr = (string) $raw;
 			}
 		}
 
@@ -179,21 +106,8 @@ final class SettingsInput {
 		foreach ( [ 'APACHE_PATH', 'HTDOCS_PATH', 'PHP_PATH' ] as $field ) {
 			if ( isset($in[$field]) && is_string($in[$field]) && $in[$field] !== '' ) { $settings[$field] = $in[$field]; }
 		}
-		$php = [ 'display_errors' => $displayPhpErrors === 'true' ? '1' : '0',
-			'log_errors' => $logPhpErrors === 'true' ? '1' : '0',
-			'error_reporting' => defined($phpErrorLevelExpr) ? constant($phpErrorLevelExpr) : (int) $phpErrorLevelExpr ];
-		foreach ( [ 'memory_limit' => $phpMemoryLimit, 'max_execution_time' => $phpMaxExecution,
-			'max_input_vars' => $phpMaxInputVars, 'upload_max_filesize' => $phpUploadMaxFile,
-			'post_max_size' => $phpPostMaxSize, 'date.timezone' => $phpTimezone ] as $name => $value ) {
-			if ( $value !== null ) { $php[$name] = $value; }
-		}
-		$ini = $php;
-		// Preserve the existing optional php.ini controls; log_errors was only set at runtime.
-		unset($ini['log_errors']);
-		$ini['display_errors'] = $displayPhpErrors === 'true' ? 'On' : 'Off';
-		$override = trim((string)($in['error_reporting_value'] ?? ''));
-		$ini['error_reporting'] = $override !== '' ? $override : $phpErrorLevelExpr;
-		return [ 'settings' => $settings, 'php' => $php, 'profile' => $profile,
-			'ini' => $ini, 'iniPath' => trim((string)($in['php_ini_path'] ?? '')) ];
+		$phpSettings = ( new \AMPBoard\Php\SettingsInput() )->normalise( $in );
+		return [ 'settings' => $settings, 'php' => $phpSettings['php'], 'profile' => $profile,
+			'ini' => $phpSettings['ini'], 'iniPath' => trim((string)($in['php_ini_path'] ?? '')) ];
 	}
 }

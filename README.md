@@ -84,6 +84,8 @@ It is intended to be used with AMP stacks such as:
 
 The modernization is incremental. See [architecture and migration notes](docs/architecture.md) for the new namespaced services, compatibility boundaries, and next steps. Published release history is recorded in [CHANGELOG.md](CHANGELOG.md).
 
+The isolated suite includes PHP-manager normalization, runtime inspection, PHP-info output, and temporary INI edits through `tests/php-management.php`. Profile integration also checks optional INI failures without changing installed PHP configuration.
+
 Run `php -d phar.readonly=0 tests/exports.php` with ZIP and Phar enabled for temporary file/database export fixtures, archive fallback, cleanup, and request checks. Installed external archivers are tested against those fixtures; no live project data is exported.
 
 Run `php -n tests/run.php` for the isolated regression suite. It uses a database double and temporary profiles, so no running Apache or MySQL server is needed. Run `php tests/profiles.php` with OpenSSL enabled for profile saving, encryption, migration, and submit-handler checks using temporary files. The isolated suite also covers Apache services and simulated restart requests without controlling a real server. See the architecture notes for the separate real-MySQL check.

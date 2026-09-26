@@ -22,7 +22,8 @@ final class Loader {
 		$profile = $this->profiles->load( $rawUser );
 		$settings = $profile['settings'];
 		if ( $publishLegacyConstants ) { LegacyConstants::publish( $settings ); }
-		( new PhpSettings() )->apply( $profile['php'] );
+		$phpRuntime = new \AMPBoard\Php\Runtime();
+		$phpRuntime->apply( $profile['php'] );
 		$defaultConfigDir = $profile['default'];
 		$userConfigDir = $profile['target'];
 		$activeConfigDir = $profile['active'];
@@ -56,16 +57,17 @@ final class Loader {
 		$mySqlUserValid = $databaseStatus['user'];
 		$mySqlPassValid = $databaseStatus['pass'];
 
-		// Current PHP ini settings
-		$currentPhpDisplayErrors  = ini_get( 'display_errors' );
-		$currentPhpErrorReporting = ini_get( 'error_reporting' );
-		$currentPhpLogErrors      = ini_get( 'log_errors' );
-		$currentPhpMemoryLimit    = ini_get( 'memory_limit' );
-		$currentPhpMaxExecution   = ini_get( 'max_execution_time' );
-		$currentPhpMaxInputVars   = ini_get( 'max_input_vars' );
-		$currentPhpUploadMaxFile  = ini_get( 'upload_max_filesize' );
-		$currentPhpPostMaxSize    = ini_get( 'post_max_size' );
-		$currentPhpTimezone       = ini_get( 'date.timezone' );
+		// Snapshot effective runtime values after applying the profile
+		$phpValues = $phpRuntime->values();
+		$currentPhpDisplayErrors  = $phpValues['display_errors'];
+		$currentPhpErrorReporting = $phpValues['error_reporting'];
+		$currentPhpLogErrors      = $phpValues['log_errors'];
+		$currentPhpMemoryLimit    = $phpValues['memory_limit'];
+		$currentPhpMaxExecution   = $phpValues['max_execution_time'];
+		$currentPhpMaxInputVars   = $phpValues['max_input_vars'];
+		$currentPhpUploadMaxFile  = $phpValues['upload_max_filesize'];
+		$currentPhpPostMaxSize    = $phpValues['post_max_size'];
+		$currentPhpTimezone       = $phpValues['date.timezone'];
 
 		// Resolve display user (respecting DEMO_MODE)
 		$user = $settings['DEMO_MODE'] ? 'demo' : $rawUser;
@@ -189,6 +191,7 @@ final class Loader {
 
 		$config['export'] = [ 'excludes' => $settings['EXPORT_EXCLUDE'] ];
 
+		$config['php']['runtime'] = $phpRuntime->inspect();
 		return $config;
 	}
 

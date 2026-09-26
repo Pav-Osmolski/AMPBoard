@@ -4,6 +4,34 @@ Published entries below are imported from the project's GitHub releases. Their w
 
 ## Unreleased
 
+## [v3.9](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.9) — 2026-09-26
+
+PHP gets its settings in order... and a little more room to breathe ⚙️
+
+Step 5 of the modernisation gives PHP settings, runtime inspection, INI editing, and PHP-info output their own focused services. The same manager controls, with clearer responsibilities behind the scenes.
+
+**PHP 8.0+ remains the supported minimum.** Existing profiles, settings, and utility URLs remain compatible.
+
+- Moves PHP-manager field normalisation into `Php\SettingsInput`, preserving existing defaults, limits, and error-level choices.
+- Introduces `Php\Runtime` for process-wide settings and inspection, with runtime metadata captured in the central configuration array.
+- Gives PHP-info output its own `Php\InfoPage` service, retaining the existing full/demo flags and layout filtering.
+- Supplies the loaded INI target explicitly, while retaining the optional `php_ini_path` override.
+- Moves INI editing into `Php\IniFile`, staging a complete replacement before publishing it.
+- Preserves host/path overrides, updates duplicate global directives, and inserts missing global settings before sections.
+- Serialises cooperating AMPBoard edits with a sidecar lock and cleans up staging files after ordinary failures.
+- Rejects multiline error-reporting overrides before saving settings.
+- Keeps INI editing best-effort after profile persistence: an optional INI failure does not undo a successfully saved profile.
+- Removes the procedural PHP normalisation helpers, retaining `Config\PhpSettings` as a compatibility facade.
+- Adds temporary-INI, runtime, PHP-info, and submit-handler tests, including failed replacements and default INI targets.
+- Passes Windows/Linux checks on PHP 8.0, 8.2, 8.3, and 8.4, with manual testing completed before release.
+- Updates the architecture notes and migration guidance. A few more helpers have found their own home 🤓
+
+**For INI editing:** the containing directory must now be writable so AMPBoard can stage and replace the file. A persistent `.ampboard.lock` sidecar coordinates AMPBoard writers. Unix permission bits are preserved; ownership/ACL inheritance and external-editor coordination still depend on the filesystem.
+
+**For custom PHP integrations:** use the documented `Php\` services in place of the removed normalisation helpers. This release refactors existing settings and diagnostics; PHP version discovery and switching remain a separate possible feature.
+
+**Full Changelog**: https://github.com/Pav-Osmolski/AMPBoard/compare/v3.8...v3.9
+
 ## [v3.8](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.8) — 2026-09-26
 
 Exports are all packed up... and a few more globals have moved out 📦

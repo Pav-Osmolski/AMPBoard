@@ -27,33 +27,7 @@ $pageClasses = $ui->buildPageViewClasses( $settingsView ?? null );
 	</div>
 	<div class="phpinfo">
 		<?php
-		if ( defined( 'DEMO_MODE' ) && DEMO_MODE ) {
-			ob_start();
-			// Only show general PHP info & credits — no secrets here
-			phpinfo( INFO_GENERAL | INFO_CREDITS | INFO_LICENSE );
-			$info = ob_get_clean();
-
-			$info = preg_replace( '%^.*<body>(.*)</body>.*$%s', '$1', $info );
-			$info = preg_replace( '/<style\b[^>]*>(.*?)<\/style>/is', '', $info );
-			$info = preg_replace( '/style=("|\')(.*?)("|\')/i', '', $info );
-
-			echo $info;
-		} else {
-			ob_start();
-			phpinfo();
-			$info = ob_get_clean();
-
-			// Strip everything before <body> and after </body>
-			$info = preg_replace( '%^.*<body>(.*)</body>.*$%s', '$1', $info );
-
-			// Strip the style block
-			$info = preg_replace( '/<style\b[^>]*>(.*?)<\/style>/is', '', $info );
-
-			// Remove ALL styles inline or blocck
-			$info = preg_replace( '/style=("|\')(.*?)("|\')/i', '', $info );
-
-			echo $info;
-		}
+		echo $phpInfo->render( $config['user']['isDemo'] );
 		?>
 	</div>
 </div>

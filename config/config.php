@@ -9,6 +9,8 @@
  * @var \AMPBoard\Apache\CommandRunner $apacheCommands
  * @var \AMPBoard\Apache\Controller $apacheControl
  * @var \AMPBoard\Apache\VhostCatalog $vhosts
+ * @var \AMPBoard\Php\InfoPage $phpInfo
+ * @var \AMPBoard\Php\IniFile $phpIni
  */
 
 require_once __DIR__ . '/autoload.php';
@@ -42,3 +44,6 @@ if ( PHP_OS_FAMILY === 'Windows' ) {
 $exports = new \AMPBoard\Export\Workflow( $exportFolders, $exportDatabase, new \AMPBoard\Export\ArchiveWriter(),
 	new \AMPBoard\Export\ExternalArchiver( new \AMPBoard\Export\NativeProcessRunner(), $exportSearchPaths ),
 	$config['export']['excludes'], dirname( __DIR__ ) . '/dist/exports', 'dist/exports', sys_get_temp_dir() );
+
+$phpInfo = new \AMPBoard\Php\InfoPage();
+$phpIni = new \AMPBoard\Php\IniFile( $config['php']['runtime']['loadedIni'] );

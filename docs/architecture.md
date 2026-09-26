@@ -1,4 +1,4 @@
-# PHP modernization: steps 1–4
+# PHP modernization: steps 1–5
 
 This follows the central config migration beginning at `a54ac0d` and retains the behavior on `bb62f14`. The published releases, now copied into `CHANGELOG.md`, remain the source for historical changes. The frontend bundles and HTTP URLs are unchanged.
 
@@ -16,6 +16,8 @@ Pages continue to `require_once config/config.php`. That file loads the small `A
 | `$apacheControl` | `Apache\Controller`, constructed with the configured Apache path and OS. |
 | `$vhosts` | `Apache\VhostCatalog`, constructed with the Apache path and hosts-file paths. |
 | `$exports` | `Export\Workflow`, composed with folder, database, archive, command, and storage dependencies. |
+| `$phpInfo` | `Php\InfoPage`, captures PHP-info output using the selected full/demo flags. |
+| `$phpIni` | `Php\IniFile`, constructed with the loaded INI path captured during configuration. |
 | `$ui` | `AMPBoard\Ui\Renderer`, constructed from the config and database factory. |
 
 The renderer owns a config snapshot. Methods no longer read `global $config`, and separate renderers can use separate settings. Theme metadata and body classes live in `Ui\ThemeCatalog`, which takes an asset directory. Database connections use supplied credentials rather than `$dbUser`, `$dbPass`, or `DB_HOST`. Credential validation runs once when config loads. Both connection modes restore the caller's actual MySQLi report flags, including on failure.
@@ -42,7 +44,7 @@ return [
 ];
 ```
 
-`ProfileReader` validates known setting names and types. `ProfileSchema` owns defaults and supported keys. `ProfileRepository` can resolve separate returned-array profiles in one process without publishing constants. `Loader` builds the dashboard array and asks `PhpSettings` to apply runtime directives; this still changes process-wide PHP settings. PHP profile files remain trusted executable code, not a sandboxed configuration format.
+`ProfileReader` validates known setting names and types. `ProfileSchema` owns defaults and supported keys. `ProfileRepository` can resolve separate returned-array profiles in one process without publishing constants. `Loader` builds the dashboard array and asks `Php\Runtime` to apply runtime directives; this still changes process-wide PHP settings. PHP profile files remain trusted executable code, not a sandboxed configuration format.
 
 Legacy variable/constant profiles and local overrides remain readable. Their existing PHP side effects still execute, so legacy profiles retain the one-profile-per-request limitation. Legacy local constants take precedence over profile constants; legacy local UI variables remain defaults that the profile may override. Returned-array local settings and PHP directives take precedence over the profile. Constants already defined before composition take precedence over both. Missing settings receive the same application defaults.
 
@@ -88,6 +90,18 @@ The extraction also fixes binary discovery treating directories as executables, 
 
 `utils/export_files.php` retains request validation, demo/CSRF checks, and the existing response fields. The former `config/helpers/export.php` functions have been removed; custom integrations should use `$exports->scan()`, `databases()`, `files(...)`, and `dump(...)` after loading config. Configuration construction performs no export, database query, or external command.
 
+## PHP management services (step 5)
+
+`Php\SettingsInput` owns the existing PHP-manager field normalization, including separate profile/runtime and INI values. `Config\SettingsInput` delegates to it before persistence. The supported fields, defaults, size/integer normalization, error-level choices, and runtime-only `log_errors` behavior remain unchanged. Multiline error-reporting overrides are rejected before any settings write. The former `normaliseIniIntOption()` and `normaliseIniSizeOption()` helpers are replaced by `Php\SettingsInput::integer()` and `::size()`.
+
+`Php\Runtime` owns process-wide directive application and inspection. The loader captures effective values after applying the profile and supplies version, SAPI, thread safety, loaded INI, and scanned INI metadata under `$config['php']['runtime']`. The renderer uses that snapshot; its fallback for integrations supplying older configuration arrays uses the runtime service. `Php\InfoPage` captures and strips the existing phpinfo layout while preserving full/demo flags. This layout processing is not a data-redaction or HTML-security boundary.
+
+`Php\IniFile` receives a target path, updates allowlisted directives in ordinary sections, preserves `[PATH=...]`/`[HOST=...]` overrides, and inserts missing global directives before sections. Commented examples and unrelated lines are retained; changed directive lines are rewritten. It stages the complete file beside the original and renames it only after a successful write, preserving Unix permission bits. The containing directory must therefore be writable. A persistent `.ampboard.lock` sidecar serializes cooperating AMPBoard writers; external editors do not participate. Replacement can inherit directory ownership/ACLs, and storage failures or abrupt termination can leave staging files. This is not a backup system.
+
+The submit handler retains the explicit `php_ini_path` override and otherwise uses the captured loaded INI path. `PHP_PATH` remains the existing dashboard path setting; changing it does not select another runtime or INI target. INI writes remain best-effort after profile persistence, with the same success redirect even when the optional edit fails. `Config\PhpSettings` remains a compatibility facade for `apply()` and `patch()`.
+
+AMPBoard currently has no installed-version catalog or PHP-switching workflow. This increment extracts existing settings and diagnostics; adding version switching would be a separate feature with platform-specific requirements.
+
 ## Validation
 
 Run `php -n tests/run.php`. Each scenario gets a fresh process because legacy profiles define constants. The suite uses a deterministic MySQLi double, temporary profiles, and read-only request fixtures. It checks profile fallback and overrides, false/default values, config isolation, theme and tooltip rendering, accessibility markup, asset paths, embedded versus standalone panels, connection credentials, report-mode restoration, and rendered entry points. It does not write real profiles, restart Apache, generate certificates, or export real data.
@@ -98,13 +112,15 @@ Run `php tests/profiles.php` with OpenSSL enabled for temporary-file integration
 
 For real MySQLi validation, enable the extension and run `php tests/mysqli.php --failure-only` to check refused connections against loopback port 1. To also test successful connections, supply `AMPBOARD_TEST_DB_HOST`, `AMPBOARD_TEST_DB_USER`, and `AMPBOARD_TEST_DB_PASSWORD` for a **disposable test database**, then run `php tests/mysqli.php`. CI provisions its own MySQL service for this check, alongside PHP lint, isolated tests, and profile integration on PHP 8.0, 8.2, 8.3, and 8.4 on Windows and Linux.
 
+The isolated suite also runs `tests/php-management.php` using temporary INI files, injected PHP-info output, and process-local runtime settings. It checks scoped overrides, duplicate directives, line endings, failed replacement cleanup, and independent targets. Submit fixtures check default/explicit INI targets, best-effort failure after profile save, and rejection of multiline overrides. No installed PHP configuration is edited.
+
 The fixture checks do not replace manual testing against XAMPP/LAMP/MAMP. Before merging, exercise saved settings, encrypted credentials, PHP INI changes, vhost/certificate operations, exports, and Apache restart in your normal development stack.
 
 Run `php -d phar.readonly=0 tests/exports.php` with ZIP and Phar enabled for fixture-only archive contents, uploads modes, SQL batching, command fallback, cleanup, and actual export-handler responses. Installed external archivers are exercised against temporary fixtures. CI also runs `tests/export-mysqli.php` against its disposable MySQL service: it creates a randomly named database, exports and restores 201 rows including NULL, Unicode, and binary values, compares them, and removes the fixture database. Never point this integration test at a production server.
 
 ## Next increments
 
-1. Move PHP-management workflows into services with explicit filesystem and command dependencies. Keep thin HTTP handlers for validation and responses.
-2. Separate page rendering from system probes, then migrate the remaining pure helper functions into focused namespaces. Remove compatibility constants only after all consumers have moved.
+1. Separate the remaining page rendering from system probes, then migrate pure helper functions into focused namespaces. Remove compatibility constants only after all consumers have moved.
+2. Consider PHP version discovery/switching separately if desired; it is not an existing workflow awaiting extraction.
 
 Avoid a service locator or static global config accessor: it would preserve the hidden dependencies under a new name. Each increment should retain the existing URLs and saved profiles until a separately documented migration is ready.
