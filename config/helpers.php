@@ -25,7 +25,6 @@ $helperModules = [
     'system',
 
     // Integrations
-    'mysql',
 ];
 
 foreach ( $helperModules as $module ) {

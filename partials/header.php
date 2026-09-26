@@ -24,6 +24,6 @@ require_once __DIR__ . '/../config/config.php';
 	' : '' ?>
 	<?= $config['ui']['flags']['clock'] ? '<div class="clock" aria-hidden="true"></div>' : '' ?>
 	<div class="server-info" aria-label="Server environment information">
-		<?php $ui->renderServerInfo(); ?>
+		<?php $ui->renderServerInfo( $serverInspector->inspect() ); ?>
 	</div>
 </header>

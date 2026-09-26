@@ -11,6 +11,8 @@
  * @var \AMPBoard\Apache\VhostCatalog $vhosts
  * @var \AMPBoard\Php\InfoPage $phpInfo
  * @var \AMPBoard\Php\IniFile $phpIni
+ * @var \AMPBoard\System\ServerInspector $serverInspector
+ * @var \AMPBoard\System\Statistics $systemStatistics
  */
 
 require_once __DIR__ . '/autoload.php';
@@ -23,7 +25,7 @@ $cipher = new \AMPBoard\Security\CredentialCipher( defined( 'CRYPTO_KEY_FILE' ) 
 $profiles = new \AMPBoard\Config\ProfileRepository( __DIR__, $cipher, null, \AMPBoard\Config\LegacyConstants::read() );
 $config = ( new \AMPBoard\Config\Loader( __DIR__, $profiles ) )->load( true );
 $database = new \AMPBoard\Database\ConnectionFactory( $config['db'] );
-$ui = new \AMPBoard\Ui\Renderer( $config, $database );
+$ui = new \AMPBoard\Ui\Renderer( $config );
 
 $apacheCommands = new \AMPBoard\Apache\ShellCommandRunner();
 $apacheControl = new \AMPBoard\Apache\Controller( $config['paths']['apache'], PHP_OS_FAMILY, $apacheCommands );
@@ -47,3 +49,10 @@ $exports = new \AMPBoard\Export\Workflow( $exportFolders, $exportDatabase, new \
 
 $phpInfo = new \AMPBoard\Php\InfoPage();
 $phpIni = new \AMPBoard\Php\IniFile( $config['php']['runtime']['loadedIni'] );
+
+$serverInspector = new \AMPBoard\System\ServerInspector(
+	new \AMPBoard\Apache\VersionProbe( $config['paths']['apache'], PHP_OS_FAMILY, $_SERVER['SERVER_SOFTWARE'] ?? '', $apacheCommands ),
+	static function () use ( $database ) { return $database->connect( [ 'strictMode' => false ] ); },
+	$config['php']['runtime']
+);
+$systemStatistics = new \AMPBoard\System\Statistics( PHP_OS_FAMILY, '/', $apacheCommands, [ new \AMPBoard\System\NativeMetrics(), 'read' ] );

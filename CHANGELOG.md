@@ -4,6 +4,14 @@ Published entries below are imported from the project's GitHub releases. Their w
 
 ## Unreleased
 
+- Moves header Apache/database probes out of the renderer into `System\ServerInspector` and `Apache\VersionProbe`, with supplied runtime metadata and command/connection dependencies.
+- Makes server-info rendering consume a status snapshot and removes its database dependency.
+- Extracts CPU, PHP peak-memory, and disk-free statistics into services with explicit platform, disk target, commands, and measurement callbacks.
+- Preserves statistics JSON fields, HTML IDs, feature guards, cache headers, and refresh behaviour; failed or nonfinite readings return `N/A`.
+- Quotes Apache binary paths, handles multiple Windows discovery results, and closes header database connections after failed status checks.
+- Moves MySQL-family version-label normalization into `Database\ServerVersion` and escapes labels at rendering time.
+- Adds fixture-based probe, rendering, statistics, and endpoint checks; updates architecture and migration notes.
+
 ## [v3.9](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.9) — 2026-09-26
 
 PHP gets its settings in order... and a little more room to breathe ⚙️

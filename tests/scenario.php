@@ -54,9 +54,9 @@ if ( $scenario === 'database' ) {
 if ( $scenario === 'renderer' ) {
 	$config = [ 'paths' => [ 'assets' => $root . '/assets' ], 'ui' => [ 'flags' => [ 'folderBadges' => false ] ],
 		'interface' => [ 'headings' => [ 'Example' => [ 'key' => 'example' ] ], 'tooltips' => [ 'example' => '<safe & useful>' ] ] ];
-	$ui = new Renderer( $config, $database );
+	$ui = new Renderer( $config );
 	$config['ui']['flags']['folderBadges'] = true;
-	$other = new Renderer( $config, $database );
+	$other = new Renderer( $config );
 	expect( $ui->renderBadge( 'test' ) === '' && $other->renderBadge( 'test' ) !== '', 'Renderer instances are isolated' );
 	expect( str_contains( $ui->renderHeading( 'Example' ), '&lt;safe &amp; useful&gt;' ), 'Configured tooltip escaped' );
 	expect( str_contains( $ui->renderHeading( 'Unknown' ), 'Missing tooltip key: unknown' ), 'Tooltip fallback' );
