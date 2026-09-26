@@ -187,6 +187,8 @@ final class Loader {
 			'tooltips' => $tooltipsConfig,
 		];
 
+		$config['export'] = [ 'excludes' => $settings['EXPORT_EXCLUDE'] ];
+
 		return $config;
 	}
 

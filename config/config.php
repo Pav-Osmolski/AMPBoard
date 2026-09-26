@@ -29,3 +29,16 @@ $vhosts = new \AMPBoard\Apache\VhostCatalog( $config['paths']['apache'], [
 	getenv( 'WINDIR' ) ? getenv( 'WINDIR' ) . '/System32/drivers/etc/hosts' : '',
 	'/etc/hosts',
 ] );
+
+$exportFolders = new \AMPBoard\Export\FolderCatalog( $config['paths']['htdocs'], $config['profile']['folders'] );
+$exportDatabase = new \AMPBoard\Export\DatabaseExporter( static function ( ?string $name ) use ( $database ) {
+	return $database->connect( [ 'db' => $name ] );
+} );
+$exportSearchPaths = explode( PATH_SEPARATOR, (string) getenv( 'PATH' ) );
+if ( PHP_OS_FAMILY === 'Windows' ) {
+	$exportSearchPaths[] = 'C:/Program Files/7-Zip';
+	$exportSearchPaths[] = 'C:/Program Files (x86)/7-Zip';
+}
+$exports = new \AMPBoard\Export\Workflow( $exportFolders, $exportDatabase, new \AMPBoard\Export\ArchiveWriter(),
+	new \AMPBoard\Export\ExternalArchiver( new \AMPBoard\Export\NativeProcessRunner(), $exportSearchPaths ),
+	$config['export']['excludes'], dirname( __DIR__ ) . '/dist/exports', 'dist/exports', sys_get_temp_dir() );

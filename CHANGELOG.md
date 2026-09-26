@@ -4,6 +4,14 @@ Published entries below are imported from the project's GitHub releases. Their w
 
 ## Unreleased
 
+- Moves file selection, SQL dumps, archive creation, and export orchestration into namespaced services with explicit dependencies.
+- Preserves export URLs, response fields, uploads options, and PHP/external engine selection, with shared exclusions across archive engines.
+- Builds exports in private temporary storage, cleans up ordinary failures, and adds unique filename suffixes to avoid collisions.
+- Aborts failed database queries instead of publishing partial dumps; closes export connections reliably.
+- Rejects folder selections outside the filtered catalog, skips symbolic links, and preserves `uploads-cache` when uploads are excluded.
+- Adds fixture archive/request checks and a disposable MySQL export/restore check across the existing PHP CI matrix.
+- Documents the export boundaries and migration from the removed procedural export helpers. PHP 8.0+ remains the minimum.
+
 ## [v3.7](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.7) — 2026-09-25
 
 Apache gets its own quarters... and a little less global baggage 🪶

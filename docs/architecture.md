@@ -1,4 +1,4 @@
-# PHP modernization: steps 1–3
+# PHP modernization: steps 1–4
 
 This follows the central config migration beginning at `a54ac0d` and retains the behavior on `bb62f14`. The published releases, now copied into `CHANGELOG.md`, remain the source for historical changes. The frontend bundles and HTTP URLs are unchanged.
 
@@ -15,6 +15,7 @@ Pages continue to `require_once config/config.php`. That file loads the small `A
 | `$apacheCommands` | `Apache\CommandRunner`, implemented by `ShellCommandRunner` in normal requests. |
 | `$apacheControl` | `Apache\Controller`, constructed with the configured Apache path and OS. |
 | `$vhosts` | `Apache\VhostCatalog`, constructed with the Apache path and hosts-file paths. |
+| `$exports` | `Export\Workflow`, composed with folder, database, archive, command, and storage dependencies. |
 | `$ui` | `AMPBoard\Ui\Renderer`, constructed from the config and database factory. |
 
 The renderer owns a config snapshot. Methods no longer read `global $config`, and separate renderers can use separate settings. Theme metadata and body classes live in `Ui\ThemeCatalog`, which takes an asset directory. Database connections use supplied credentials rather than `$dbUser`, `$dbPass`, or `DB_HOST`. Credential validation runs once when config loads. Both connection modes restore the caller's actual MySQLi report flags, including on failure.
@@ -75,6 +76,18 @@ The old `config/helpers/apache.php` free functions have been removed after migra
 
 The extraction also fixes binary discovery treating directories as executables, joining already-absolute config paths to `HTTPD_ROOT`, and treating inline hosts-file comments as host aliases.
 
+## Export services (step 4)
+
+`Export\FolderCatalog` receives the configured document root and folder-group snapshot. `Export\FileSelection` applies exclusions and the WordPress uploads modes once for both archive engines. Folder requests must match the filtered catalog; symbolic links are skipped, excluded directories are pruned before traversal, and excluding uploads no longer also excludes `uploads-cache`.
+
+`Export\DatabaseExporter` receives a connection callback and closes connections on success and failure. A failed query now aborts the export rather than publishing an incomplete dump. The existing dump scope remains base tables and their rows, buffered in memory in batches of 200 inserts; views, triggers, routines, events, and transactional snapshot consistency are not added by this refactor.
+
+`Export\ArchiveWriter` produces ZIP, with Phar TAR.GZ/TAR when ZipArchive is unavailable. `Export\ExternalArchiver` discovers 7-Zip or system zip in supplied search directories and uses the same selected files. Only physically empty directories are listed for external tools, so directories emptied by exclusions may be absent. Unsupported manifest filenames fall back to PHP. `Export\NativeProcessRunner` uses argument arrays and an explicit working directory through `proc_open()`, without changing the PHP process directory. If external execution is unavailable or fails, the workflow removes partial output before trying PHP.
+
+`Export\Workflow` builds each archive in a private temporary directory, including intermediate SQL and manifests, then stages and renames the completed archive under `dist/exports`. Names retain their familiar prefix and timestamp with an additional random suffix to prevent same-second collisions. Ordinary failures clean up temporary files; abrupt process termination or storage failure can still leave files requiring cleanup. Published downloads retain their existing access and retention behavior.
+
+`utils/export_files.php` retains request validation, demo/CSRF checks, and the existing response fields. The former `config/helpers/export.php` functions have been removed; custom integrations should use `$exports->scan()`, `databases()`, `files(...)`, and `dump(...)` after loading config. Configuration construction performs no export, database query, or external command.
+
 ## Validation
 
 Run `php -n tests/run.php`. Each scenario gets a fresh process because legacy profiles define constants. The suite uses a deterministic MySQLi double, temporary profiles, and read-only request fixtures. It checks profile fallback and overrides, false/default values, config isolation, theme and tooltip rendering, accessibility markup, asset paths, embedded versus standalone panels, connection credentials, report-mode restoration, and rendered entry points. It does not write real profiles, restart Apache, generate certificates, or export real data.
@@ -87,9 +100,11 @@ For real MySQLi validation, enable the extension and run `php tests/mysqli.php -
 
 The fixture checks do not replace manual testing against XAMPP/LAMP/MAMP. Before merging, exercise saved settings, encrypted credentials, PHP INI changes, vhost/certificate operations, exports, and Apache restart in your normal development stack.
 
+Run `php -d phar.readonly=0 tests/exports.php` with ZIP and Phar enabled for fixture-only archive contents, uploads modes, SQL batching, command fallback, cleanup, and actual export-handler responses. Installed external archivers are exercised against temporary fixtures. CI also runs `tests/export-mysqli.php` against its disposable MySQL service: it creates a randomly named database, exports and restores 201 rows including NULL, Unicode, and binary values, compares them, and removes the fixture database. Never point this integration test at a production server.
+
 ## Next increments
 
-1. Move export and PHP-management workflows into services with explicit filesystem, database, and command dependencies. Keep thin HTTP handlers for validation and responses.
+1. Move PHP-management workflows into services with explicit filesystem and command dependencies. Keep thin HTTP handlers for validation and responses.
 2. Separate page rendering from system probes, then migrate the remaining pure helper functions into focused namespaces. Remove compatibility constants only after all consumers have moved.
 
 Avoid a service locator or static global config accessor: it would preserve the hidden dependencies under a new name. Each increment should retain the existing URLs and saved profiles until a separately documented migration is ready.
