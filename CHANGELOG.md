@@ -4,6 +4,13 @@ Published entries below are imported from the project's GitHub releases. Their w
 
 ## Unreleased
 
+- Extracts PHP-manager normalization, runtime settings/inspection, INI editing, and PHP-info output into focused `Php\` services.
+- Supplies the loaded INI target explicitly and captures runtime metadata in the central configuration array.
+- Stages INI replacements, preserves host/path overrides, and serializes AMPBoard edits with a sidecar lock; failed edits leave saved profiles intact.
+- Rejects multiline error-reporting overrides before saving settings.
+- Removes the procedural PHP normalization helpers, retaining `Config\PhpSettings` as a compatibility facade.
+- Adds temporary-INI, runtime, PHP-info, and submit-handler coverage. PHP 8.0+ and the existing manager controls remain supported.
+
 ## [v3.8](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.8) — 2026-09-26
 
 Exports are all packed up... and a few more globals have moved out 📦

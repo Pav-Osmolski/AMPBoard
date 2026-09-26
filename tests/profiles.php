@@ -136,7 +136,7 @@ check( ( new PhpSettings() )->patch( $iniFile, [ 'memory_limit' => '256M', 'disp
 check( str_contains( file_get_contents( $iniFile ), 'unrelated = keep' ) && str_contains( file_get_contents( $iniFile ), 'memory_limit = 256M' ), 'INI patch preserves unrelated settings' );
 echo "PASS profile and credential integration\n";
 
-foreach ( [ 'valid', 'csrf', 'origin', 'json', 'type', 'demo', 'write' ] as $scenario ) {
+foreach ( [ 'valid', 'csrf', 'origin', 'json', 'type', 'demo', 'write', 'ini-default', 'ini-failure', 'ini-injection' ] as $scenario ) {
 	$process = proc_open( [ PHP_BINARY, '-n', __DIR__ . '/submit.php', $root . '/request-' . $scenario, $scenario ],
 		[ 0 => [ 'pipe', 'r' ], 1 => [ 'pipe', 'w' ], 2 => [ 'pipe', 'w' ] ], $pipes );
 	check( is_resource( $process ), 'Start submit fixture' );

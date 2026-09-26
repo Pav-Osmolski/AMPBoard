@@ -52,7 +52,7 @@ try {
 }
 
 // Optional php.ini editing remains best-effort, as before; profile saving is complete.
-( new \AMPBoard\Config\PhpSettings() )->patch( $data['iniPath'] ?: ( php_ini_loaded_file() ?: '' ), $data['ini'] );
+( $data['iniPath'] !== '' ? new \AMPBoard\Php\IniFile( $data['iniPath'] ) : $phpIni )->patch( $data['ini'] );
 
 if ( session_status() !== PHP_SESSION_ACTIVE ) { session_start(); }
 session_regenerate_id( true );

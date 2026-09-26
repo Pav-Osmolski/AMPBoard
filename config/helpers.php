@@ -25,7 +25,6 @@ $helperModules = [
     'system',
 
     // Integrations
-    'php',
     'mysql',
 ];
 
