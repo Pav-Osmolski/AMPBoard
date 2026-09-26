@@ -129,7 +129,12 @@ echo "PASS export services\n";
 $tar = ( new ArchiveWriter( false, false ) )->create( $selection['entries'], $root . '/plain.zip' );
 checkExport( str_ends_with( $tar, '.tar' ) && archiveFiles( $tar ) === $expected, 'Uncompressed TAR fallback' );
 foreach ( [ 'scan', 'dbs', 'token', 'zip', 'dumpdb', 'demo', 'csrf', 'input', 'get', 'unknown' ] as $scenario ) {
-	$process = proc_open( [ PHP_BINARY, '-n', '-d', 'phar.readonly=0', __DIR__ . '/export-request.php', $root . '/request-' . $scenario, $scenario ],
+	$args = [ PHP_BINARY, '-n', '-d', 'phar.readonly=0' ];
+	// Phar is built in on Windows but packaged as a shared extension on CI Linux.
+	$phar = rtrim( ini_get( 'extension_dir' ), '/\\' ) . '/' . ( PHP_OS_FAMILY === 'Windows' ? 'php_phar.dll' : 'phar.so' );
+	if ( is_file( $phar ) ) { array_push( $args, '-d', 'extension=' . $phar ); }
+	array_push( $args, __DIR__ . '/export-request.php', $root . '/request-' . $scenario, $scenario );
+	$process = proc_open( $args,
 		[ 0 => [ 'pipe', 'r' ], 1 => [ 'pipe', 'w' ], 2 => [ 'pipe', 'w' ] ], $pipes );
 	fclose( $pipes[0] );
 	$output = stream_get_contents( $pipes[1] ); fclose( $pipes[1] );
