@@ -4,13 +4,30 @@ Published entries below are imported from the project's GitHub releases. Their w
 
 ## Unreleased
 
-- Moves file selection, SQL dumps, archive creation, and export orchestration into namespaced services with explicit dependencies.
-- Preserves export URLs, response fields, uploads options, and PHP/external engine selection, with shared exclusions across archive engines.
-- Builds exports in private temporary storage, cleans up ordinary failures, and adds unique filename suffixes to avoid collisions.
-- Aborts failed database queries instead of publishing partial dumps; closes export connections reliably.
-- Rejects folder selections outside the filtered catalog, skips symbolic links, and preserves `uploads-cache` when uploads are excluded.
-- Adds fixture archive/request checks and a disposable MySQL export/restore check across the existing PHP CI matrix.
-- Documents the export boundaries and migration from the removed procedural export helpers. PHP 8.0+ remains the minimum.
+## [v3.8](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.8) — 2026-09-26
+
+Exports are all packed up... and a few more globals have moved out 📦
+
+Step 4 of the modernisation gives file and database exports their own namespaced services. The same export tools and options, with clearer responsibilities behind the scenes.
+
+**PHP 8.0+ remains the supported minimum.** Existing profiles, settings, and utility URLs remain compatible.
+
+- Moves folder discovery, file selection, SQL dumps, archive creation, and export orchestration into `Export\` services with explicit dependencies.
+- Keeps the existing uploads modes, PHP/external engine choices, download URLs, and JSON response fields.
+- Applies the same file exclusions to both archive engines and skips symbolic links.
+- Validates selected folders against the filtered catalog and keeps `uploads-cache` when WordPress uploads are excluded.
+- Runs external archivers with argument arrays and an explicit working directory, without changing the PHP process directory.
+- Cleans up partial external output before falling back to the PHP archive engine.
+- Builds archives, SQL files, and manifests in private temporary storage, publishing the completed archive with a unique filename suffix.
+- Aborts failed database queries instead of publishing incomplete dumps, and closes export connections reliably.
+- Retains ZIP and TAR.GZ/TAR support. Database dumps still cover base tables and rows; snapshot consistency, views, triggers, and routines remain outside this export scope.
+- Adds archive-content, uploads-mode, fallback, cleanup, and request-guard tests, plus a disposable MySQL export/restore round trip.
+- Passes the Windows/Linux checks on PHP 8.0, 8.2, 8.3, and 8.4, with manual testing completed before release.
+- Updates the architecture notes and migration guidance. Another set of helpers has packed its bags 🤓
+
+**For custom PHP integrations:** the former procedural export helpers have been replaced by the documented `$exports` workflow. External archivers require `proc_open()`; if unavailable, exports fall back to PHP. Published downloads keep their existing access and retention behavior.
+
+**Full Changelog**: https://github.com/Pav-Osmolski/AMPBoard/compare/v3.7...v3.8
 
 ## [v3.7](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.7) — 2026-09-25
 
