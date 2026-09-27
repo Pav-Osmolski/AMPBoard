@@ -25,9 +25,10 @@ function initGenericErrorLog( {
 
 		function displayLogContent( data ) {
 			const isEmpty = data.trim() === '';
-			logElement.innerHTML = isEmpty
-				? `<code class="muted">No errors logged. You're doing great. 🎉</code>`
-				: `<code>${ data }</code>`;
+			const code = document.createElement( 'code' );
+			if ( isEmpty ) code.className = 'muted';
+			code.textContent = isEmpty ? "No errors logged. You're doing great. 🎉" : data;
+			logElement.replaceChildren( code );
 		}
 
 		function fetchLog() {

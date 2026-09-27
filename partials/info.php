@@ -92,7 +92,10 @@ if ( array_filter( array_column( $features, 'enabled' ) ) ): ?>
 				</button>
 			</h3>
 			<pre id="<?= htmlspecialchars( $regionId ) ?>" aria-live="polite"
-			     tabindex="0"><code>Loading...</code></pre>
+			     tabindex="0"><code><?php
+				if ( $config['ui']['flags']['useAjaxForErrorLog'] ) { echo 'Loading...'; }
+				else { echo htmlspecialchars( ( $key === 'apache' ? $apacheLog : $phpLog )->content(), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8' ); }
+			?></code></pre>
 		</section>
 	<?php endif; ?>
 

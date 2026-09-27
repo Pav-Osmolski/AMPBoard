@@ -21,51 +21,9 @@ if ( ! $config['ui']['flags']['phpErrorLog'] ) {
 	exit;
 }
 
-$logFile = ini_get( 'error_log' );
-if ( ! $logFile || ! file_exists( $logFile ) ) {
-	$logContent = "PHP error log not found or not configured.";
-} else {
-	$logContent = tail_log( $logFile );
-}
+$logContent = $phpLog->content();
 
-function tail_log( $file, $lines = 25 ): string {
-	$data = [];
-	$fp   = fopen( $file, 'r' );
-	if ( ! $fp ) {
-		return '';
-	}
-
-	fseek( $fp, 0, SEEK_END );
-	$pos  = ftell( $fp ) - 1;
-	$line = '';
-
-	while ( $pos >= 0 && count( $data ) < $lines ) {
-		fseek( $fp, $pos );
-		$char = fgetc( $fp );
-
-		if ( $char === "\n" ) {
-			if ( $line !== '' ) {
-				array_unshift( $data, $line );
-				$line = '';
-			}
-		} else {
-			$line = $char . $line;
-		}
-		$pos --;
-	}
-
-	if ( $line !== '' ) {
-		array_unshift( $data, $line );
-	}
-
-	fclose( $fp );
-
-	return implode( "\n", array_filter( $data, function ( $l ) {
-		return trim( $l ) !== '';
-	} ) );
-}
-
-if ( $config['ui']['flags']['useAjaxForStats'] ) {
+if ( $config['ui']['flags']['useAjaxForErrorLog'] ) {
 	header( 'Content-Type: text/plain; charset=utf-8' );
 	header( 'Cache-Control: no-cache, no-store, must-revalidate' );
 	header( 'Pragma: no-cache' );
@@ -80,7 +38,7 @@ if ( $config['ui']['flags']['useAjaxForStats'] ) {
         </h3>
         <pre id='php-error-log' aria-live='polite' tabindex='0'>
             <code>"
-	     . htmlspecialchars( $logContent ) . "
+	     . htmlspecialchars( $logContent, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8' ) . "
             </code>
         </pre>";
 }

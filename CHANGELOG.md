@@ -4,6 +4,13 @@ Published entries below are imported from the project's GitHub releases. Their w
 
 ## Unreleased
 
+- Extracts Apache log-path discovery and shared log reading into `Logs\Paths`, `Logs\TailReader`, and `Logs\Viewer`, with explicit candidates and display limits.
+- Preserves normal Apache/PHP excerpt formatting while reading backwards in blocks, capped at 1 MiB with a visible truncation notice.
+- Handles missing, unreadable, empty, and non-file log targets without leaking filesystem warnings.
+- Uses the log-specific AJAX setting, renders initial log content when AJAX is disabled, and labels Apache AJAX responses as plain text.
+- Displays fetched log entries as text instead of HTML, retaining the empty-log message and three-second refresh.
+- Adds temporary-log, endpoint, and frontend text/refresh tests, and rebuilds the JavaScript bundle.
+
 ## [v3.10](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.10) — 2026-09-27
 
 Taking the pulse... without making the renderer do the rounds 🩺

@@ -1,4 +1,4 @@
-# PHP modernization: steps 1–6
+# PHP modernization: steps 1–7
 
 This follows the central config migration beginning at `a54ac0d` and retains the behavior on `bb62f14`. The published releases, now copied into `CHANGELOG.md`, remain the source for historical changes. The frontend bundles and HTTP URLs are unchanged.
 
@@ -21,6 +21,7 @@ Pages continue to `require_once config/config.php`. That file loads the small `A
 | `$ui` | `AMPBoard\Ui\Renderer`, constructed from the config snapshot. |
 | `$serverInspector` | `System\ServerInspector`, collects header status through supplied Apache and database probes and PHP runtime metadata. |
 | `$systemStatistics` | `System\Statistics`, receives platform, disk target, command runner, and measurement callback. |
+| `$apacheLog`, `$phpLog` | `Logs\Viewer`, each constructed with candidate paths, a shared tail reader, and its excerpt policy. |
 
 The renderer owns a config snapshot. Methods no longer read `global $config`, and separate renderers can use separate settings. Theme metadata and body classes live in `Ui\ThemeCatalog`, which takes an asset directory. Database connections use supplied credentials rather than `$dbUser`, `$dbPass`, or `DB_HOST`. Credential validation runs once when config loads. Both connection modes restore the caller's actual MySQLi report flags, including on failure.
 
@@ -116,6 +117,16 @@ The header explicitly calls `$serverInspector->inspect()` and supplies its snaps
 
 The statistics endpoint retains the enable guard, JSON fields, cache headers, HTML IDs, and AJAX/embedded switch. A disabled endpoint exits before sampling. Frontend polling and bundles are unchanged. These services reuse the existing command runner rather than adding another shell implementation. Custom integrations must supply a server snapshot to `renderServerInfo()` and use `Database\ServerVersion::normalise()` instead of the removed MySQL helper.
 
+## Log services (step 7)
+
+`Logs\Paths::apache()` constructs the existing platform-specific candidate list from an explicit Apache path, OS family, and home directory. PHP's configured `error_log` is captured by `Php\Runtime` and supplied to its viewer. No service reads `APACHE_PATH`, runtime INI, or server globals. Construction does not open any log. Discovery remains candidate-based: it does not parse Apache includes or access system logging services.
+
+`Logs\Viewer` chooses the first regular file in the supplied list, preserving priority and allowing normal filesystem symlinks. Missing/non-file targets retain the existing not-configured message; a failed read gets a concise unreadable message. `Logs\TailReader` opens read-only, reads backwards in 8 KiB blocks, and closes the handle on every path. Apache retains its last five physical lines and line endings. PHP retains its historical last-25 selection: empty LF segments do not count, while whitespace-only segments count and are filtered afterward. PHP output still has no added trailing newline.
+
+Reads are capped at 1 MiB per excerpt. If that limit prevents a complete selection, a visible truncation notice is added and a partial leading line is dropped when a subsequent complete line exists. A single oversized line is shown as a bounded suffix with the notice. Log growth after opening is outside the captured size; rotation/truncation may yield an unavailable result until the next poll. Reading neither locks nor changes the server log.
+
+The endpoints retain their enable guards, missing-log messages, markup IDs, and cache headers. AJAX mode now follows `useAjaxForErrorLog` independently of system statistics, and both endpoints serve raw plain text. Embedded dashboard panels now read their initial content when log AJAX is disabled. Log text is escaped in embedded HTML, including invalid UTF-8 substitution, and the frontend uses `textContent` for fetched entries instead of interpreting them as HTML. Toggle behavior, the empty-log message, and three-second refresh are retained. The former endpoint-local `tail_log()` function is removed; integrations should use `TailReader::read()` or the composed viewers.
+
 ## Validation
 
 Run `php -n tests/run.php`. Each scenario gets a fresh process because legacy profiles define constants. The suite uses a deterministic MySQLi double, temporary profiles, and read-only request fixtures. It checks profile fallback and overrides, false/default values, config isolation, theme and tooltip rendering, accessibility markup, asset paths, embedded versus standalone panels, connection credentials, report-mode restoration, and rendered entry points. It does not write real profiles, restart Apache, generate certificates, or export real data.
@@ -134,7 +145,7 @@ Run `php -d phar.readonly=0 tests/exports.php` with ZIP and Phar enabled for fix
 
 ## Next increments
 
-1. Migrate remaining system/identity and filesystem helpers, then tackle the procedural log and detailed diagnostic endpoints. Remove compatibility constants only after all consumers have moved.
+1. Migrate remaining system/identity and filesystem helpers, then tackle detailed diagnostic endpoints. Remove compatibility constants only after all consumers have moved.
 2. Consider PHP version discovery/switching separately if desired; it is not an existing workflow awaiting extraction.
 
 Avoid a service locator or static global config accessor: it would preserve the hidden dependencies under a new name. Each increment should retain the existing URLs and saved profiles until a separately documented migration is ready.
