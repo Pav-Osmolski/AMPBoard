@@ -1,4 +1,4 @@
-# PHP modernization: steps 1–8
+# PHP modernization: steps 1–9
 
 This follows the central config migration beginning at `a54ac0d` and retains the behavior on `bb62f14`. The published releases, now copied into `CHANGELOG.md`, remain the source for historical changes. The frontend bundles and HTTP URLs are unchanged.
 
@@ -13,6 +13,7 @@ Pages continue to `require_once config/config.php`. That file loads the small `A
 | `$cipher` | `Security\CredentialCipher`, constructed with the existing key path. |
 | `$profiles` | `Config\ProfileRepository`, responsible for profile data and persistence. |
 | `$config` | Existing nested array, returned by `AMPBoard\Config\Loader`. |
+| `$mysqlInspector` | `Database\Inspector`, collects read-only diagnostics through a supplied connection callback and client-version snapshot. |
 | `$database` | `AMPBoard\Database\ConnectionFactory`, constructed from `$config['db']`. |
 | `$apacheCommands` | `Apache\CommandRunner`, implemented by `ShellCommandRunner` in normal requests. |
 | `$apacheControl` | `Apache\Controller`, constructed with the configured Apache path and OS. |
@@ -143,6 +144,18 @@ For custom integrations, construct `Config\Loader($directory, $identity, $profil
 
 `tests/identity-filesystem.php` runs inside the isolated suite. It checks identity precedence and snapshot isolation, server labels, stable profile names, independent roots and profile loaders, natural sorting, missing targets, traversal rejection, and the compatibility wrappers. The submit fixture changes the username after creating the identity and verifies that saving still targets the original profile. All filesystem fixtures use temporary directories.
 
+## MySQL inspection services (step 9)
+
+`Database\Inspector` receives a callback that returns a fresh connection for each `inspect($fastMode)` call, plus the client-library version captured at composition. Construction performs no connection or query. Each inspection closes its returned connection in `finally` and frees every obtained result, including failed reads. It does not change MySQLi reporting flags: query failures returned as `false`, warnings, or exceptions become unavailable sections. Other sections continue, and an unavailable size is not reported as zero. Database identifiers from `SHOW DATABASES` have embedded backticks doubled before use in table-status queries.
+
+The raw snapshot retains the existing diagnostic scope: server/client/host/user information, non-system databases, approximate table data/index sizes, version variables, uptime, and the process list. Fast mode skips only per-database table-status queries. These are read-only queries and a point-in-time diagnostic view, not a consistent transaction snapshot. Full mode may still be expensive on large installations; output is collected in memory.
+
+`Ui\MysqlReport` formats supplied data without querying MySQL or reading globals. It keeps the existing labels, ordering, size/uptime formatting, and demo masking of host/user/database names, while escaping HTML and substituting invalid UTF-8. Demo masking retains its historical scope: it is not complete redaction of diagnostic values or process SQL. Connection errors retain the existing visible error message, now with a closed `<pre>` element; individual query failures receive concise section-specific messages.
+
+`utils/mysql_inspector.php` remains the same URL. It resolves the saved fast-mode flag, the `?fast=1`/`?fast=0` override, and the demo-mode override before invoking the service. Integrations can call `$mysqlInspector->inspect($fastMode)` after loading config and pass the snapshot to `Ui\MysqlReport::render($snapshot, $demo, $elapsed)`. Configuration's existing credential validation remains separate.
+
+`tests/mysql-inspection.php` uses supplied connection/results to check full/fast modes, false/warning/exception/read failures, result and connection cleanup, quoted database names, null fields, escaping, and actual endpoint policy. CI additionally runs `tests/mysql-inspection-mysqli.php` against its disposable MySQL service: it creates and removes a randomly named database containing a backtick and verifies full/fast inspection, unchanged report modes, and connection closure. Do not run this integration test against a production service.
+
 ## Validation
 
 Run `php -n tests/run.php`. Each scenario gets a fresh process because legacy profiles define constants. The suite uses a deterministic MySQLi double, temporary profiles, and read-only request fixtures. It checks profile fallback and overrides, false/default values, config isolation, theme and tooltip rendering, accessibility markup, asset paths, embedded versus standalone panels, connection credentials, report-mode restoration, and rendered entry points. It does not write real profiles, restart Apache, generate certificates, or export real data.
@@ -161,7 +174,7 @@ Run `php -d phar.readonly=0 tests/exports.php` with ZIP and Phar enabled for fix
 
 ## Next increments
 
-1. Tackle detailed diagnostic endpoints and certificate generation, then review remaining template, request, and serialization helpers. Remove compatibility constants only after all consumers have moved.
+1. Extract certificate generation, then review remaining diagnostic presentation, template, request, and serialization helpers. Remove compatibility constants only after all consumers have moved.
 2. Consider PHP version discovery/switching separately if desired; it is not an existing workflow awaiting extraction.
 
 Avoid a service locator or static global config accessor: it would preserve the hidden dependencies under a new name. Each increment should retain the existing URLs and saved profiles until a separately documented migration is ready.

@@ -4,6 +4,11 @@ Published entries below are imported from the project's GitHub releases. Their w
 
 ## Unreleased
 
+- Extracts read-only MySQL diagnostics into `Database\Inspector`, with an explicit connection callback and client-version snapshot.
+- Separates report formatting into `Ui\MysqlReport`, preserving the inspector URL, fast/demo modes, labels, and diagnostic scope.
+- Handles failed queries as unavailable sections, quotes unusual database names correctly, and frees results/closes connections after inspection.
+- Adds fixture and disposable-MySQL checks for query failures, full/fast modes, escaping, report flags, and cleanup; updates architecture guidance.
+
 ## [v3.12](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.12) — 2026-09-27
 
 A familiar face... and everything in its proper place 🗂️

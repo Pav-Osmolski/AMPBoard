@@ -7,6 +7,7 @@
  * @var \AMPBoard\System\Identity $identity
  * @var \AMPBoard\Filesystem\DirectoryCatalog $directories
  * @var \AMPBoard\Database\ConnectionFactory $database
+ * @var \AMPBoard\Database\Inspector $mysqlInspector
  * @var \AMPBoard\Ui\Renderer $ui
  * @var \AMPBoard\Apache\CommandRunner $apacheCommands
  * @var \AMPBoard\Apache\Controller $apacheControl
@@ -66,3 +67,8 @@ $systemStatistics = new \AMPBoard\System\Statistics( PHP_OS_FAMILY, '/', $apache
 $logReader = new \AMPBoard\Logs\TailReader();
 $apacheLog = new \AMPBoard\Logs\Viewer( \AMPBoard\Logs\Paths::apache( $config['paths']['apache'], PHP_OS_FAMILY, $_SERVER['HOME'] ?? '' ), $logReader, 'Apache', 5 );
 $phpLog = new \AMPBoard\Logs\Viewer( [ $config['php']['runtime']['errorLog'] ], $logReader, 'PHP', 25, true );
+
+$mysqlInspector = new \AMPBoard\Database\Inspector(
+	static function () use ( $database ) { return $database->connect(); },
+	function_exists( 'mysqli_get_client_info' ) ? mysqli_get_client_info() : 'Unavailable'
+);
