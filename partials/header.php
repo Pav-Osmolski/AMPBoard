@@ -16,7 +16,7 @@ require_once __DIR__ . '/../config/config.php';
 <header role="banner">
 	<?= $ui->renderCollapseToggle( 'header' ); ?>
 	<h1>
-		<span><?php echo getServerLabel(); ?> is ready, <?php echo htmlspecialchars( $config['user']['name'], ENT_QUOTES, 'UTF-8' ) ?>! <img
+		<span><?php echo $config['system']['serverLabel']; ?> is ready, <?php echo htmlspecialchars( $config['user']['name'], ENT_QUOTES, 'UTF-8' ) ?>! <img
 					src="./assets/favicon/AMPBoard.png" alt="" aria-hidden="true"></span></h1>
 	<?= $config['ui']['flags']['search'] ? '
 		<label for="project-search" class="sr-only">Search projects</label>

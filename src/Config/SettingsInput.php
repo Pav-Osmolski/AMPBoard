@@ -57,12 +57,10 @@ final class SettingsInput {
 			if ( ! is_scalar($value) && $value !== null ) { throw new \InvalidArgumentException('Settings fields must be scalar.'); }
 		}
 		$in = filter_var_array( $input, $defs, false );
-		// Normalise paths (using helper if available)
-		if ( function_exists( 'normalise_path' ) ) {
-			foreach ( [ 'APACHE_PATH', 'HTDOCS_PATH', 'PHP_PATH', 'php_ini_path' ] as $k ) {
-				if ( isset( $in[ $k ] ) && is_string( $in[ $k ] ) ) {
-					$in[ $k ] = normalise_path( $in[ $k ] );
-				}
+		// Normalise paths independently of procedural helper loading.
+		foreach ( [ 'APACHE_PATH', 'HTDOCS_PATH', 'PHP_PATH', 'php_ini_path' ] as $k ) {
+			if ( isset( $in[ $k ] ) && is_string( $in[ $k ] ) ) {
+				$in[ $k ] = \AMPBoard\Filesystem\Path::normalise( $in[ $k ] );
 			}
 		}
 

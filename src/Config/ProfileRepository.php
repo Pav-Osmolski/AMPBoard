@@ -23,7 +23,7 @@ final class ProfileRepository {
 		$reader = new ProfileReader();
 		$local = $reader->read( $this->directory . '/local.php' );
 		$default = $this->directory . '/profiles/default';
-		$target = $this->directory . '/profiles/' . sanitizeFolderName( $user );
+		$target = $this->directory . '/profiles/' . \AMPBoard\Filesystem\FolderName::sanitise( $user );
 		$active = is_dir( $target ) ? $target : $default;
 		$lock = $active === $target && is_writable( $active )
 			? @fopen( $active . '/.profile.lock', 'c+b' )
@@ -59,6 +59,6 @@ final class ProfileRepository {
 		// Commit PHP last: migration only becomes visible after sidecars are ready.
 		$files['user_config.php'] = "<?php\n/** Auto-generated AMPBoard profile, format 1. */\nreturn "
 			. var_export( [ 'version' => 1, 'settings' => $settings, 'php' => $data['php'] ], true ) . ";\n";
-		$this->writer->write( $this->directory . '/profiles/' . sanitizeFolderName( $user ), $files );
+		$this->writer->write( $this->directory . '/profiles/' . \AMPBoard\Filesystem\FolderName::sanitise( $user ), $files );
 	}
 }

@@ -4,6 +4,12 @@ Published entries below are imported from the project's GitHub releases. Their w
 
 ## Unreleased
 
+- Captures request identity once and supplies it explicitly to profile loading, saving, and header display.
+- Moves path normalisation and stable profile-folder naming into namespaced filesystem classes.
+- Gives dashboard directory discovery an explicit document root, preserving ordering, relative paths, and symlink visibility.
+- Retains procedural compatibility wrappers and existing username/profile naming rules to avoid moving saved profiles.
+- Adds identity, independent-root, profile-selection, and save-snapshot regression checks; updates architecture and integration guidance.
+
 ## [v3.11](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.11) — 2026-09-27
 
 Logs get their own little lodge... with room for the last few lines 🪵

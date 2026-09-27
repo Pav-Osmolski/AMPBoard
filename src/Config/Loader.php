@@ -10,15 +10,17 @@ use AMPBoard\Security\CredentialCipher;
 final class Loader {
 	private string $directory;
 	private ProfileRepository $profiles;
+	private \AMPBoard\System\Identity $identity;
 
-	public function __construct( string $directory, ?ProfileRepository $profiles = null ) {
+	public function __construct( string $directory, \AMPBoard\System\Identity $identity, ?ProfileRepository $profiles = null ) {
 		$this->directory = $directory;
+		$this->identity = $identity;
 		$this->profiles = $profiles ?? new ProfileRepository( $directory, new CredentialCipher( dirname( $directory ) . '/.key' ), null, LegacyConstants::read() );
 	}
 
 	/** New profiles can load without constants; opt in only at the legacy entry point. */
 	public function load( bool $publishLegacyConstants = false ): array {
-		$rawUser = resolveCurrentUser();
+		$rawUser = $this->identity->user();
 		$profile = $this->profiles->load( $rawUser );
 		$settings = $profile['settings'];
 		if ( $publishLegacyConstants ) { LegacyConstants::publish( $settings ); }
@@ -169,6 +171,8 @@ final class Loader {
 			'apacheErrorLogAvailable' => $apacheErrorLogAvailable,
 			'phpErrorLogAvailable'    => $phpErrorLogAvailable,
 		];
+
+		$config['system'] = [ 'serverLabel' => $this->identity->serverLabel() ];
 
 		$config['user'] = [
 			'name'              => $user,
