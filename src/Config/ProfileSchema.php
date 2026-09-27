@@ -16,8 +16,8 @@ final class ProfileSchema {
 		return array_merge( array_fill_keys( self::FLAGS, true ), [
 			'apacheFastMode' => false, 'mysqlFastMode' => false, 'theme' => 'default',
 			'DB_HOST' => 'localhost', 'DB_USER' => 'user', 'DB_PASSWORD' => 'password',
-			'APACHE_PATH' => normalise_path( 'C:/xampp/apache' ), 'HTDOCS_PATH' => normalise_path( 'C:/htdocs' ),
-			'PHP_PATH' => normalise_path( 'C:/xampp/php' ),
+			'APACHE_PATH' => \AMPBoard\Filesystem\Path::normalise( 'C:/xampp/apache' ), 'HTDOCS_PATH' => \AMPBoard\Filesystem\Path::normalise( 'C:/htdocs' ),
+			'PHP_PATH' => \AMPBoard\Filesystem\Path::normalise( 'C:/xampp/php' ),
 			'DEMO_MODE' => filter_var( getenv( 'AMPBOARD_DEMO_MODE' ) ?: false, FILTER_VALIDATE_BOOLEAN ),
 			'EXPORT_EXCLUDE' => [ '.git', '.idea', 'node_modules', 'vendor', 'dist', 'build', '.vscode', '.DS_Store',
 				'Thumbs.db', '.cache', '.parcel-cache', '.sass-cache', '.next', '.nuxt', '.turbo' ],

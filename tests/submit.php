@@ -15,6 +15,9 @@ session_start();
 $_SESSION['csrf_token'] = 'fixture-token';
 $_SERVER = array_replace( $_SERVER, [ 'REQUEST_METHOD' => 'POST', 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
 	'CONTENT_LENGTH' => '100', 'HTTP_HOST' => 'localhost', 'HTTP_ORIGIN' => 'http://localhost', 'USERNAME' => 'request-user' ] );
+$identity = new \AMPBoard\System\Identity( $_SERVER, static function () { throw new RuntimeException( 'Unexpected discovery' ); } );
+// A later environment change must not redirect a save to another profile.
+$_SERVER['USERNAME'] = 'changed-after-loading';
 $_POST = [ 'csrf' => 'fixture-token', 'theme' => 'dracula', 'folders_json' => '[{"title":"Saved"}]',
 	'php_ini_path' => $root . '/php.ini', 'phpMemoryLimit' => '256M' ];
 file_put_contents( $root . '/php.ini', "memory_limit = 128M\n" );

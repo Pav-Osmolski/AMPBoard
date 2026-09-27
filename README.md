@@ -84,6 +84,8 @@ It is intended to be used with AMP stacks such as:
 
 The modernization is incremental. See [architecture and migration notes](docs/architecture.md) for the new namespaced services, compatibility boundaries, and next steps. Published release history is recorded in [CHANGELOG.md](CHANGELOG.md).
 
+Identity and filesystem fixtures (`tests/identity-filesystem.php`) check stable profile selection, independent document roots, and legacy helper compatibility as part of the isolated suite.
+
 Log fixtures run with the isolated suite (`tests/logs.php`). Run `node tests/log-ui.cjs` for log text rendering and refresh checks; these use fixtures rather than installed server logs.
 
 System-inspection fixtures in `tests/system-inspection.php` cover header status, failed probes, statistics values, and AJAX/embedded/disabled responses without live connections or external commands. They run as part of the isolated suite.

@@ -85,13 +85,13 @@ $hasVhostFilteredColumns = false;
 					$hasVhostFilteredColumns = true;
 				}
 
-				$norm = normalise_subdir( $column['dir'] ?? '' );
+				$norm = $directories->resolve( $column['dir'] ?? '' );
 				$dir  = $norm['dir'];
 				if ( $norm['error'] ) {
 					$globalErrors[] = $norm['error'] . ' (Column: ' . htmlspecialchars( $title ) . ')';
 				}
 
-				$folders = $dir ? list_subdirs( $dir ) : [];
+				$folders = $dir ? $directories->listDirectories( $dir ) : [];
 				?>
 				<div class="column" id="<?php echo 'column_' . ( ++ $columnCounter ); ?>" role="listitem">
 					<?= $ui->renderDragHandle( $title ); ?>

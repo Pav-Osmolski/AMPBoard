@@ -46,7 +46,7 @@ if ( defined( 'DEMO_MODE' ) && DEMO_MODE ) {
 
 try {
 	$data = ( new \AMPBoard\Config\SettingsInput() )->normalise( $_POST );
-	$profiles->save( resolveCurrentUser(), $data );
+	$profiles->save( $identity->user(), $data );
 } catch ( \Throwable $error ) {
 	submit_fail( $error->getMessage() );
 }

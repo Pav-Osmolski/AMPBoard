@@ -1,4 +1,4 @@
-# PHP modernization: steps 1–7
+# PHP modernization: steps 1–8
 
 This follows the central config migration beginning at `a54ac0d` and retains the behavior on `bb62f14`. The published releases, now copied into `CHANGELOG.md`, remain the source for historical changes. The frontend bundles and HTTP URLs are unchanged.
 
@@ -8,6 +8,8 @@ Pages continue to `require_once config/config.php`. That file loads the small `A
 
 | Variable | Responsibility |
 | --- | --- |
+| `$identity` | `System\Identity`, captures the request user and server label from supplied server data and a discovery callback. |
+| `$directories` | `Filesystem\DirectoryCatalog`, lists dashboard folders under the supplied document root. |
 | `$cipher` | `Security\CredentialCipher`, constructed with the existing key path. |
 | `$profiles` | `Config\ProfileRepository`, responsible for profile data and persistence. |
 | `$config` | Existing nested array, returned by `AMPBoard\Config\Loader`. |
@@ -73,7 +75,7 @@ PHP 8.0 is the minimum dictated by existing `mixed` and union type declarations.
 
 `Apache\VhostCatalog` owns parsing and a per-instance snapshot used by both the folder filter and virtual-host manager. It receives hosts-file paths explicitly, so separate installations cannot reuse each other's cache. Duplicate names still use the last block and retain their duplicate marker. Certificate availability still follows the existing managed `crt/{servername}/server.crt` and `server.key` convention; this is an existence check, not certificate-chain validation. Include directives remain display-only and are not recursively expanded.
 
-`Apache\Controller` selects the existing Windows, Linux, or macOS restart strategy. `restartCommand()` may run diagnostic commands to choose that strategy but never executes the restart itself; `restart()` executes it. The HTTP endpoint retains its action/demo guards, status codes, and JSON response fields. Config construction does not run Apache commands. Certificate generation and log workflows remain separate procedural endpoints for a later increment.
+`Apache\Controller` selects the existing Windows, Linux, or macOS restart strategy. `restartCommand()` may run diagnostic commands to choose that strategy but never executes the restart itself; `restart()` executes it. The HTTP endpoint retains its action/demo guards, status codes, and JSON response fields. Config construction does not run Apache commands. Certificate generation remains a separate procedural endpoint; log reading is covered by step 7 below.
 
 `Apache\CommandRunner` is the injection boundary for diagnostics and control. `ShellCommandRunner` captures combined output and exit status using `exec()`, or `proc_open()` with a temporary stream when `exec()` is disabled. If neither is available, execution reports failure rather than claiming success. It accepts trusted commands built by application code, **not raw request input**. Binary paths are quoted; Windows control paths containing shell-expansion characters are rejected. Platform restart permissions and tools are still installation-specific, and command success means the command exited successfully, not that a subsequent health check passed.
 
@@ -127,6 +129,20 @@ Reads are capped at 1 MiB per excerpt. If that limit prevents a complete selecti
 
 The endpoints retain their enable guards, missing-log messages, markup IDs, and cache headers. AJAX mode now follows `useAjaxForErrorLog` independently of system statistics, and both endpoints serve raw plain text. Embedded dashboard panels now read their initial content when log AJAX is disabled. Log text is escaped in embedded HTML, including invalid UTF-8 substitution, and the frontend uses `textContent` for fetched entries instead of interpreting them as HTML. Toggle behavior, the empty-log message, and three-second refresh are retained. The former endpoint-local `tail_log()` function is removed; integrations should use `TailReader::read()` or the composed viewers.
 
+## Identity and filesystem services (step 8)
+
+`System\Identity` receives a server-data snapshot and a `whoami` callback. Composition creates it once before loading profiles; `Config\Loader` receives that identity explicitly, and the submit handler saves with the same captured user. The header consumes the captured label under `$config['system']['serverLabel']`. Changing server variables later in the request cannot redirect profile saving. Demo mode still changes only the displayed username.
+
+Username precedence remains `USERNAME`, then `USER`, then trimmed command output. An explicitly empty variable still becomes `Guest` without trying another source. Domain prefixes and email-style suffixes retain their existing handling. The previously written `get_current_user()` fallback was unreachable; it is deliberately not activated, because doing so could select a different profile. Server labels retain the existing loopback/private-address heuristic; they are display metadata, not an authorization check.
+
+`Filesystem\Path::normalise()` retains existing separator and trailing-slash rules, including historical empty/root results. `Filesystem\FolderName::sanitise()` retains transliteration, punctuation trimming, and the exact reserved-name policy used by existing profiles. This includes the historical treatment of names such as `CON.txt`; the refactor does not rename profile directories or introduce a new naming scheme. Configuration defaults, settings normalization, and repository reads/writes now use these classes directly.
+
+`Filesystem\DirectoryCatalog` receives the dashboard document root instead of reading `HTDOCS_PATH`. It preserves relative path handling, the existing rejection of any `..` substring, natural case-insensitive folder ordering, and symlink visibility. Missing/non-directory targets and directories that cannot be opened return an empty list. It does not canonicalize symlink targets and is not an export containment boundary; exports retain their separate selection policy.
+
+For custom integrations, construct `Config\Loader($directory, $identity, $profiles)` with a `System\Identity` as the second argument; the repository remains optional. Existing entry points through `config/config.php` work as before. Procedural identity, path, and filesystem helpers remain compatibility wrappers for trusted executable profiles and integrations. The unused legacy OS-flags helper also remains available. Application consumers use explicit services; compatibility constants cannot yet be removed.
+
+`tests/identity-filesystem.php` runs inside the isolated suite. It checks identity precedence and snapshot isolation, server labels, stable profile names, independent roots and profile loaders, natural sorting, missing targets, traversal rejection, and the compatibility wrappers. The submit fixture changes the username after creating the identity and verifies that saving still targets the original profile. All filesystem fixtures use temporary directories.
+
 ## Validation
 
 Run `php -n tests/run.php`. Each scenario gets a fresh process because legacy profiles define constants. The suite uses a deterministic MySQLi double, temporary profiles, and read-only request fixtures. It checks profile fallback and overrides, false/default values, config isolation, theme and tooltip rendering, accessibility markup, asset paths, embedded versus standalone panels, connection credentials, report-mode restoration, and rendered entry points. It does not write real profiles, restart Apache, generate certificates, or export real data.
@@ -145,7 +161,7 @@ Run `php -d phar.readonly=0 tests/exports.php` with ZIP and Phar enabled for fix
 
 ## Next increments
 
-1. Migrate remaining system/identity and filesystem helpers, then tackle detailed diagnostic endpoints. Remove compatibility constants only after all consumers have moved.
+1. Tackle detailed diagnostic endpoints and certificate generation, then review remaining template, request, and serialization helpers. Remove compatibility constants only after all consumers have moved.
 2. Consider PHP version discovery/switching separately if desired; it is not an existing workflow awaiting extraction.
 
 Avoid a service locator or static global config accessor: it would preserve the hidden dependencies under a new name. Each increment should retain the existing URLs and saved profiles until a separately documented migration is ready.

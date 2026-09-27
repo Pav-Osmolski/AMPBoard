@@ -4,6 +4,30 @@ Published entries below are imported from the project's GitHub releases. Their w
 
 ## Unreleased
 
+## [v3.12](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.12) — 2026-09-27
+
+A familiar face... and everything in its proper place 🗂️
+
+Step 8 of the modernisation gives request identity and filesystem helpers their own namespaced homes. Profile loading, saving, and the dashboard now share explicit inputs, while existing profile locations and folder behaviour stay familiar.
+
+**PHP 8.0+ remains the supported minimum.** Existing profiles, settings, and utility URLs remain compatible.
+
+- Captures the request user and server label once in `System\Identity`, with supplied server data and a discovery callback.
+- Uses the same captured identity for profile loading and saving, preventing later environment changes from redirecting a save to another profile.
+- Makes the header consume the captured server label while retaining the existing demo display name.
+- Moves path normalisation into `Filesystem\Path` and stable profile-directory naming into `Filesystem\FolderName`.
+- Preserves username precedence, empty-value and Guest fallbacks, transliteration, and existing reserved-name rules so saved profiles keep their locations.
+- Gives `Filesystem\DirectoryCatalog` an explicit document root instead of reading `HTDOCS_PATH`.
+- Retains relative paths, traversal rejection, natural folder ordering, and symlink visibility; missing or unopenable directories return an empty list.
+- Keeps procedural identity, path, and filesystem helpers as compatibility wrappers for executable legacy profiles and custom integrations.
+- Adds fixture checks for identity isolation, independent roots and profiles, folder naming and ordering, and saving with the original captured user.
+- Passes Windows/Linux checks on PHP 8.0, 8.2, 8.3, and 8.4, with manual testing completed before release.
+- Updates the architecture notes and migration guidance. The dashboard knows who it is and where its folders belong 🤓
+
+**For custom PHP integrations:** construct `Config\Loader($directory, $identity, $profiles)` with a `System\Identity` as the second argument; the repository remains optional as the third argument. Existing entry points through `config/config.php` and the procedural compatibility helpers remain available.
+
+**Full Changelog**: https://github.com/Pav-Osmolski/AMPBoard/compare/v3.11...v3.12
+
 ## [v3.11](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.11) — 2026-09-27
 
 Logs get their own little lodge... with room for the last few lines 🪵

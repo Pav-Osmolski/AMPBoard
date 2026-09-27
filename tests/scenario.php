@@ -105,7 +105,7 @@ if ( $scenario === 'config-user' ) {
 if ( $scenario === 'config-local' ) {
 	file_put_contents( $temp . '/config/local.php', '<?php define("DB_HOST", "local-host"); define("DEMO_MODE", true);' );
 }
-$loaded = ( new Loader( $temp . '/config' ) )->load();
+$loaded = ( new Loader( $temp . '/config', new \AMPBoard\System\Identity( $_SERVER, static function () { return ''; } ) ) )->load();
 expect( count( mysqli::$connections ) === 1, 'One credential probe during initialization' );
 expect( $loaded['ui']['tooltips']['map'] === [ 'example' => 'Fixture tooltip' ], 'Tooltips populated before use' );
 expect( $loaded['ui']['flags']['footer'] === true, 'Missing values receive defaults' );
