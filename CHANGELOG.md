@@ -4,13 +4,31 @@ Published entries below are imported from the project's GitHub releases. Their w
 
 ## Unreleased
 
-- Moves header Apache/database probes out of the renderer into `System\ServerInspector` and `Apache\VersionProbe`, with supplied runtime metadata and command/connection dependencies.
-- Makes server-info rendering consume a status snapshot and removes its database dependency.
-- Extracts CPU, PHP peak-memory, and disk-free statistics into services with explicit platform, disk target, commands, and measurement callbacks.
-- Preserves statistics JSON fields, HTML IDs, feature guards, cache headers, and refresh behaviour; failed or nonfinite readings return `N/A`.
-- Quotes Apache binary paths, handles multiple Windows discovery results, and closes header database connections after failed status checks.
-- Moves MySQL-family version-label normalization into `Database\ServerVersion` and escapes labels at rendering time.
-- Adds fixture-based probe, rendering, statistics, and endpoint checks; updates architecture and migration notes.
+## [v3.10](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.10) — 2026-09-27
+
+Taking the pulse... without making the renderer do the rounds 🩺
+
+Step 6 of the modernisation separates server inspection from dashboard rendering. Apache, PHP, MySQL, and system statistics keep their familiar place on the dashboard, with clearer responsibilities behind the scenes.
+
+**PHP 8.0+ remains the supported minimum.** Existing profiles, settings, utility URLs, and frontend refresh behaviour remain compatible.
+
+- Moves header status collection into `System\ServerInspector`, with supplied Apache probes, database connections, and PHP runtime metadata.
+- Makes `Ui\Renderer` consume a status snapshot instead of discovering binaries, running commands, or opening database connections.
+- Gives header Apache discovery its own `Apache\VersionProbe`, quoting binary paths and handling multiple Windows discovery results.
+- Ignores unsuccessful command output and rejects Windows binary paths containing shell-expansion characters.
+- Closes returned header database connections on both success and connection-error results.
+- Moves MySQL-family version labels into `Database\ServerVersion`, escaping version and error strings when rendering HTML.
+- Extracts system statistics into `System\Statistics` and `System\NativeMetrics`, with explicit platform, disk target, command, and measurement dependencies.
+- Preserves the statistics JSON fields, HTML IDs, feature guards, cache headers, and AJAX/embedded display modes.
+- Returns `N/A` for unavailable, invalid, or nonfinite readings instead of division errors or invalid JSON.
+- Keeps the existing measurement meanings: PHP process peak memory, disk free-space percentage, and the raw Unix load fallback when core discovery fails.
+- Adds fixture checks for platform discovery, failed probes, connection cleanup, rendering without probes, escaped labels, and statistics endpoint modes.
+- Passes Windows/Linux checks on PHP 8.0, 8.2, 8.3, and 8.4, with manual testing completed before release.
+- Updates the architecture notes and migration guidance. The renderer can concentrate on looking presentable now 🤓
+
+**For custom PHP integrations:** construct `Ui\Renderer` with the configuration array, supply a status snapshot to `renderServerInfo()`, and use `Database\ServerVersion::normalise()` in place of the removed `normaliseDbServerInfo()` helper. Existing credential validation during configuration loading remains unchanged.
+
+**Full Changelog**: https://github.com/Pav-Osmolski/AMPBoard/compare/v3.9...v3.10
 
 ## [v3.9](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.9) — 2026-09-26
 
