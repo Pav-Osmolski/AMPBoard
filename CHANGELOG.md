@@ -4,10 +4,30 @@ Published entries below are imported from the project's GitHub releases. Their w
 
 ## Unreleased
 
-- Extracts read-only MySQL diagnostics into `Database\Inspector`, with an explicit connection callback and client-version snapshot.
-- Separates report formatting into `Ui\MysqlReport`, preserving the inspector URL, fast/demo modes, labels, and diagnostic scope.
-- Handles failed queries as unavailable sections, quotes unusual database names correctly, and frees results/closes connections after inspection.
-- Adds fixture and disposable-MySQL checks for query failures, full/fast modes, escaping, report flags, and cleanup; updates architecture guidance.
+## [v3.13](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.13) — 2026-09-27
+
+A closer look at MySQL... with the inspector's affairs in order 🔍
+
+Step 9 of the modernisation separates MySQL diagnostics from report formatting. The familiar inspector keeps its full and fast modes, with clearer responsibilities and more graceful handling of unavailable information.
+
+**PHP 8.0+ remains the supported minimum.** Existing profiles, settings, and utility URLs remain compatible.
+
+- Moves read-only diagnostics into `Database\Inspector`, with an explicit connection callback and client-library version snapshot.
+- Gives `Ui\MysqlReport` responsibility for formatting supplied data without opening connections or running queries.
+- Preserves the saved fast-mode setting, query override, demo override, report labels, section order, and existing diagnostic scope.
+- Keeps fast mode focused on skipping per-database size queries; full mode retains approximate table data/index sizes.
+- Handles failed queries as unavailable sections while continuing the remaining diagnostics, rather than interrupting the report or reporting an unavailable size as zero.
+- Quotes database names containing backticks correctly before requesting table status.
+- Frees query results and closes each returned inspection connection, while preserving the caller's MySQLi reporting flags.
+- Escapes report content, substitutes invalid UTF-8, and closes the report markup on connection failure.
+- Retains the existing demo masking of host, user, and database names; diagnostic values and process SQL retain their existing display behaviour.
+- Adds fixture checks for full/fast modes, query and read failures, escaping, endpoint policy, and cleanup, plus disposable-MySQL checks for unusual names and reporting modes.
+- Passes Windows/Linux checks on PHP 8.0, 8.2, 8.3, and 8.4, with manual testing completed before release.
+- Updates the architecture notes and migration guidance. The inspector can finish its report even when a few answers are missing 🤓
+
+**For custom PHP integrations:** use `$mysqlInspector->inspect($fastMode)` after loading config, then pass the snapshot to `Ui\MysqlReport::render($snapshot, $demo, $elapsed)`. Full inspection still collects results in memory and may be expensive on large installations.
+
+**Full Changelog**: https://github.com/Pav-Osmolski/AMPBoard/compare/v3.12...v3.13
 
 ## [v3.12](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.12) — 2026-09-27
 
