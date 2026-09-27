@@ -4,6 +4,29 @@ Published entries below are imported from the project's GitHub releases. Their w
 
 ## Unreleased
 
+## [v3.11](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.11) — 2026-09-27
+
+Logs get their own little lodge... with room for the last few lines 🪵
+
+Step 7 of the modernisation gives Apache and PHP log discovery, reading, and display their own focused services. The familiar log panels stay in place, with clearer responsibilities behind the scenes.
+
+**PHP 8.0+ remains the supported minimum.** Existing profiles, settings, and utility URLs remain compatible.
+
+- Moves platform-specific Apache log discovery into `Logs\Paths`, with explicit configuration, platform, and home-directory inputs.
+- Shares backward block reading through `Logs\TailReader`, preserving the usual Apache and PHP excerpt formatting.
+- Caps each read at 1 MiB and shows a visible notice when the requested excerpt cannot fit within that limit.
+- Gives `Logs\Viewer` responsibility for selecting log files and handling missing, unreadable, and empty logs without filesystem warnings.
+- Uses the log-specific AJAX setting and shows initial log content when AJAX is disabled.
+- Labels Apache AJAX responses as plain text and displays fetched entries as literal text, keeping log content out of HTML interpretation.
+- Preserves panel IDs, empty-log messages, cache headers, and the three-second refresh interval.
+- Adds checks for large logs, line endings, read failures, endpoint modes, escaped output, and browser refresh behaviour.
+- Rebuilds the JavaScript bundle and passes Windows/Linux checks on PHP 8.0, 8.2, 8.3, and 8.4, with manual testing completed before release.
+- Updates the architecture notes and migration guidance. Another little corner of the dashboard neatly logged away 🤓
+
+**For custom PHP integrations:** use `Logs\TailReader` or `Logs\Viewer` in place of the removed endpoint-local `tail_log()` helper. Oversized excerpts now carry a visible truncation notice rather than reading without a bound.
+
+**Full Changelog**: https://github.com/Pav-Osmolski/AMPBoard/compare/v3.10...v3.11
+
 ## [v3.10](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.10) — 2026-09-27
 
 Taking the pulse... without making the renderer do the rounds 🩺

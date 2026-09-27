@@ -13,6 +13,8 @@
  * @var \AMPBoard\Php\IniFile $phpIni
  * @var \AMPBoard\System\ServerInspector $serverInspector
  * @var \AMPBoard\System\Statistics $systemStatistics
+ * @var \AMPBoard\Logs\Viewer $apacheLog
+ * @var \AMPBoard\Logs\Viewer $phpLog
  */
 
 require_once __DIR__ . '/autoload.php';
@@ -56,3 +58,7 @@ $serverInspector = new \AMPBoard\System\ServerInspector(
 	$config['php']['runtime']
 );
 $systemStatistics = new \AMPBoard\System\Statistics( PHP_OS_FAMILY, '/', $apacheCommands, [ new \AMPBoard\System\NativeMetrics(), 'read' ] );
+
+$logReader = new \AMPBoard\Logs\TailReader();
+$apacheLog = new \AMPBoard\Logs\Viewer( \AMPBoard\Logs\Paths::apache( $config['paths']['apache'], PHP_OS_FAMILY, $_SERVER['HOME'] ?? '' ), $logReader, 'Apache', 5 );
+$phpLog = new \AMPBoard\Logs\Viewer( [ $config['php']['runtime']['errorLog'] ], $logReader, 'PHP', 25, true );

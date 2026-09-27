@@ -30,6 +30,8 @@ jobs:
         run: php tests/profiles.php
       - name: Export integration
         run: php -d phar.readonly=0 tests/exports.php
+      - name: Log UI text and refresh checks
+        run: node tests/log-ui.cjs
 
   mysql:
     runs-on: ubuntu-latest

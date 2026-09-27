@@ -2,6 +2,8 @@
 node_modules
 package-lock.json
 logs
+!src/Logs/
+!src/Logs/**
 .key
 dist/exports
 config/local.php

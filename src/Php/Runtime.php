@@ -24,6 +24,6 @@ final class Runtime {
 
 	public function inspect(): array {
 		return [ 'version' => phpversion(), 'threadSafe' => (bool) ZEND_THREAD_SAFE, 'sapi' => PHP_SAPI,
-			'loadedIni' => php_ini_loaded_file() ?: '', 'scannedIni' => php_ini_scanned_files() ?: '' ];
+			'errorLog' => (string) ini_get( 'error_log' ), 'loadedIni' => php_ini_loaded_file() ?: '', 'scannedIni' => php_ini_scanned_files() ?: '' ];
 	}
 }

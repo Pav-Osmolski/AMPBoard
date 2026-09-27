@@ -3,6 +3,8 @@ if ( PHP_SAPI !== 'cli' ) { http_response_code( 404 ); exit; }
 $failed = false;
 passthru( escapeshellarg( PHP_BINARY ) . ' -n ' . escapeshellarg( __DIR__ . '/apache.php' ), $code );
 $failed = $code !== 0;
+passthru( escapeshellarg( PHP_BINARY ) . ' -n ' . escapeshellarg( __DIR__ . '/logs.php' ), $code );
+$failed = $failed || $code !== 0;
 passthru( escapeshellarg( PHP_BINARY ) . ' -n ' . escapeshellarg( __DIR__ . '/system-inspection.php' ), $code );
 $failed = $failed || $code !== 0;
 passthru( escapeshellarg( PHP_BINARY ) . ' -n ' . escapeshellarg( __DIR__ . '/php-management.php' ), $code );
