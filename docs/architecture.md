@@ -1,4 +1,4 @@
-# PHP modernization: steps 1–5
+# PHP modernization: steps 1–6
 
 This follows the central config migration beginning at `a54ac0d` and retains the behavior on `bb62f14`. The published releases, now copied into `CHANGELOG.md`, remain the source for historical changes. The frontend bundles and HTTP URLs are unchanged.
 
@@ -18,7 +18,9 @@ Pages continue to `require_once config/config.php`. That file loads the small `A
 | `$exports` | `Export\Workflow`, composed with folder, database, archive, command, and storage dependencies. |
 | `$phpInfo` | `Php\InfoPage`, captures PHP-info output using the selected full/demo flags. |
 | `$phpIni` | `Php\IniFile`, constructed with the loaded INI path captured during configuration. |
-| `$ui` | `AMPBoard\Ui\Renderer`, constructed from the config and database factory. |
+| `$ui` | `AMPBoard\Ui\Renderer`, constructed from the config snapshot. |
+| `$serverInspector` | `System\ServerInspector`, collects header status through supplied Apache and database probes and PHP runtime metadata. |
+| `$systemStatistics` | `System\Statistics`, receives platform, disk target, command runner, and measurement callback. |
 
 The renderer owns a config snapshot. Methods no longer read `global $config`, and separate renderers can use separate settings. Theme metadata and body classes live in `Ui\ThemeCatalog`, which takes an asset directory. Database connections use supplied credentials rather than `$dbUser`, `$dbPass`, or `DB_HOST`. Credential validation runs once when config loads. Both connection modes restore the caller's actual MySQLi report flags, including on failure.
 
@@ -60,7 +62,7 @@ All existing config-array sections remain. `ui.themes.colorScheme` is additive. 
 
 Legacy constants (`APACHE_PATH`, `HTDOCS_PATH`, `PHP_PATH`, `DB_*`, `DEMO_MODE`, `EXPORT_EXCLUDE`, `CRYPTO_KEY_FILE`) remain for unconverted code. The compatibility entry point is therefore **not** a multi-profile container or a re-entrant configuration API. Remaining helpers still load through `config/helpers.php`.
 
-The old UI free functions and the two database connection/status free functions are internal APIs and have been replaced at every repository call site. Custom PHP integrations that called them must use `$ui->renderHeading(...)`, `$database->connect(...)`, and `$database->credentialStatus(...)` after loading config. The pure `normaliseDbServerInfo()` helper remains procedural.
+The old UI free functions and the two database connection/status free functions are internal APIs and have been replaced at every repository call site. Custom PHP integrations that called them must use `$ui->renderHeading(...)`, `$database->connect(...)`, and `$database->credentialStatus(...)` after loading config. The former `normaliseDbServerInfo()` helper is now `Database\ServerVersion::normalise()`.
 
 PHP 8.0 is the minimum dictated by existing `mixed` and union type declarations. This refactor does not introduce a higher syntax requirement. A supported PHP release is preferable for an actual installation. Composer installation is not required.
 
@@ -102,6 +104,18 @@ The submit handler retains the explicit `php_ini_path` override and otherwise us
 
 AMPBoard currently has no installed-version catalog or PHP-switching workflow. This increment extracts existing settings and diagnostics; adding version switching would be a separate feature with platform-specific requirements.
 
+## System inspection services (step 6)
+
+The header explicitly calls `$serverInspector->inspect()` and supplies its snapshot to `$ui->renderServerInfo($snapshot)`. Renderer construction now takes only the configuration array. Header rendering no longer discovers binaries, reads runtime globals, executes commands, or opens database connections. It retains the same labels, links, status classes, and symbols, escaping version/error labels at the HTML boundary.
+
+`Apache\VersionProbe` owns the existing header-specific binary discovery and version parsing. It receives the Apache path, platform, server-software string, and existing `Apache\CommandRunner`. It quotes binary paths, ignores unsuccessful command output, reads multiple Windows discovery results, and treats directories as invalid binaries. Windows paths with shell-expansion characters are rejected. It only requests version information; it does not restart Apache. The fuller Apache inspector remains a separate diagnostic workflow.
+
+`System\ServerInspector` receives a connection callback and a PHP runtime snapshot. It normalizes database version labels through `Database\ServerVersion` and closes returned connections in a `finally` block, including connection-error results. Probe exceptions become unavailable display results. Construction is lazy and rendering a supplied snapshot performs no probes. Existing credential validation during config loading remains unchanged.
+
+`System\Statistics` receives the OS family, disk path, command runner, and measurement callback; `System\NativeMetrics` supplies native measurements in normal requests. Composition retains `/` as the disk target. Windows uses the existing typeperf command; Unix uses the existing load-average/core-count calculation and raw-load fallback when core discovery fails. Memory is PHP process peak allocation in MiB, not host RAM usage; disk is free capacity as a percentage. These historical meanings and frontend labels are retained, including percentage suffixes on the raw Unix fallback and `N/A` values. Missing, zero-capacity, negative, or nonfinite readings produce `N/A` instead of invalid JSON or division errors.
+
+The statistics endpoint retains the enable guard, JSON fields, cache headers, HTML IDs, and AJAX/embedded switch. A disabled endpoint exits before sampling. Frontend polling and bundles are unchanged. These services reuse the existing command runner rather than adding another shell implementation. Custom integrations must supply a server snapshot to `renderServerInfo()` and use `Database\ServerVersion::normalise()` instead of the removed MySQL helper.
+
 ## Validation
 
 Run `php -n tests/run.php`. Each scenario gets a fresh process because legacy profiles define constants. The suite uses a deterministic MySQLi double, temporary profiles, and read-only request fixtures. It checks profile fallback and overrides, false/default values, config isolation, theme and tooltip rendering, accessibility markup, asset paths, embedded versus standalone panels, connection credentials, report-mode restoration, and rendered entry points. It does not write real profiles, restart Apache, generate certificates, or export real data.
@@ -120,7 +134,7 @@ Run `php -d phar.readonly=0 tests/exports.php` with ZIP and Phar enabled for fix
 
 ## Next increments
 
-1. Separate the remaining page rendering from system probes, then migrate pure helper functions into focused namespaces. Remove compatibility constants only after all consumers have moved.
+1. Migrate remaining system/identity and filesystem helpers, then tackle the procedural log and detailed diagnostic endpoints. Remove compatibility constants only after all consumers have moved.
 2. Consider PHP version discovery/switching separately if desired; it is not an existing workflow awaiting extraction.
 
 Avoid a service locator or static global config accessor: it would preserve the hidden dependencies under a new name. Each increment should retain the existing URLs and saved profiles until a separately documented migration is ready.

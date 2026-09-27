@@ -84,6 +84,8 @@ It is intended to be used with AMP stacks such as:
 
 The modernization is incremental. See [architecture and migration notes](docs/architecture.md) for the new namespaced services, compatibility boundaries, and next steps. Published release history is recorded in [CHANGELOG.md](CHANGELOG.md).
 
+System-inspection fixtures in `tests/system-inspection.php` cover header status, failed probes, statistics values, and AJAX/embedded/disabled responses without live connections or external commands. They run as part of the isolated suite.
+
 The isolated suite includes PHP-manager normalization, runtime inspection, PHP-info output, and temporary INI edits through `tests/php-management.php`. Profile integration also checks optional INI failures without changing installed PHP configuration.
 
 Run `php -d phar.readonly=0 tests/exports.php` with ZIP and Phar enabled for temporary file/database export fixtures, archive fallback, cleanup, and request checks. Installed external archivers are tested against those fixtures; no live project data is exported.
