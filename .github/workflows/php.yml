@@ -62,3 +62,4 @@ jobs:
         run: |
           php tests/mysqli.php
           php tests/export-mysqli.php
+          php tests/mysql-inspection-mysqli.php
