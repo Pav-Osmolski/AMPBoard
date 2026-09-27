@@ -3,9 +3,9 @@
  * Application composition: the compatibility entry point for pages and utilities.
  * Existing profile files and constants remain supported during the migration.
  *
+ * @var array<string, mixed> $config
  * @var \AMPBoard\System\Identity $identity
  * @var \AMPBoard\Filesystem\DirectoryCatalog $directories
- * @var array<string, mixed> $config
  * @var \AMPBoard\Database\ConnectionFactory $database
  * @var \AMPBoard\Ui\Renderer $ui
  * @var \AMPBoard\Apache\CommandRunner $apacheCommands
