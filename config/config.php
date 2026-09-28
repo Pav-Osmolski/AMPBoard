@@ -11,6 +11,7 @@
  * @var \AMPBoard\Ui\Renderer $ui
  * @var \AMPBoard\Apache\CommandRunner $apacheCommands
  * @var \AMPBoard\Apache\Controller $apacheControl
+ * @var \AMPBoard\Certificates\Generator $certificates
  * @var \AMPBoard\Apache\VhostCatalog $vhosts
  * @var \AMPBoard\Php\InfoPage $phpInfo
  * @var \AMPBoard\Php\IniFile $phpIni
@@ -72,3 +73,5 @@ $mysqlInspector = new \AMPBoard\Database\Inspector(
 	static function () use ( $database ) { return $database->connect(); },
 	function_exists( 'mysqli_get_client_info' ) ? mysqli_get_client_info() : 'Unavailable'
 );
+
+$certificates = new \AMPBoard\Certificates\Generator( $config['paths']['apache'], $config['paths']['crt'], PHP_OS_FAMILY, $apacheCommands );

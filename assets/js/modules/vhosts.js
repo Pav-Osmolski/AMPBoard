@@ -21,10 +21,10 @@ function bindButtons() {
 			const name = button.dataset.generateCert;
 			if ( confirm( 'Generate a new SSL certificate for ' + name + '?' ) ) {
 				fetch( `${ window.BASE_URL }utils/generate_cert.php?name=${ encodeURIComponent( name ) }` )
-					.then( res => res.text() )
-					.then( msg => {
+					.then( async res => ( { ok: res.ok, msg: await res.text() } ) )
+					.then( ( { ok, msg } ) => {
 						alert( msg );
-						if ( msg.includes( 'successfully' ) ) {
+						if ( ok && msg.includes( 'successfully' ) ) {
 							const restartBtn = document.getElementById( 'restart-apache' );
 							if ( restartBtn ) restartBtn.click();
 						}

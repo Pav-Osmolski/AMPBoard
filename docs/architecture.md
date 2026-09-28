@@ -1,4 +1,4 @@
-# PHP modernization: steps 1–9
+# PHP modernization: steps 1–10
 
 This follows the central config migration beginning at `a54ac0d` and retains the behavior on `bb62f14`. The published releases, now copied into `CHANGELOG.md`, remain the source for historical changes. The frontend bundles and HTTP URLs are unchanged.
 
@@ -16,6 +16,7 @@ Pages continue to `require_once config/config.php`. That file loads the small `A
 | `$mysqlInspector` | `Database\Inspector`, collects read-only diagnostics through a supplied connection callback and client-version snapshot. |
 | `$database` | `AMPBoard\Database\ConnectionFactory`, constructed from `$config['db']`. |
 | `$apacheCommands` | `Apache\CommandRunner`, implemented by `ShellCommandRunner` in normal requests. |
+| `$certificates` | `Certificates\Generator`, uses explicit Apache/script paths, platform, installer, and command runner. |
 | `$apacheControl` | `Apache\Controller`, constructed with the configured Apache path and OS. |
 | `$vhosts` | `Apache\VhostCatalog`, constructed with the Apache path and hosts-file paths. |
 | `$exports` | `Export\Workflow`, composed with folder, database, archive, command, and storage dependencies. |
@@ -76,7 +77,7 @@ PHP 8.0 is the minimum dictated by existing `mixed` and union type declarations.
 
 `Apache\VhostCatalog` owns parsing and a per-instance snapshot used by both the folder filter and virtual-host manager. It receives hosts-file paths explicitly, so separate installations cannot reuse each other's cache. Duplicate names still use the last block and retain their duplicate marker. Certificate availability still follows the existing managed `crt/{servername}/server.crt` and `server.key` convention; this is an existence check, not certificate-chain validation. Include directives remain display-only and are not recursively expanded.
 
-`Apache\Controller` selects the existing Windows, Linux, or macOS restart strategy. `restartCommand()` may run diagnostic commands to choose that strategy but never executes the restart itself; `restart()` executes it. The HTTP endpoint retains its action/demo guards, status codes, and JSON response fields. Config construction does not run Apache commands. Certificate generation remains a separate procedural endpoint; log reading is covered by step 7 below.
+`Apache\Controller` selects the existing Windows, Linux, or macOS restart strategy. `restartCommand()` may run diagnostic commands to choose that strategy but never executes the restart itself; `restart()` executes it. The HTTP endpoint retains its action/demo guards, status codes, and JSON response fields. Config construction does not run Apache commands. Certificate generation is covered by step 10; log reading is covered by step 7 below.
 
 `Apache\CommandRunner` is the injection boundary for diagnostics and control. `ShellCommandRunner` captures combined output and exit status using `exec()`, or `proc_open()` with a temporary stream when `exec()` is disabled. If neither is available, execution reports failure rather than claiming success. It accepts trusted commands built by application code, **not raw request input**. Binary paths are quoted; Windows control paths containing shell-expansion characters are rejected. Platform restart permissions and tools are still installation-specific, and command success means the command exited successfully, not that a subsequent health check passed.
 
@@ -156,6 +157,20 @@ The raw snapshot retains the existing diagnostic scope: server/client/host/user 
 
 `tests/mysql-inspection.php` uses supplied connection/results to check full/fast modes, false/warning/exception/read failures, result and connection cleanup, quoted database names, null fields, escaping, and actual endpoint policy. CI additionally runs `tests/mysql-inspection-mysqli.php` against its disposable MySQL service: it creates and removes a randomly named database containing a backtick and verifies full/fast inspection, unchanged report modes, and connection closure. Do not run this integration test against a production service.
 
+## Certificate services (step 10)
+
+`Certificates\Generator` receives the Apache installation path, bundled script directory, platform, and existing `Apache\CommandRunner`. Construction performs no writes or commands. `generate($name)` validates an ASCII hostname (including localhost and punycode labels) before touching the filesystem. Empty labels, traversal, whitespace, wildcards, trailing dots, leading/trailing label hyphens, overlong names, and Windows device-name directories are rejected rather than silently stripped or renamed. Valid names retain their spelling and case.
+
+`Certificates\ScriptInstaller` preserves the existing missing/outdated script update policy, including prompt variants. It stages each copy beside its target before replacement and stops on copy/replace failure; this is not a transaction across all scripts. Newer installed scripts remain unchanged. A persistent `.ampboard-cert.lock` in Apache's `crt` directory serializes cooperating requests because the existing scripts share `cert.conf` and `cert.log`. Busy requests fail rather than waiting. The lock is released on exceptions; external tools do not participate.
+
+Windows retains PowerShell preference and BAT fallback; Linux and macOS use Bash. Commands quote paths and domains and use the existing exit-status-aware runner. Windows paths containing shell/script expansion characters are rejected before writes. Native tests run only benign temporary scripts with spaces in their paths, never installed certificate scripts. Script exit status determines success; a successful exit is not independent certificate or trust-store verification.
+
+The existing scripts, OpenSSL/template requirements, certificate locations, validity period, and certificate contents remain unchanged. In particular, `cert-template.conf` must already be supplied by the installation; this increment does not create it or install trust roots. Script failures can still leave partial certificate output, and this extraction does not introduce certificate backup or rollback.
+
+`utils/generate_cert.php` retains its URL, GET parameter, demo guard, and plain-text response. It now uses composed configuration/services instead of `APACHE_PATH` and `DEMO_MODE`, returns 400 for invalid names, and 500 for installation or command failure. The frontend retains its confirmation and success-text restart rule, but now requires a successful HTTP response before requesting restart. The JavaScript bundle was rebuilt. Custom integrations can call `$certificates->generate($name)` and inspect `success` and `output`; validation/setup errors throw exceptions.
+
+The isolated suite includes `tests/certificates.php`: platform selection, domain rejection before writes, script update policy, failed copies/replacements, missing directories/scripts, lock contention/release, exit status, and actual endpoint responses. `node tests/cert-ui.cjs` covers cancelled requests, network failures, output display, and restart gating. All certificate fixtures live in temporary folders.
+
 ## Validation
 
 Run `php -n tests/run.php`. Each scenario gets a fresh process because legacy profiles define constants. The suite uses a deterministic MySQLi double, temporary profiles, and read-only request fixtures. It checks profile fallback and overrides, false/default values, config isolation, theme and tooltip rendering, accessibility markup, asset paths, embedded versus standalone panels, connection credentials, report-mode restoration, and rendered entry points. It does not write real profiles, restart Apache, generate certificates, or export real data.
@@ -174,7 +189,7 @@ Run `php -d phar.readonly=0 tests/exports.php` with ZIP and Phar enabled for fix
 
 ## Next increments
 
-1. Extract certificate generation, then review remaining diagnostic presentation, template, request, and serialization helpers. Remove compatibility constants only after all consumers have moved.
+1. Review remaining diagnostic presentation, template, request, and serialization helpers. Remove compatibility constants only after all consumers have moved.
 2. Consider PHP version discovery/switching separately if desired; it is not an existing workflow awaiting extraction.
 
 Avoid a service locator or static global config accessor: it would preserve the hidden dependencies under a new name. Each increment should retain the existing URLs and saved profiles until a separately documented migration is ready.

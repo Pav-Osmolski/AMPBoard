@@ -19,85 +19,24 @@
 
 require_once __DIR__ . '/../config/config.php';
 
-header( 'Content-Type: text/plain' );
+header( 'Content-Type: text/plain; charset=utf-8' );
 
-if ( empty( $_GET['name'] ) ) {
-	http_response_code( 400 );
-	exit( 'Missing domain name.' );
+$name = $_GET['name'] ?? null;
+if ( $name === null || $name === '' ) {
+ http_response_code( 400 ); echo 'Missing domain name.'; return;
 }
-
-if ( defined( 'DEMO_MODE' ) && DEMO_MODE ) {
-	http_response_code( 403 );
-	exit( 'Certificate generation is disabled in demo mode.' );
+if ( $config['user']['isDemo'] ) {
+ http_response_code( 403 ); echo 'Certificate generation is disabled in demo mode.'; return;
 }
-
-$domain           = preg_replace( '/[^a-zA-Z0-9.-]/', '', $_GET['name'] );
-$os               = PHP_OS_FAMILY;
-$crtPath          = APACHE_PATH . DIRECTORY_SEPARATOR . 'crt';
-$defaultScriptDir = $config['paths']['crt'];
-
-// Ensure crtDir exists
-if ( ! is_dir( $crtPath ) ) {
-	mkdir( $crtPath, 0775, true );
+if ( ! is_string( $name ) ) {
+ http_response_code( 400 ); echo 'Invalid domain name.'; return;
 }
-
-// Define script variants by OS
-$scriptVariants = [
-	'Windows' => [ 'make-cert-silent.ps1', 'make-cert-silent.bat', 'make-cert-prompt.ps1', 'make-cert-prompt.bat' ],
-	'Linux'   => [ 'make-cert-silent.sh', 'make-cert-prompt.sh' ],
-	'Darwin'  => [ 'make-cert-silent.sh', 'make-cert-prompt.sh' ],
-];
-
-// Copy fallback scripts if missing or outdated
-foreach ( $scriptVariants[ $os ] ?? [] as $script ) {
-	$target = $crtPath . DIRECTORY_SEPARATOR . $script;
-	$source = $defaultScriptDir . DIRECTORY_SEPARATOR . $script;
-
-	if ( file_exists( $source ) ) {
-		$shouldCopy = false;
-
-		if ( ! file_exists( $target ) ) {
-			$shouldCopy = true;
-			error_log( "[generate_cert] Restoring missing script: $script" );
-		} elseif ( filemtime( $source ) > filemtime( $target ) ) {
-			$shouldCopy = true;
-			error_log( "[generate_cert] Updating outdated script: $script" );
-		}
-
-		if ( $shouldCopy ) {
-			copy( $source, $target );
-		}
-	}
-}
-
-// Determine which script to run
-if ( $os === 'Windows' ) {
-	$ps1Path = $crtPath . DIRECTORY_SEPARATOR . 'make-cert-silent.ps1';
-	$batPath = $crtPath . DIRECTORY_SEPARATOR . 'make-cert-silent.bat';
-
-	if ( file_exists( $ps1Path ) ) {
-		$command = 'powershell -ExecutionPolicy Bypass -File "' . $ps1Path . '" "' . $domain . '"';
-	} elseif ( file_exists( $batPath ) ) {
-		$command = 'cmd /c "' . $batPath . ' ' . $domain . '"';
-	} else {
-		http_response_code( 500 );
-		exit( "Cannot find PowerShell or BAT script in:\n$crtPath" );
-	}
-} else {
-	$shPath = $crtPath . DIRECTORY_SEPARATOR . 'make-cert-silent.sh';
-	if ( file_exists( $shPath ) ) {
-		$command = 'bash "' . $shPath . '" "' . $domain . '"';
-	} else {
-		http_response_code( 500 );
-		exit( "Cannot find shell script in:\n$crtPath" );
-	}
-}
-
-// Run the command and return the output
-$output = safe_shell_exec( $command );
-
-if ( $output === null ) {
-	echo '❌ Certificate generation failed.';
-} else {
-	echo $output;
+try {
+ $result = $certificates->generate( $name );
+ http_response_code( $result['success'] ? 200 : 500 );
+ echo $result['success'] ? $result['output'] : "❌ Certificate generation failed.\n" . $result['output'];
+} catch ( \InvalidArgumentException $error ) {
+ http_response_code( 400 ); echo $error->getMessage();
+} catch ( \Throwable $error ) {
+ http_response_code( 500 ); echo '❌ Certificate generation failed: ' . $error->getMessage();
 }

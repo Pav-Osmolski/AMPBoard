@@ -31,7 +31,9 @@ jobs:
       - name: Export integration
         run: php -d phar.readonly=0 tests/exports.php
       - name: Log UI text and refresh checks
-        run: node tests/log-ui.cjs
+        run: |
+          node tests/log-ui.cjs
+          node tests/cert-ui.cjs
 
   mysql:
     runs-on: ubuntu-latest
