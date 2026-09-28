@@ -84,6 +84,8 @@ It is intended to be used with AMP stacks such as:
 
 The modernization is incremental. See [architecture and migration notes](docs/architecture.md) for the new namespaced services, compatibility boundaries, and next steps. Published release history is recorded in [CHANGELOG.md](CHANGELOG.md).
 
+Certificate fixtures (`tests/certificates.php`) use temporary scripts and folders. Run `node tests/cert-ui.cjs` for certificate response handling; no installed certificates are changed by these tests.
+
 MySQL inspector fixtures (`tests/mysql-inspection.php`) cover full/fast modes, failed queries, output escaping, and connection cleanup. CI also verifies inspection against a disposable MySQL service.
 
 Identity and filesystem fixtures (`tests/identity-filesystem.php`) check stable profile selection, independent document roots, and legacy helper compatibility as part of the isolated suite.

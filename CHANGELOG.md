@@ -4,6 +4,12 @@ Published entries below are imported from the project's GitHub releases. Their w
 
 ## Unreleased
 
+- Extracts certificate generation into explicit domain-validation, script-installation, and generator services.
+- Preserves platform script preference and certificate locations; validates names before writes and reports copy/command failures accurately.
+- Stages script updates and serializes requests around the existing shared certificate configuration and log files.
+- Returns failure HTTP statuses and requires successful responses before the existing frontend restart rule can run.
+- Adds temporary-script, endpoint, and frontend checks; rebuilds JavaScript and updates architecture guidance.
+
 ## [v3.13](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.13) — 2026-09-27
 
 A closer look at MySQL... with the inspector's affairs in order 🔍
