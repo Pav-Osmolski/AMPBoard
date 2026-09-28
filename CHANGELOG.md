@@ -4,11 +4,29 @@ Published entries below are imported from the project's GitHub releases. Their w
 
 ## Unreleased
 
-- Extracts certificate generation into explicit domain-validation, script-installation, and generator services.
-- Preserves platform script preference and certificate locations; validates names before writes and reports copy/command failures accurately.
-- Stages script updates and serializes requests around the existing shared certificate configuration and log files.
-- Returns failure HTTP statuses and requires successful responses before the existing frontend restart rule can run.
-- Adds temporary-script, endpoint, and frontend checks; rebuilds JavaScript and updates architecture guidance.
+## [v3.14](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.14) — 2026-09-28
+
+Certificates get their paperwork in order... one request at a time 📜
+
+Step 10 of the modernisation gives certificate generation its own focused services. The familiar vhost controls and certificate locations stay in place, with clearer validation, script handling, and execution results behind the scenes.
+
+**PHP 8.0+ remains the supported minimum.** Existing profiles, settings, and utility URLs remain compatible.
+
+- Moves hostname validation, script installation, and generation into `Certificates\Domain`, `Certificates\ScriptInstaller`, and `Certificates\Generator`.
+- Supplies Apache paths, bundled scripts, platform, and command execution explicitly instead of reading compatibility constants.
+- Validates domain names before filesystem changes, rejecting malformed names rather than silently stripping characters or changing the requested name.
+- Preserves valid hostname spelling, certificate locations, PowerShell preference on Windows, BAT fallback, and Bash on Linux/macOS.
+- Stages missing or outdated script updates before replacement, preserves newer installed scripts, and stops on copy or replacement failure.
+- Serializes cooperating requests with a persistent lock around the existing shared certificate configuration and log files.
+- Uses command exit status to determine success and reports setup or execution failures with an error HTTP status.
+- Keeps the existing frontend confirmation and success-text restart rule, now requiring a successful HTTP response before requesting restart.
+- Adds temporary-script and endpoint checks for validation, platform selection, updates, locking, failures, and cleanup, plus frontend response tests.
+- Rebuilds the JavaScript bundle and passes Windows/Linux checks on PHP 8.0, 8.2, 8.3, and 8.4, with manual testing completed before release.
+- Updates the architecture notes and migration guidance. A little less procedural paperwork for the certificate desk 🤓
+
+**For custom PHP integrations:** call `$certificates->generate($name)` after loading config and inspect `success` and `output`; validation and setup errors throw exceptions. Invalid hostnames now return HTTP 400, and setup or command failures return HTTP 500. Existing OpenSSL scripts and template requirements remain unchanged; generation does not add certificate backup, rollback, or trust-store installation.
+
+**Full Changelog**: https://github.com/Pav-Osmolski/AMPBoard/compare/v3.13...v3.14
 
 ## [v3.13](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.13) — 2026-09-27
 
