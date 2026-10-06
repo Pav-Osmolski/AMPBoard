@@ -1,4 +1,4 @@
-# PHP modernization: steps 1–10
+# PHP modernization: steps 1–11
 
 This follows the central config migration beginning at `a54ac0d` and retains the behavior on `bb62f14`. The published releases, now copied into `CHANGELOG.md`, remain the source for historical changes. The frontend bundles and HTTP URLs are unchanged.
 
@@ -22,6 +22,7 @@ Pages continue to `require_once config/config.php`. That file loads the small `A
 | `$exports` | `Export\Workflow`, composed with folder, database, archive, command, and storage dependencies. |
 | `$phpInfo` | `Php\InfoPage`, captures PHP-info output using the selected full/demo flags. |
 | `$phpIni` | `Php\IniFile`, constructed with the loaded INI path captured during configuration. |
+| `$folderPresenter` | `Ui\FolderPresenter`, prepares folder columns through explicit directory, template, rule, and vhost dependencies. |
 | `$ui` | `AMPBoard\Ui\Renderer`, constructed from the config snapshot. |
 | `$serverInspector` | `System\ServerInspector`, collects header status through supplied Apache and database probes and PHP runtime metadata. |
 | `$systemStatistics` | `System\Statistics`, receives platform, disk target, command runner, and measurement callback. |
@@ -171,6 +172,20 @@ The existing scripts, OpenSSL/template requirements, certificate locations, vali
 
 The isolated suite includes `tests/certificates.php`: platform selection, domain rejection before writes, script update policy, failed copies/replacements, missing directories/scripts, lock contention/release, exit status, and actual endpoint responses. `node tests/cert-ui.cjs` covers cancelled requests, network failures, output display, and restart gating. All certificate fixtures live in temporary folders.
 
+## Folder presentation services (step 11)
+
+`Ui\FolderPresenter` receives the folder-column snapshot, `Folders\LinkTemplates`, `Filesystem\DirectoryCatalog`, and a vhost-validation callback. Construction does no directory reads or vhost discovery. `prepare()` resolves directories, applies exclusions and URL rules, checks template hosts only for eligible vhost-filtered entries, and returns prepared columns, rendered items, states, and plain-text diagnostics. Separate instances keep separate profiles and roots. The panel renders that view without discovering folders or applying filters.
+
+`Folders\UrlRules` preserves the existing rule order: strict basename exclusions occur first in the presenter; `urlRules.match` filters candidates; `urlRules.replace` is a second regex whose matches are removed with an empty replacement; then `specialCases` maps the transformed name. It does not introduce conventional regex replacement strings. Nonmatches and the historical `__SKIP__` sentinel remain excluded; empty special-case values remain valid. Incomplete or invalid patterns retain the original folder and produce warnings. Regex operations temporarily suppress their own warnings and restore the caller's error handler, including with a throwing handler.
+
+`Folders\LinkTemplates` indexes the loaded template snapshot with last-duplicate-wins semantics. Resolution keeps named-template, `basic`, and built-in fallbacks. `{urlName}` is HTML-escaped with invalid UTF-8 substitution. Disabled links retain the existing `strip_tags` allowlist. Templates remain trusted profile HTML: this is not a general HTML sanitizer, URL scheme validator, or URL encoder. Host extraction preserves the existing quoted-`href` regex and raw placeholder substitution, returning unique lowercase parsed hosts. It is a display-filter heuristic, not a complete HTML parser or security boundary.
+
+Column order, natural folder order, strict exclusions, vhost-any-match behaviour, badges, width controls, IDs, warning wording, and all three configuration-empty states remain. Missing and physically empty directories still display their existing messages. A directory with entries that are all excluded or filtered still renders an empty list rather than a new no-projects warning. Diagnostics are escaped once at the view boundary and deduplicated as before.
+
+Custom integrations can call `$folderPresenter->prepare()` after composition. The procedural template helpers remain compatibility wrappers: `build_url_name()` retains its sentinel and accumulated HTML-safe error strings, while the namespaced rule service returns nullable names and plain-text errors. Saved profiles and frontend bundles need no migration.
+
+`tests/folder-presentation.php` covers rule order, malformed patterns, handler restoration, template fallbacks, escaping, host extraction, combined exclusion/rule/vhost filters, independent views, disabled links, directory and configuration-empty states, and the actual panel markup. All directory and panel fixtures are temporary; no installed vhosts or profiles are changed.
+
 ## Validation
 
 Run `php -n tests/run.php`. Each scenario gets a fresh process because legacy profiles define constants. The suite uses a deterministic MySQLi double, temporary profiles, and read-only request fixtures. It checks profile fallback and overrides, false/default values, config isolation, theme and tooltip rendering, accessibility markup, asset paths, embedded versus standalone panels, connection credentials, report-mode restoration, and rendered entry points. It does not write real profiles, restart Apache, generate certificates, or export real data.
@@ -189,7 +204,7 @@ Run `php -d phar.readonly=0 tests/exports.php` with ZIP and Phar enabled for fix
 
 ## Next increments
 
-1. Review remaining diagnostic presentation, template, request, and serialization helpers. Remove compatibility constants only after all consumers have moved.
+1. Review remaining diagnostic presentation, request, and serialization helpers. Remove compatibility constants only after all consumers have moved.
 2. Consider PHP version discovery/switching separately if desired; it is not an existing workflow awaiting extraction.
 
 Avoid a service locator or static global config accessor: it would preserve the hidden dependencies under a new name. Each increment should retain the existing URLs and saved profiles until a separately documented migration is ready.
