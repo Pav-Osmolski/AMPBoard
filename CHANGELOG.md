@@ -4,11 +4,28 @@ Published entries below are imported from the project's GitHub releases. Their w
 
 ## Unreleased
 
-- Extracts folder URL rules and link-template handling into `Folders\UrlRules` and `Folders\LinkTemplates`.
-- Makes `Ui\FolderPresenter` prepare columns and entries from explicit profile, directory, and vhost dependencies before panel rendering.
-- Preserves regex-removal semantics, special cases, exclusions, ordering, template fallbacks, disabled links, and vhost filtering.
-- Restores caller error handlers around regex failures, substitutes invalid UTF-8 in rendered names, and escapes diagnostics at the view boundary.
-- Retains procedural compatibility wrappers; adds temporary-directory and actual-panel regression checks and updates architecture guidance.
+## [v3.15](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.15) — 2026-10-06
+
+Folders find their place... and their links follow suit 🗂️
+
+Step 11 of the modernisation separates folder preparation from panel rendering. The familiar columns keep their layout and filtering, with URL rules and link templates now handled by focused services.
+
+**PHP 8.0+ remains the supported minimum.** Existing profiles, settings, and utility URLs remain compatible.
+
+- Moves regex matching, regex removal, and post-transform special cases into `Folders\UrlRules`.
+- Gives `Folders\LinkTemplates` responsibility for named templates, fallback markup, rendered names, disabled links, and template host extraction.
+- Makes `Ui\FolderPresenter` prepare columns using explicit profile snapshots, directory discovery, and a vhost-validation callback.
+- Preserves exclusions, natural ordering, template fallbacks, vhost filtering, column controls, badges, and existing empty states.
+- Keeps `urlRules.replace` as a regex that removes matching text, with special-case names applied afterward.
+- Restores caller error handlers after malformed regex checks, substitutes invalid UTF-8 in rendered names, and escapes warnings at the view boundary.
+- Retains procedural template helpers as compatibility wrappers for legacy profiles and custom integrations.
+- Adds temporary-directory and rendered-panel regression checks for rules, templates, filtering, diagnostics, and independent profile snapshots.
+- Passes Windows/Linux checks on PHP 8.0, 8.2, 8.3, and 8.4, with manual testing completed before release.
+- Updates the architecture notes and migration guidance. A little less housekeeping in the folder panel 🤓
+
+**For custom PHP integrations:** use `$folderPresenter->prepare()` after loading config to obtain columns, rendered entries, and plain-text diagnostics. Link templates remain trusted profile HTML, and host extraction retains the existing quoted-link heuristic.
+
+**Full Changelog**: https://github.com/Pav-Osmolski/AMPBoard/compare/v3.14...v3.15
 
 ## [v3.14](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.14) — 2026-09-28
 
