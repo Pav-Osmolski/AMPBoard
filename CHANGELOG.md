@@ -4,6 +4,12 @@ Published entries below are imported from the project's GitHub releases. Their w
 
 ## Unreleased
 
+- Extracts folder URL rules and link-template handling into `Folders\UrlRules` and `Folders\LinkTemplates`.
+- Makes `Ui\FolderPresenter` prepare columns and entries from explicit profile, directory, and vhost dependencies before panel rendering.
+- Preserves regex-removal semantics, special cases, exclusions, ordering, template fallbacks, disabled links, and vhost filtering.
+- Restores caller error handlers around regex failures, substitutes invalid UTF-8 in rendered names, and escapes diagnostics at the view boundary.
+- Retains procedural compatibility wrappers; adds temporary-directory and actual-panel regression checks and updates architecture guidance.
+
 ## [v3.14](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.14) — 2026-09-28
 
 Certificates get their paperwork in order... one request at a time 📜

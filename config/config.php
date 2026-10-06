@@ -9,6 +9,7 @@
  * @var \AMPBoard\Database\ConnectionFactory $database
  * @var \AMPBoard\Database\Inspector $mysqlInspector
  * @var \AMPBoard\Ui\Renderer $ui
+ * @var \AMPBoard\Ui\FolderPresenter $folderPresenter
  * @var \AMPBoard\Apache\CommandRunner $apacheCommands
  * @var \AMPBoard\Apache\Controller $apacheControl
  * @var \AMPBoard\Certificates\Generator $certificates
@@ -75,3 +76,8 @@ $mysqlInspector = new \AMPBoard\Database\Inspector(
 );
 
 $certificates = new \AMPBoard\Certificates\Generator( $config['paths']['apache'], $config['paths']['crt'], PHP_OS_FAMILY, $apacheCommands );
+
+$folderPresenter = new \AMPBoard\Ui\FolderPresenter( $config['profile']['folders'],
+	new \AMPBoard\Folders\LinkTemplates( $config['profile']['linkTemplates'] ), $directories,
+	static function ( string $host ) use ( $vhosts ) { return $vhosts->isValidVhostHost( $host ); }
+);
