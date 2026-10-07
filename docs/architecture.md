@@ -1,4 +1,4 @@
-# PHP modernization: steps 1–12
+# PHP modernization: steps 1–13
 
 This follows the central config migration beginning at `a54ac0d` and retains the behavior on `bb62f14`. The published releases, now copied into `CHANGELOG.md`, remain the source for historical changes. The frontend bundles and HTTP URLs are unchanged.
 
@@ -9,6 +9,7 @@ Pages continue to `require_once config/config.php`. That file loads the small `A
 | Variable | Responsibility |
 | --- | --- |
 | `$identity` | `System\Identity`, captures the request user and server label from supplied server data and a discovery callback. |
+| `$jsonReader` | `Filesystem\JsonReader`, shared tolerant JSON reads for profiles and interface metadata. |
 | `$directories` | `Filesystem\DirectoryCatalog`, lists dashboard folders under the supplied document root. |
 | `$cipher` | `Security\CredentialCipher`, constructed with the existing key path. |
 | `$profiles` | `Config\ProfileRepository`, responsible for profile data and persistence. |
@@ -196,6 +197,18 @@ The endpoint keeps the saved fast flag, query override, and demo-mode override a
 
 `tests/apache-report.php` checks raw snapshots, independent fast/full modes, failed and throwing commands, escaping, invalid UTF-8, masking, unavailable sections, and rendering after source changes. Existing endpoint fixtures now check saved mode, both query overrides, demo forcing, and escaped output. All fixtures use supplied commands and temporary files, never installed Apache executables.
 
+## JSON services (step 13)
+
+`Config\Json` owns strict form JSON normalization and profile serialization. It retains associative decoding, array/object root acceptance, empty-input defaults, pretty printing, unescaped slashes, escaped Unicode, and existing numeric formatting. Empty JSON objects and sequential numeric object keys still follow PHP's associative-array encoding semantics; this increment does not introduce a schema or preserve object identity. Invalid syntax, UTF-8, depth, or encoding fails before profile persistence.
+
+`Filesystem\JsonReader` owns tolerant sidecar and interface reads. Its per-instance read and diagnostic callbacks are optional; the native reader checks for a readable regular file and treats failed reads as empty data. Missing, unreadable, empty, malformed, and scalar-root files retain the existing empty-array fallback. Decode diagnostics retain their basename-only wording, including the historical scalar-root `No error` suffix. File contents and full paths are not added to diagnostics. Native read warnings are suppressed so a read failure can use the documented fallback. Construction performs no reads.
+
+Composition shares a reader between the profile repository and loader. `ProfileRepository` accepts it as an optional fifth constructor argument; `Loader` accepts it as an optional fourth argument and passes it to a default repository. Existing constructor calls remain valid. Repository sidecars still read under the existing profile lock; interface files retain their independent reads. No shared cache is introduced.
+
+`SettingsInput` and `ProfileRepository::save()` use the strict formatter directly. The settings input retains its canonical encode/decode round trip, including integer conversion of `1.0`. Profile files, JSON sidecar formats, locking, migration, and settings URLs remain unchanged. The procedural JSON helpers delegate to the services for trusted legacy profiles and custom integrations.
+
+`tests/json-services.php` checks strict formatting and rejection, tolerant reads and diagnostics, supplied read failures, independent loader/repository snapshots without JSON helpers, settings normalization, serialization failure before writes, and compatibility wrappers. All files are temporary. Existing profile integration continues to cover saved sidecar round trips and rejection of invalid form JSON.
+
 ## Validation
 
 Run `php -n tests/run.php`. Each scenario gets a fresh process because legacy profiles define constants. The suite uses a deterministic MySQLi double, temporary profiles, and read-only request fixtures. It checks profile fallback and overrides, false/default values, config isolation, theme and tooltip rendering, accessibility markup, asset paths, embedded versus standalone panels, connection credentials, report-mode restoration, and rendered entry points. It does not write real profiles, restart Apache, generate certificates, or export real data.
@@ -214,7 +227,7 @@ Run `php -d phar.readonly=0 tests/exports.php` with ZIP and Phar enabled for fix
 
 ## Next increments
 
-1. Review remaining request and serialization helpers. Remove compatibility constants only after all consumers have moved.
+1. Review remaining request/session helpers and demo presentation helpers. Remove compatibility constants only after all consumers have moved.
 2. Consider PHP version discovery/switching separately if desired; it is not an existing workflow awaiting extraction.
 
 Avoid a service locator or static global config accessor: it would preserve the hidden dependencies under a new name. Each increment should retain the existing URLs and saved profiles until a separately documented migration is ready.

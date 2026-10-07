@@ -5,6 +5,7 @@
  *
  * @var array<string, mixed> $config
  * @var \AMPBoard\System\Identity $identity
+ * @var \AMPBoard\Filesystem\JsonReader $jsonReader
  * @var \AMPBoard\Filesystem\DirectoryCatalog $directories
  * @var \AMPBoard\Database\ConnectionFactory $database
  * @var \AMPBoard\Database\Inspector $mysqlInspector
@@ -30,8 +31,9 @@ if ( ! defined( 'AMPBOARD_NO_HELPERS' ) ) {
 
 $identity = new \AMPBoard\System\Identity( $_SERVER, static function () { return safe_shell_exec( 'whoami' ); } );
 $cipher = new \AMPBoard\Security\CredentialCipher( defined( 'CRYPTO_KEY_FILE' ) ? CRYPTO_KEY_FILE : dirname( __DIR__ ) . '/.key' );
-$profiles = new \AMPBoard\Config\ProfileRepository( __DIR__, $cipher, null, \AMPBoard\Config\LegacyConstants::read() );
-$config = ( new \AMPBoard\Config\Loader( __DIR__, $identity, $profiles ) )->load( true );
+$jsonReader = new \AMPBoard\Filesystem\JsonReader();
+$profiles = new \AMPBoard\Config\ProfileRepository( __DIR__, $cipher, null, \AMPBoard\Config\LegacyConstants::read(), $jsonReader );
+$config = ( new \AMPBoard\Config\Loader( __DIR__, $identity, $profiles, $jsonReader ) )->load( true );
 $database = new \AMPBoard\Database\ConnectionFactory( $config['db'] );
 $directories = new \AMPBoard\Filesystem\DirectoryCatalog( $config['paths']['htdocs'] );
 $ui = new \AMPBoard\Ui\Renderer( $config );

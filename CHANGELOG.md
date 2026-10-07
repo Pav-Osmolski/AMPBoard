@@ -4,6 +4,11 @@ Published entries below are imported from the project's GitHub releases. Their w
 
 ## Unreleased
 
+- Moves strict JSON normalization and serialization into `Config\Json`, and tolerant file reads into `Filesystem\JsonReader`.
+- Supplies a shared JSON reader to the config loader and profile repository while retaining existing constructor calls and legacy wrappers.
+- Preserves profile formats, associative decoding, formatting, empty-array fallbacks, and basename-only diagnostics; handles native read failures quietly.
+- Adds JSON compatibility, failure, helper-independent loading, and profile-isolation checks; updates architecture guidance.
+
 ## [v3.16](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.16) — 2026-10-07
 
 Apache's findings... with the report in good order 🔎

@@ -11,12 +11,14 @@ final class ProfileRepository {
 	private CredentialCipher $cipher;
 	private AtomicFileWriter $writer;
 	private array $overrides;
+	private \AMPBoard\Filesystem\JsonReader $json;
 
-	public function __construct( string $directory, CredentialCipher $cipher, ?AtomicFileWriter $writer = null, array $overrides = [] ) {
+	public function __construct( string $directory, CredentialCipher $cipher, ?AtomicFileWriter $writer = null, array $overrides = [], ?\AMPBoard\Filesystem\JsonReader $json = null ) {
 		$this->directory = $directory;
 		$this->cipher = $cipher;
 		$this->writer = $writer ?? new AtomicFileWriter();
 		$this->overrides = $overrides;
+		$this->json = $json ?? new \AMPBoard\Filesystem\JsonReader();
 	}
 
 	public function load( string $user ): array {
@@ -33,7 +35,7 @@ final class ProfileRepository {
 			if ( $lock !== false && ! flock( $lock, LOCK_SH ) ) { throw new RuntimeException( 'Cannot read profile lock.' ); }
 			$profile = $reader->read( $active . '/user_config.php', $local['settings'] );
 			$json = [];
-			foreach ( ProfileSchema::JSON as $key => $name ) { $json[ $key ] = read_json_array_safely( $active . '/' . $name ); }
+			foreach ( ProfileSchema::JSON as $key => $name ) { $json[ $key ] = $this->json->readArray( $active . '/' . $name ); }
 		} finally { if ( $lock !== false ) { fclose( $lock ); } }
 		// Legacy UI variables are defaults; local constants always took precedence.
 		$localPriority = $local['legacy'] ? array_intersect_key( $local['settings'], array_flip( ProfileSchema::CONSTANTS ) ) : $local['settings'];
@@ -50,7 +52,7 @@ final class ProfileRepository {
 	public function save( string $user, array $data ): void {
 		$files = [];
 		foreach ( ProfileSchema::JSON as $key => $name ) {
-			$files[ $name ] = json_encode( $data['profile'][ $key ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR );
+			$files[ $name ] = Json::encode( $data['profile'][ $key ] );
 		}
 		$settings = $data['settings'];
 		foreach ( [ 'DB_USER', 'DB_PASSWORD' ] as $name ) {

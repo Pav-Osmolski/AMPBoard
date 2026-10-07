@@ -10,12 +10,14 @@ use AMPBoard\Security\CredentialCipher;
 final class Loader {
 	private string $directory;
 	private ProfileRepository $profiles;
+	private \AMPBoard\Filesystem\JsonReader $json;
 	private \AMPBoard\System\Identity $identity;
 
-	public function __construct( string $directory, \AMPBoard\System\Identity $identity, ?ProfileRepository $profiles = null ) {
+	public function __construct( string $directory, \AMPBoard\System\Identity $identity, ?ProfileRepository $profiles = null, ?\AMPBoard\Filesystem\JsonReader $json = null ) {
 		$this->directory = $directory;
 		$this->identity = $identity;
-		$this->profiles = $profiles ?? new ProfileRepository( $directory, new CredentialCipher( dirname( $directory ) . '/.key' ), null, LegacyConstants::read() );
+		$this->json = $json ?? new \AMPBoard\Filesystem\JsonReader();
+		$this->profiles = $profiles ?? new ProfileRepository( $directory, new CredentialCipher( dirname( $directory ) . '/.key' ), null, LegacyConstants::read(), $this->json );
 	}
 
 	/** New profiles can load without constants; opt in only at the legacy entry point. */
@@ -33,8 +35,8 @@ final class Loader {
 		$linkTemplatesConfig = $profile['profile']['linkTemplates'];
 		$dockConfig = $profile['profile']['dock'];
 		$interfaceDir = $this->directory . '/interface';
-		$headingsConfig = read_json_array_safely( $interfaceDir . '/headings.json' );
-		$tooltipsConfig = read_json_array_safely( $interfaceDir . '/tooltips.json' );
+		$headingsConfig = $this->json->readArray( $interfaceDir . '/headings.json' );
+		$tooltipsConfig = $this->json->readArray( $interfaceDir . '/tooltips.json' );
 		$assetsDir = $this->directory . '/../assets';
 		$crtDir = $this->directory . '/../crt';
 		$partialsDir = $this->directory . '/../partials';

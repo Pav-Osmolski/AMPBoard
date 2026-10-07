@@ -84,6 +84,8 @@ It is intended to be used with AMP stacks such as:
 
 The modernization is incremental. See [architecture and migration notes](docs/architecture.md) for the new namespaced services, compatibility boundaries, and next steps. Published release history is recorded in [CHANGELOG.md](CHANGELOG.md).
 
+JSON fixtures (`tests/json-services.php`) check formatting compatibility, malformed/unreadable data, independent config readers, and legacy wrappers without changing installed profiles.
+
 Apache report fixtures (`tests/apache-report.php`) check full/fast snapshots, unavailable probes, escaped output, and demo masking; endpoint fixtures verify saved/query/demo mode selection.
 
 Folder-presentation fixtures (`tests/folder-presentation.php`) check URL rules, template fallbacks, combined filters, escaping, and the rendered panel as part of the isolated suite.
