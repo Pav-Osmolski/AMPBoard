@@ -4,10 +4,29 @@ Published entries below are imported from the project's GitHub releases. Their w
 
 ## Unreleased
 
-- Moves strict JSON normalization and serialization into `Config\Json`, and tolerant file reads into `Filesystem\JsonReader`.
-- Supplies a shared JSON reader to the config loader and profile repository while retaining existing constructor calls and legacy wrappers.
-- Preserves profile formats, associative decoding, formatting, empty-array fallbacks, and basename-only diagnostics; handles native read failures quietly.
-- Adds JSON compatibility, failure, helper-independent loading, and profile-isolation checks; updates architecture guidance.
+## [v3.17](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.17) — 2026-10-07
+
+JSON gets its house in order... one profile at a time 🧾
+
+Step 13 of the modernisation gives JSON validation, formatting, and file reading their own namespaced homes. Existing profiles keep their familiar format, while configuration services no longer depend on the global JSON helpers.
+
+**PHP 8.0+ remains the supported minimum.** Existing profiles, settings, and utility URLs remain compatible.
+
+- Moves strict form normalization and profile serialization into `Config\Json`.
+- Gives `Filesystem\JsonReader` responsibility for tolerant sidecar and interface reads, with explicit read and diagnostic callbacks.
+- Shares a reader between the config loader and profile repository without introducing a shared cache.
+- Keeps existing constructor calls valid through optional reader arguments.
+- Preserves associative decoding, empty-input defaults, pretty printing, slash and Unicode formatting, and canonical encode/decode round trips.
+- Retains the historical empty-object and sequential numeric-key behavior instead of changing saved profile formats.
+- Preserves empty-array fallbacks and basename-only diagnostics for malformed files, while handling native read failures quietly.
+- Keeps procedural JSON helpers as compatibility wrappers for legacy profiles and custom integrations.
+- Adds fixtures for malformed syntax, UTF-8 and depth failures, unreadable results, independent config snapshots, and serialization rejection before encryption or persistence.
+- Passes Windows/Linux checks on PHP 8.0, 8.2, 8.3, and 8.4, with manual testing completed before release.
+- Updates the architecture notes and migration guidance. A little less global paperwork for the profile cabinet 🤓
+
+**For custom PHP integrations:** use `Config\Json::canonicalise($raw)` and `::encode($value)` for strict formatting, or `Filesystem\JsonReader::readArray($path)` for tolerant reads. The reader is an optional fourth argument to `Config\Loader` and fifth argument to `Config\ProfileRepository`. Existing helper signatures remain available; this increment does not add JSON schemas or preserve object identity.
+
+**Full Changelog**: https://github.com/Pav-Osmolski/AMPBoard/compare/v3.16...v3.17
 
 ## [v3.16](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.16) — 2026-10-07
 
