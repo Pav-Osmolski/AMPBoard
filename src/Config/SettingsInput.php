@@ -94,7 +94,7 @@ final class SettingsInput {
 
 		$profile = [];
 		foreach ( [ 'folders' => 'folders_json', 'linkTemplates' => 'link_templates_json', 'dock' => 'dock_json' ] as $key => $field ) {
-			$profile[$key] = json_decode( validate_and_canonicalise_json( (string) ( $in[$field] ?? '' ) ), true );
+			$profile[$key] = json_decode( Json::canonicalise( (string) ( $in[$field] ?? '' ) ), true );
 		}
 		$settings = [ 'theme' => $theme ];
 		foreach ( ProfileSchema::FLAGS as $field ) { $settings[$field] = normalise_bool( $in[$field] ?? null ) === 'true'; }
