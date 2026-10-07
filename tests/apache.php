@@ -131,7 +131,7 @@ foreach ( [ '', 'exec', 'exec,proc_open' ] as $disabled ) {
 	echo $output;
 }
 
-foreach ( [ 'valid', 'failure', 'invalid', 'demo', 'unknown', 'inspect', 'inspect-fast' ] as $scenario ) {
+foreach ( [ 'valid', 'failure', 'invalid', 'demo', 'unknown', 'inspect', 'inspect-fast', 'inspect-default', 'inspect-saved-fast', 'inspect-override', 'inspect-demo' ] as $scenario ) {
 	$process = proc_open( [ PHP_BINARY, '-n', __DIR__ . '/apache-request.php', $root . '/request-' . $scenario, $scenario ],
 		[ 0 => [ 'pipe', 'r' ], 1 => [ 'pipe', 'w' ], 2 => [ 'pipe', 'w' ] ], $pipes );
 	fclose( $pipes[0] );

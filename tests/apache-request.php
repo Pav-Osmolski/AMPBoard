@@ -25,12 +25,12 @@ $_POST['action'] = $scenario === 'invalid' ? 'stop' : 'restart';
 define( 'DEMO_MODE', $scenario === 'demo' );
 $inspection = str_starts_with( $scenario, 'inspect' );
 if ( $inspection ) {
-	function obfuscate_value( $value ) { return $value; }
 	$apacheCommands = $commands;
 	$vhosts = new \AMPBoard\Apache\VhostCatalog( $root, [] );
 	$ui = new class { public function renderHeading( ...$args ) { return 'Apache Inspector'; } };
-	$config = [ 'paths' => [ 'apache' => $root ], 'ui' => [ 'flags' => [ 'apacheFastMode' => false ] ] ];
-	$_GET['fast'] = $scenario === 'inspect-fast' ? '1' : '0';
+	$config = [ 'paths' => [ 'apache' => $root ], 'user' => [ 'isDemo' => $scenario === 'inspect-demo' ], 'ui' => [ 'flags' => [ 'apacheFastMode' => $scenario === 'inspect-saved-fast' || $scenario === 'inspect-override' ] ] ];
+	if ( ! in_array( $scenario, [ 'inspect-default', 'inspect-saved-fast' ], true ) ) { $_GET['fast'] = $scenario === 'inspect-fast' ? '1' : '0'; }
+	$_SERVER['SERVER_SOFTWARE'] = 'Apache <script>fixture</script>';
 	mkdir( $root . '/bin' );
 	file_put_contents( $root . '/bin/httpd.exe', 'fixture; never executed' );
 	chmod( $root . '/bin/httpd.exe', 0700 );
@@ -39,9 +39,10 @@ ob_start();
 register_shutdown_function( static function () use ( $scenario, $commands, $inspection, &$vhosts ): void {
 	$body = ob_get_clean();
 	if ( $inspection ) {
-		$fast = $scenario === 'inspect-fast';
+		$fast = in_array( $scenario, [ 'inspect-fast', 'inspect-saved-fast', 'inspect-demo' ], true );
 		$ok = str_contains( $body, $fast ? 'Fast mode: Config/VHosts skipped.' : 'VirtualHost fixture' )
 			&& ( $fast ? count( $commands->calls ) === 0 : count( $commands->calls ) > 0 )
+			&& str_contains( $body, '&lt;script&gt;fixture&lt;/script&gt;' ) && ! str_contains( $body, '<script>' )
 			&& $vhosts instanceof \AMPBoard\Apache\VhostCatalog;
 		echo ( $ok ? 'PASS' : 'FAIL' ) . ' Apache request ' . $scenario . "\n";
 		exit( $ok ? 0 : 1 );

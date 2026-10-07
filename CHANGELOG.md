@@ -4,6 +4,31 @@ Published entries below are imported from the project's GitHub releases. Their w
 
 ## Unreleased
 
+## [v3.16](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.16) — 2026-10-07
+
+Apache's findings... with the report in good order 🔎
+
+Step 12 of the modernisation separates Apache diagnostic collection from report formatting. The familiar inspector keeps its full and fast modes, with clearer responsibilities and more graceful handling of unavailable results.
+
+**PHP 8.0+ remains the supported minimum.** Existing profiles, settings, and utility URLs remain compatible.
+
+- Adds `Apache\Inspector::inspect()` to collect a raw report snapshot, discovering the binary once per inspection.
+- Gives `Ui\ApacheReport` responsibility for formatting supplied data without commands, filesystem reads, or runtime globals.
+- Preserves report labels, section order, unavailable messages, fast-mode omissions, and the existing inspector URL.
+- Keeps saved fast-mode settings, query overrides, and demo forcing at the HTTP boundary, using the loaded configuration snapshot.
+- Escapes diagnostic values and keys, substitutes invalid UTF-8, and retains the historical demo masking of the loaded php.ini value.
+- Discards failed command output instead of parsing it as a successful result.
+- Converts independent probe exceptions into unavailable values while allowing other report sections to continue.
+- Retains individual inspector methods for custom integrations and keeps Include directives display-only.
+- Adds temporary-file and supplied-command fixtures for snapshots, rendering, unavailable results, escaping, and independent modes.
+- Extends endpoint checks for saved settings, query overrides, demo behaviour, and escaped diagnostic output.
+- Passes Windows/Linux checks on PHP 8.0, 8.2, 8.3, and 8.4, with manual testing completed before release.
+- Updates the architecture notes and migration guidance. The inspector can put its findings on paper without running another check 🤓
+
+**For custom PHP integrations:** call `Apache\Inspector::inspect($os, $architecture)`, then pass the snapshot and demo flag to `Ui\ApacheReport::render($snapshot, $demo)`. Existing individual probe methods remain available. Demo masking retains its existing limited scope; it is not complete report redaction.
+
+**Full Changelog**: https://github.com/Pav-Osmolski/AMPBoard/compare/v3.15...v3.16
+
 ## [v3.15](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.15) — 2026-10-06
 
 Folders find their place... and their links follow suit 🗂️
