@@ -1,4 +1,4 @@
-# PHP modernization: steps 1–11
+# PHP modernization: steps 1–12
 
 This follows the central config migration beginning at `a54ac0d` and retains the behavior on `bb62f14`. The published releases, now copied into `CHANGELOG.md`, remain the source for historical changes. The frontend bundles and HTTP URLs are unchanged.
 
@@ -186,6 +186,16 @@ Custom integrations can call `$folderPresenter->prepare()` after composition. Th
 
 `tests/folder-presentation.php` covers rule order, malformed patterns, handler restoration, template fallbacks, escaping, host extraction, combined exclusion/rule/vhost filters, independent views, disabled links, directory and configuration-empty states, and the actual panel markup. All directory and panel fixtures are temporary; no installed vhosts or profiles are changed.
 
+## Apache report presentation (step 12)
+
+`Apache\Inspector::inspect($os, $architecture)` collects a raw snapshot for one report. It discovers the binary once, includes full-only config/include/vhost and uptime probes when requested, and captures environment and INI metadata. Existing individual probe methods remain available. Construction remains lazy; inspection reads the current PHP process through the existing probe methods. Separate inspector instances retain independent fast modes and paths.
+
+`Ui\ApacheReport::render($snapshot, $demo)` formats only supplied data without commands, filesystem reads, runtime inspection, or globals. It retains labels, section order, unavailable messages, and fast-mode omissions. All diagnostic strings and keys are HTML-escaped with invalid UTF-8 substitution. Demo mode retains its historical masking of only the loaded php.ini value; it does not redact the rest of the report.
+
+The endpoint keeps the saved fast flag, query override, and demo-mode override at the HTTP boundary, using the loaded config snapshot instead of `DEMO_MODE`. Its URL and heading remain unchanged. Failed command output is now discarded instead of being parsed as a successful result, and exceptions from independent probes become their existing unavailable values so other sections can still render. Include directives remain display-only, without recursive expansion; inspection does not restart or reconfigure Apache.
+
+`tests/apache-report.php` checks raw snapshots, independent fast/full modes, failed and throwing commands, escaping, invalid UTF-8, masking, unavailable sections, and rendering after source changes. Existing endpoint fixtures now check saved mode, both query overrides, demo forcing, and escaped output. All fixtures use supplied commands and temporary files, never installed Apache executables.
+
 ## Validation
 
 Run `php -n tests/run.php`. Each scenario gets a fresh process because legacy profiles define constants. The suite uses a deterministic MySQLi double, temporary profiles, and read-only request fixtures. It checks profile fallback and overrides, false/default values, config isolation, theme and tooltip rendering, accessibility markup, asset paths, embedded versus standalone panels, connection credentials, report-mode restoration, and rendered entry points. It does not write real profiles, restart Apache, generate certificates, or export real data.
@@ -204,7 +214,7 @@ Run `php -d phar.readonly=0 tests/exports.php` with ZIP and Phar enabled for fix
 
 ## Next increments
 
-1. Review remaining diagnostic presentation, request, and serialization helpers. Remove compatibility constants only after all consumers have moved.
+1. Review remaining request and serialization helpers. Remove compatibility constants only after all consumers have moved.
 2. Consider PHP version discovery/switching separately if desired; it is not an existing workflow awaiting extraction.
 
 Avoid a service locator or static global config accessor: it would preserve the hidden dependencies under a new name. Each increment should retain the existing URLs and saved profiles until a separately documented migration is ready.

@@ -4,6 +4,11 @@ Published entries below are imported from the project's GitHub releases. Their w
 
 ## Unreleased
 
+- Adds `Apache\Inspector::inspect()` snapshots and `Ui\ApacheReport` rendering without probes or global config access.
+- Preserves Apache report labels, ordering, fast/full modes, endpoint URL, and historical demo masking scope.
+- Escapes diagnostic text with invalid UTF-8 substitution, discards failed command output, and continues independent sections after probe exceptions.
+- Adds snapshot, rendering, unavailable-result, and request-policy checks; updates architecture guidance.
+
 ## [v3.15](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.15) — 2026-10-06
 
 Folders find their place... and their links follow suit 🗂️

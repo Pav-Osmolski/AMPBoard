@@ -16,8 +16,40 @@ final class Inspector {
 		$this->procEnvironment = $procEnvironment;
 	}
 
+
+	/** Collects raw values once; report rendering performs no probes. */
+	public function inspect( string $os, string $architecture ): array {
+		$binary = $this->probe( function () { return $this->detectApacheBinary(); }, null );
+		$config = null;
+		$includes = null;
+		$vhosts = null;
+		if ( ! $this->fastMode && $binary ) {
+			$config = $this->probe( function () use ( $binary ) { return $this->getApacheConfigPath( $binary ); }, null );
+			if ( $config && is_file( $config ) ) {
+				$includes = $this->probe( function () use ( $config ) { return $this->getIncludes( $config ); }, [] );
+			}
+			$vhosts = $this->probe( function () use ( $binary ) { return $this->getVirtualHosts( $binary ); }, null );
+		}
+		return [
+			'os' => $os, 'architecture' => $architecture, 'fastMode' => $this->fastMode,
+			'isApache' => $this->probe( function () { return $this->isApache(); }, false ),
+			'sapi' => $this->probe( function () { return $this->detectApacheSAPI(); }, null ),
+			'version' => $this->probe( function () { return $this->getApacheVersion(); }, 'not detected' ),
+			'binary' => $binary,
+			'uptime' => $this->fastMode ? null : $this->probe( function () use ( $os ) { return $this->getApacheUptimeEstimate( $os ); }, 'Unavailable' ),
+			'config' => $config, 'includes' => $includes, 'vhosts' => $vhosts,
+			'environment' => $this->probe( function () { return $this->getApacheEnvVars(); }, [] ),
+			'ini' => $this->probe( function () { return $this->getIniFilesInfo(); }, [] ),
+		];
+	}
+
+	private function probe( callable $read, $fallback ) {
+		try { return $read(); } catch ( \Throwable $error ) { return $fallback; }
+	}
+
 	private function output( string $command ): string {
-		return $this->commands->run( $command )['output'];
+		$result = $this->commands->run( $command );
+		return $result['success'] ? $result['output'] : '';
 	}
 
 	private static function absolutePath( string $path ): bool {
