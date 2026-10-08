@@ -86,6 +86,8 @@ The modernization is incremental. See [architecture and migration notes](docs/ar
 
 Application entry points now compose only their required services. Existing PHP integrations can still require `config/config.php` for the complete compatibility composition. `config/application.php` provides configuration without default helper loading, constant publication, session initialization, or database credential probes; select `config/services-*.php` dependencies explicitly. See the architecture notes for legacy profile support and credential diagnostics.
 
+Run `php -n tests/composition.php` to check all 17 real entry compositions with and without legacy helpers. Temporary profiles and a database double verify required services, absence of unrelated services, intentional credential probes, lazy session startup, and reuse when panels share one request. The check also requires every `entry-*.php` file to have a coverage contract.
+
 Folder-opening fixtures (`tests/folder-opener.php`) check path validation, platform launch arguments, failures, and request responses. Native checks run benign PHP processes and a simulated Windows launcher; they never open desktop folders.
 
 Demo fixtures (`tests/demo-services.php`) check independent display masks, settings/vhost panels, and legacy wrappers. Handler fixtures verify guards use the supplied config flag even when a legacy constant differs.

@@ -21,7 +21,15 @@ checkCompositionPolicy( ( new \AMPBoard\System\Identity( [], [ $discovery, 'disc
 checkCompositionPolicy( ( new \AMPBoard\System\Identity( [ 'USERNAME' => '' ], [ $discovery, 'discover' ] ) )->user() === 'Guest' && $calls === 1, 'Empty supplied identity does not trigger discovery' );
 $failed = new \AMPBoard\System\UserDiscovery( static function () { throw new RuntimeException( 'Unavailable process' ); } );
 checkCompositionPolicy( ( new \AMPBoard\System\Identity( [], [ $failed, 'discover' ] ) )->user() === 'Guest', 'Failed discovery preserves Guest fallback' );
-foreach ( [ 'modern', 'upgrade', 'compatibility', 'no-helpers', 'legacy-profile', 'read-config', 'php-info', 'statistics' ] as $mode ) {
+$contracts = require __DIR__ . '/fixtures/composition-contracts.php';
+$entries = array_map( static function ( string $file ): string { return substr( basename( $file ), 6, -4 ); }, glob( __DIR__ . '/../config/entry-*.php' ) );
+$covered = array_keys( $contracts );
+sort( $entries );
+sort( $covered );
+checkCompositionPolicy( $entries === $covered, 'Every real entry has an explicit composition contract' );
+$modes = array_merge( [ 'modern', 'upgrade', 'compatibility', 'no-helpers', 'legacy-profile', 'embedded', 'embedded-reverse', 'embedded:no-helpers', 'embedded-reverse:no-helpers' ], $covered );
+foreach ( $covered as $entry ) { $modes[] = $entry . ':no-helpers'; }
+foreach ( $modes as $mode ) {
 	passthru( escapeshellarg( PHP_BINARY ) . ' -n ' . escapeshellarg( __DIR__ . '/composition-request.php' ) . ' ' . escapeshellarg( $mode ), $code );
 	checkCompositionPolicy( $code === 0, 'Composition fixture ' . $mode );
 }
