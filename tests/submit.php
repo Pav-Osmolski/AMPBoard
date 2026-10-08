@@ -2,13 +2,14 @@
 /** CLI request fixture: actual submit handler, isolated profile and INI paths. */
 if ( PHP_SAPI !== 'cli' ) { http_response_code( 404 ); exit; }
 require __DIR__ . '/../config/autoload.php';
-require __DIR__ . '/../config/helpers.php';
 $root = $argv[1];
 $scenario = $argv[2];
 mkdir( $root . '/partials', 0750, true );
 mkdir( $root . '/config' );
 copy( __DIR__ . '/../partials/submit.php', $root . '/partials/submit.php' );
 file_put_contents( $root . '/config/config.php', '<?php /* Dependencies supplied by the fixture. */' );
+file_put_contents( $root . '/config/entry-submit.php', '<?php require_once __DIR__ . "/config.php";' );
+
 $profiles = new \AMPBoard\Config\ProfileRepository( $root . '/config', new \AMPBoard\Security\CredentialCipher( $root . '/.key' ) );
 session_save_path( $root );
 session_start();

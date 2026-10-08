@@ -8,6 +8,8 @@
  * @version 1.0
  */
 
+require_once __DIR__ . '/../autoload.php';
+
 /**
  * Sends a generic 400 error without leaking sensitive details.
  *
@@ -16,11 +18,7 @@
  * @return void
  */
 function submit_fail( string $msg ): void {
-	http_response_code( 400 );
-	header( 'Content-Type: text/plain; charset=UTF-8' );
-	echo 'Bad request.';
-	error_log( '[submit.php] ' . $msg );
-	exit;
+	\AMPBoard\Http\BadRequest::send( $msg );
 }
 
 /**

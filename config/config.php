@@ -1,6 +1,6 @@
 <?php
 /**
- * Application composition: the compatibility entry point for pages and utilities.
+ * Complete compatibility composition for existing PHP integrations.
  * Existing profile files and constants remain supported during the migration.
  *
  * @var array<string, mixed> $config
@@ -28,69 +28,23 @@
  * @var \AMPBoard\Logs\Viewer $phpLog
  */
 
-require_once __DIR__ . '/autoload.php';
-
-if ( ! defined( 'AMPBOARD_NO_HELPERS' ) ) {
-	require_once __DIR__ . '/helpers.php';
-}
-
-$requestOrigin = new \AMPBoard\Http\RequestOrigin( $_SERVER );
-$session = $session ?? new \AMPBoard\Http\NativeSession( $requestOrigin->isSecure() );
-$csrfTokens = new \AMPBoard\Security\CsrfToken( $session );
-
-$identity = new \AMPBoard\System\Identity( $_SERVER, static function () { return safe_shell_exec( 'whoami' ); } );
-$cipher = new \AMPBoard\Security\CredentialCipher( defined( 'CRYPTO_KEY_FILE' ) ? CRYPTO_KEY_FILE : dirname( __DIR__ ) . '/.key' );
-$jsonReader = new \AMPBoard\Filesystem\JsonReader();
-$profiles = new \AMPBoard\Config\ProfileRepository( __DIR__, $cipher, null, \AMPBoard\Config\LegacyConstants::read(), $jsonReader );
-$config = ( new \AMPBoard\Config\Loader( __DIR__, $identity, $profiles, $jsonReader ) )->load( true );
-$database = new \AMPBoard\Database\ConnectionFactory( $config['db'] );
-$directories = new \AMPBoard\Filesystem\DirectoryCatalog( $config['paths']['htdocs'] );
-$folderOpener = new \AMPBoard\Filesystem\FolderOpener( PHP_OS_FAMILY, new \AMPBoard\System\NativeProcessLauncher() );
-$ui = new \AMPBoard\Ui\Renderer( $config );
-$demoMask = new \AMPBoard\Ui\DemoMask( $config['user']['isDemo'] );
-
-$apacheCommands = new \AMPBoard\Apache\ShellCommandRunner();
-$apacheControl = new \AMPBoard\Apache\Controller( $config['paths']['apache'], PHP_OS_FAMILY, $apacheCommands );
-$vhosts = new \AMPBoard\Apache\VhostCatalog( $config['paths']['apache'], [
-	getenv( 'WINDIR' ) ? getenv( 'WINDIR' ) . '/System32/drivers/etc/hosts' : '',
-	'/etc/hosts',
-] );
-
-$exportFolders = new \AMPBoard\Export\FolderCatalog( $config['paths']['htdocs'], $config['profile']['folders'] );
-$exportDatabase = new \AMPBoard\Export\DatabaseExporter( static function ( ?string $name ) use ( $database ) {
-	return $database->connect( [ 'db' => $name ] );
-} );
-$exportSearchPaths = explode( PATH_SEPARATOR, (string) getenv( 'PATH' ) );
-if ( PHP_OS_FAMILY === 'Windows' ) {
-	$exportSearchPaths[] = 'C:/Program Files/7-Zip';
-	$exportSearchPaths[] = 'C:/Program Files (x86)/7-Zip';
-}
-$exports = new \AMPBoard\Export\Workflow( $exportFolders, $exportDatabase, new \AMPBoard\Export\ArchiveWriter(),
-	new \AMPBoard\Export\ExternalArchiver( new \AMPBoard\Export\NativeProcessRunner(), $exportSearchPaths ),
-	$config['export']['excludes'], dirname( __DIR__ ) . '/dist/exports', 'dist/exports', sys_get_temp_dir() );
-
-$phpInfo = new \AMPBoard\Php\InfoPage();
-$phpIni = new \AMPBoard\Php\IniFile( $config['php']['runtime']['loadedIni'] );
-
-$serverInspector = new \AMPBoard\System\ServerInspector(
-	new \AMPBoard\Apache\VersionProbe( $config['paths']['apache'], PHP_OS_FAMILY, $_SERVER['SERVER_SOFTWARE'] ?? '', $apacheCommands ),
-	static function () use ( $database ) { return $database->connect( [ 'strictMode' => false ] ); },
-	$config['php']['runtime']
-);
-$systemStatistics = new \AMPBoard\System\Statistics( PHP_OS_FAMILY, '/', $apacheCommands, [ new \AMPBoard\System\NativeMetrics(), 'read' ] );
-
-$logReader = new \AMPBoard\Logs\TailReader();
-$apacheLog = new \AMPBoard\Logs\Viewer( \AMPBoard\Logs\Paths::apache( $config['paths']['apache'], PHP_OS_FAMILY, $_SERVER['HOME'] ?? '' ), $logReader, 'Apache', 5 );
-$phpLog = new \AMPBoard\Logs\Viewer( [ $config['php']['runtime']['errorLog'] ], $logReader, 'PHP', 25, true );
-
-$mysqlInspector = new \AMPBoard\Database\Inspector(
-	static function () use ( $database ) { return $database->connect(); },
-	function_exists( 'mysqli_get_client_info' ) ? mysqli_get_client_info() : 'Unavailable'
-);
-
-$certificates = new \AMPBoard\Certificates\Generator( $config['paths']['apache'], $config['paths']['crt'], PHP_OS_FAMILY, $apacheCommands );
-
-$folderPresenter = new \AMPBoard\Ui\FolderPresenter( $config['profile']['folders'],
-	new \AMPBoard\Folders\LinkTemplates( $config['profile']['linkTemplates'] ), $directories,
-	static function ( string $host ) use ( $vhosts ) { return $vhosts->isValidVhostHost( $host ); }
-);
+// Existing integrations receive the complete historical composition.
+require_once __DIR__ . "/legacy.php";
+require_once __DIR__ . "/services-request.php";
+require_once __DIR__ . "/services-database.php";
+require_once __DIR__ . "/services-ui.php";
+require_once __DIR__ . "/services-apache-commands.php";
+require_once __DIR__ . "/services-apache-control.php";
+require_once __DIR__ . "/services-vhosts.php";
+require_once __DIR__ . "/services-exports.php";
+require_once __DIR__ . "/services-php-info.php";
+require_once __DIR__ . "/services-php-ini.php";
+require_once __DIR__ . "/services-server.php";
+require_once __DIR__ . "/services-statistics.php";
+require_once __DIR__ . "/services-apache-log.php";
+require_once __DIR__ . "/services-php-log.php";
+require_once __DIR__ . "/services-mysql.php";
+require_once __DIR__ . "/services-certificates.php";
+require_once __DIR__ . "/services-folders.php";
+require_once __DIR__ . "/services-folder-opener.php";
+require_once __DIR__ . "/services-diagnostics.php";

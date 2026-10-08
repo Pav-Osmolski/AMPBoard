@@ -25,7 +25,7 @@
  * @version 1.3
  */
 
-require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../config/entry-ui.php';
 
 $features = [
 	'apache' => [

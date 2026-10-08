@@ -14,7 +14,7 @@
  * @version 1.2
  */
 
-require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../config/entry-php-info.php';
 
 $pageClasses = $ui->buildPageViewClasses( $settingsView ?? null );
 ?>

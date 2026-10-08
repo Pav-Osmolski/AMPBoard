@@ -84,6 +84,8 @@ It is intended to be used with AMP stacks such as:
 
 The modernization is incremental. See [architecture and migration notes](docs/architecture.md) for the new namespaced services, compatibility boundaries, and next steps. Published release history is recorded in [CHANGELOG.md](CHANGELOG.md).
 
+Application entry points now compose only their required services. Existing PHP integrations can still require `config/config.php` for the complete compatibility composition. `config/application.php` provides configuration without default helper loading, constant publication, session initialization, or database credential probes; select `config/services-*.php` dependencies explicitly. See the architecture notes for legacy profile support and credential diagnostics.
+
 Folder-opening fixtures (`tests/folder-opener.php`) check path validation, platform launch arguments, failures, and request responses. Native checks run benign PHP processes and a simulated Windows launcher; they never open desktop folders.
 
 Demo fixtures (`tests/demo-services.php`) check independent display masks, settings/vhost panels, and legacy wrappers. Handler fixtures verify guards use the supplied config flag even when a legacy constant differs.
@@ -156,7 +158,10 @@ Classes are loaded by `config/autoload.php`; Composer is not required.
 | `interface/`             | Heading configuration and tooltip descriptions for settings and panels. |
 | `profiles/`              | Profile folder for auto generated user-defined overrides saved from the settings UI. |
 | `bootstrap.php`          | Init headers, session, security, and config; starts session early for CSRF rendering. |
-| `config.php`             | Composition entry point exposing `$config`, `$database`, and `$ui`. |
+| `config.php`             | Complete compatibility composition exposing existing service variables. |
+| `application.php`        | Modern configuration snapshot without helper/constant publication or database probes. |
+| `legacy.php`             | Explicit helper and constant compatibility boundary for trusted profiles. |
+| `entry-*.php`, `services-*.php` | Explicit per-entry-point dependency composition. |
 | `autoload.php`           | Loads `AMPBoard\` classes from `src/` without Composer. |
 | `helpers.php`            | Loads remaining procedural helpers during the incremental migration. |
 | `debug.php`              | Logs raw shell commands (with optional context) to `logs/localhost-page.log`. |

@@ -4,6 +4,33 @@ Published entries below are imported from the project's GitHub releases. Their w
 
 ## Unreleased
 
+## [v3.21](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.21) — 2026-10-08
+
+Every service finds its place... and each page brings only what it needs 🧩
+
+Steps 17–19 of the modernisation finish removing application helper dependencies, give legacy compatibility an explicit boundary, and compose pages and utilities from their required services.
+
+**PHP 8.0+ remains the supported minimum.** Existing profiles, settings, and utility URLs remain compatible.
+
+- Adds `System\UserDiscovery` for the fixed `whoami` identity fallback, preserving user precedence, profile selection, and the Guest fallback when discovery is unavailable.
+- Moves strict form truth values into `Config\BooleanInput`, so settings normalization works without procedural helpers.
+- Gives `Http\BadRequest` responsibility for the existing generic settings-error response and private server logging.
+- Retains legacy helper signatures for custom integrations while removing their remaining application callers.
+- Adds `config/application.php` for configuration without default helper loading, constant publication, session initialization, or database credential probes.
+- Makes helper loading and resolved constant publication explicit in `config/legacy.php`, preserving helper availability before trusted legacy profiles execute.
+- Keeps `config/config.php` as the complete compatibility composition and retains the existing `AMPBOARD_NO_HELPERS` switch.
+- Selects page and utility dependencies through explicit `entry-*.php` and `services-*.php` composition files, with existing services reused when panels are embedded.
+- Removes dashboard credential probes and unrelated service construction from narrow utilities; dashboard and settings keep their credential indicators.
+- Preserves URLs, response fields, redirects, demo guards, session/CSRF behavior, saved profiles, encryption keys, and profile precedence.
+- Adds real-composition fixtures for helper-free operation, legacy profiles, compatibility upgrades, constant publication, service reuse, and absence of unintended database/session initialization.
+- Updates `.gitignore` for installations running directly in XAMPP htdocs.
+- Passes Windows/Linux checks on PHP 8.0, 8.2, 8.3, and 8.4, plus real MySQL integration, with manual testing completed before release.
+- Updates the architecture notes and migration guidance. The globals can keep their compatibility seats while the services take the stage 🤓
+
+**For custom PHP integrations:** continue requiring `config/config.php` for the existing complete composition, or use `config/application.php` with explicit `config/services-*.php` dependencies. Include `config/services-diagnostics.php` when credential indicators are needed; unprobed credential status values are `null`. Trusted PHP profiles can still define constants or change runtime settings. Composition files share one request scope; this is not a re-entrant multi-profile container. Existing helper and constant compatibility remains available.
+
+**Full Changelog**: https://github.com/Pav-Osmolski/AMPBoard/compare/v3.20...v3.21
+
 ## [v3.20](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.20) — 2026-10-08
 
 Folders get their opening cue... with every path in its place 📂
@@ -710,6 +737,5 @@ This release includes a modern, responsive interface with the following features
 Feedback is welcome! Feel free to open issues or pull requests.
 
 **Full Changelog**: https://github.com/Pav-Osmolski/Custom-XAMPP-LAMP-MAMP-localhost-Page/commits/v1.0.0
-
 
 

@@ -72,6 +72,8 @@ check(extract_template_hosts_for_url('<a href="//{urlName}.test">x</a>','SHOP')=
 mkdir($root.'/partials');mkdir($root.'/config');
 copy(__DIR__.'/../partials/folders.php',$root.'/partials/folders.php');
 file_put_contents($root.'/config/config.php','<?php /* fixture dependencies */');
+file_put_contents( $root . '/config/entry-folders.php', '<?php require_once __DIR__ . "/config.php";' );
+
 $config=['paths'=>['assets'=>dirname(__DIR__).'/assets'], 'ui'=>['flags'=>['folderBadges'=>true]],'status'=>['apachePathValid'=>true]];
 $ui=new AMPBoard\Ui\Renderer($config);$folderPresenter=$presenter;
 ob_start();require $root.'/partials/folders.php';$html=ob_get_clean();

@@ -22,7 +22,7 @@
  * @version 1.5
  */
 
-require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../config/entry-ui.php';
 ?>
 <nav class="dock" aria-label="Quick launch">
 	<ul class="dock-list">

@@ -14,6 +14,8 @@ register_shutdown_function( static function () use ( $sessionDirectory ): void {
 	rmdir( $sessionDirectory );
 } );
 require __DIR__ . '/fixtures/database.php';
+// Every actual page/utility request must work without procedural helpers.
+define( 'AMPBOARD_NO_HELPERS', true );
 mysqli::$error = 'Fixture database unavailable';
 $project = $argv[2] ?? dirname( __DIR__ );
 $entry = $argv[1] ?? 'index.php';

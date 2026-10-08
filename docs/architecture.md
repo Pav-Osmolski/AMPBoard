@@ -1,10 +1,10 @@
-# PHP modernization: steps 1–16
+# PHP modernization: steps 1–19
 
 This follows the central config migration beginning at `a54ac0d` and retains the behavior on `bb62f14`. The published releases, now copied into `CHANGELOG.md`, remain the source for historical changes. The frontend bundles and HTTP URLs are unchanged.
 
 ## Request composition
 
-Pages continue to `require_once config/config.php`. That file loads the small `AMPBoard\` autoloader and remaining procedural helpers, then creates explicit dependencies:
+Pages and utilities use `config/entry-*.php` to compose their required dependencies. `config/config.php` remains the complete compatibility composition for existing PHP integrations. Both paths use the small `AMPBoard\` autoloader:
 
 | Variable | Responsibility |
 | --- | --- |
@@ -40,7 +40,7 @@ The renderer owns a config snapshot. Methods no longer read `global $config`, an
 
 ## Compatibility boundary
 
-`config/config.php` remains a once-per-request compatibility entry point. It captures predefined constants as overrides, constructs the profile repository and cipher, and calls `Loader::load(true)` to publish constants for remaining procedural consumers. The repository reads `local.php`, selects the current user's profile directory or the default directory, and reads the PHP profile and JSON sidecars under a shared profile lock. The settings reader and export workflow use that loaded JSON snapshot.
+`config/config.php` remains a once-per-request compatibility entry point. `config/legacy.php` explicitly loads helpers before trusted profiles execute (unless `AMPBOARD_NO_HELPERS` is defined), initializes configuration through `config/application.php`, and publishes the resolved legacy settings. The repository reads `local.php`, selects the current user's profile directory or the default directory, and reads the PHP profile and JSON sidecars under a shared profile lock. The settings reader and export workflow use that loaded JSON snapshot.
 
 New profiles return a versioned array rather than defining constants or applying PHP settings directly:
 
@@ -262,6 +262,50 @@ The frontend and bundle are unchanged. This extraction does not add authenticati
 
 `tests/folder-opener.php` covers platform commands, directory validation, spaces/Unicode/punctuation, drive roots/UNC paths, launch failures, exceptions, explicit request policy, and actual endpoint rejection responses. Native checks execute only benign PHP fixtures. On Windows a supplied PowerShell `Start-Process` function shadows the real cmdlet to validate the wrapper without opening Explorer. No automated check invokes a desktop folder launcher.
 
+## Remaining helper policies (step 17)
+
+`System\UserDiscovery` provides the fixed `whoami` fallback used by identity composition, with an optional supplied executor for fixtures. No request input becomes a command. Identity still prefers `USERNAME`, then `USER`, preserves empty-versus-null precedence, strips domain/email notation, and falls back to `Guest`. Disabled or failing native discovery now returns unavailable instead of causing a fatal error. The general-purpose legacy `safe_shell_exec()` remains available to integrations but has no application callers.
+
+`Config\BooleanInput` owns the strict form truth values (`'1'`, `1`, `true`, `'true'`, `'on'`, `'yes'`). Settings normalization no longer needs `normalise_bool()`; the legacy wrapper retains its string return values. `Http\BadRequest::send()` preserves settings errors: status 400, plain UTF-8 `Bad request.`, detailed server logging, and termination. `submit_fail()` remains a compatibility delegate for custom integrations and the old `atomic_write()` wrapper. Application callers no longer use these procedural policies.
+
+## Explicit compatibility composition (step 18)
+
+`config/application.php` loads the profile/configuration snapshot without loading procedural helpers, publishing default constants, creating sessions, or probing database credentials. It still accepts predefined legacy overrides, and trusted PHP profile/local files may themselves define constants, invoke helpers already loaded by the caller, or change runtime settings. This is not a sandbox or re-entrant multi-profile API. `Loader::load()` retains its existing default credential-check behavior for direct integrations; the modern composition explicitly skips that check. Unprobed `config['status']['mySql*Valid']` values are `null`, not a failed credential result.
+
+`config/legacy.php` deliberately retains default helper availability for existing trusted PHP profiles and then publishes the resolved settings. This compatibility choice avoids breaking helper-dependent local/profile files. Returned-array installations can opt out using the existing `AMPBOARD_NO_HELPERS` switch. The complete `config/config.php` wrapper supplies all historical service variables and performs the dashboard credential check once. Loading it after modern composition retains the same profile snapshot and any already-composed services; configuration files must be included in the same request scope.
+
+Modern integrations can explicitly select dependencies without a service locator:
+
+```php
+require_once __DIR__ . '/config/application.php';
+require_once __DIR__ . '/config/services-folders.php';
+$columns = $folderPresenter->prepare();
+```
+
+For rendering, include `config/services-ui.php` and use `$ui` as before. For credential indicators, explicitly include `config/services-diagnostics.php`. Existing integrations can continue requiring `config/config.php` unchanged. No saved profile or key is rewritten by initialization.
+
+## Entry-point composition (step 19)
+
+Small `services-*.php` files express dependencies through explicit includes and constructors. `entry-*.php` files select those groups behind the retained legacy profile boundary. `require_once` shares the already-composed services when panels are embedded, without constructing another profile snapshot or running duplicate credential diagnostics. These files do not perform operations merely by constructing their services.
+
+| Entry point | Required composition |
+| --- | --- |
+| Main bootstrap | Request/session policy, UI, and credential diagnostics; session starts before output as before. |
+| Settings | Request policy, UI, INI target, and credential diagnostics; embedded utilities compose their own services. |
+| Config reader | Profile/config snapshot and origin policy; no session or database factory. |
+| Statistics | Platform measurements and command runner; no database or session. |
+| Error logs | Their respective log viewer; no database or session. |
+| PHP info | UI and PHP-info renderer; no database or session. |
+| Apache inspection/control, certificates, vhosts | Their respective Apache services; no database credential probe. |
+| MySQL inspection | UI and explicit database inspector; only the requested inspection connects. |
+| Exports | Explicit export, database, request, and UI services; no dashboard credential probe. |
+| Settings submission | Request policy, profile repository, identity, and INI target. |
+| Folder opening | Existing autoloader-only composition; no profile, session, or database. |
+
+Utility URLs, response shapes, redirects, demo guards, CSRF rotation, and profile precedence remain unchanged. Profile-backed utilities still initialize configuration and apply profile PHP directives because their paths/flags come from that snapshot. Narrow composition removes unrelated services and dashboard probes; it does not introduce authentication or change endpoint authorization policy.
+
+`tests/composition.php` uses real composition files with temporary returned-array and helper-dependent legacy profiles. It checks opt-in constant publication, helper-free settings and full composition, upgrade/reuse, unknown-versus-probed credential status, no unintended database connections or session starts, and narrow utility dependencies on PHP 8.0+. Existing request smoke fixtures now disable helpers; submit fixtures also run without them.
+
 ## Validation
 
 Run `php -n tests/run.php`. Each scenario gets a fresh process because legacy profiles define constants. The suite uses a deterministic MySQLi double, temporary profiles, and read-only request fixtures. It checks profile fallback and overrides, false/default values, config isolation, theme and tooltip rendering, accessibility markup, asset paths, embedded versus standalone panels, connection credentials, report-mode restoration, and rendered entry points. It does not write real profiles, restart Apache, generate certificates, or export real data.
@@ -280,7 +324,7 @@ Run `php -d phar.readonly=0 tests/exports.php` with ZIP and Phar enabled for fix
 
 ## Next increments
 
-1. Review default helper loading and constant publication as an explicit compatibility decision. Keep legacy profile and integration entry points until a separately documented migration is ready.
+1. Review the completed migration against concrete maintenance and performance needs before adding more abstractions. Legacy helper loading remains an explicit compatibility choice, rather than an application requirement.
 2. Consider PHP version discovery/switching separately if desired; it is not an existing workflow awaiting extraction.
 
 Avoid a service locator or static global config accessor: it would preserve the hidden dependencies under a new name. Each increment should retain the existing URLs and saved profiles until a separately documented migration is ready.

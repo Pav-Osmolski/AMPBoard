@@ -9,6 +9,9 @@ mkdir( $root . '/config' );
 copy( __DIR__ . '/../utils/toggle_apache.php', $root . '/utils/toggle_apache.php' );
 copy( __DIR__ . '/../utils/apache_inspector.php', $root . '/utils/apache_inspector.php' );
 file_put_contents( $root . '/config/config.php', '<?php /* Fixture dependencies supplied explicitly. */' );
+file_put_contents( $root . '/config/entry-apache-inspector.php', '<?php require_once __DIR__ . "/config.php";' );
+file_put_contents( $root . '/config/entry-apache-control.php', '<?php require_once __DIR__ . "/config.php";' );
+
 $commands = new class( $scenario ) implements \AMPBoard\Apache\CommandRunner {
 	public array $calls = [];
 	private string $scenario;

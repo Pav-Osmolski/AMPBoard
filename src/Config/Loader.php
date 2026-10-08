@@ -9,6 +9,7 @@ use AMPBoard\Security\CredentialCipher;
 /** Assembles the dashboard configuration from resolved profile data. */
 final class Loader {
 	private string $directory;
+	private array $legacySettings = [];
 	private ProfileRepository $profiles;
 	private \AMPBoard\Filesystem\JsonReader $json;
 	private \AMPBoard\System\Identity $identity;
@@ -21,10 +22,11 @@ final class Loader {
 	}
 
 	/** New profiles can load without constants; opt in only at the legacy entry point. */
-	public function load( bool $publishLegacyConstants = false ): array {
+	public function load( bool $publishLegacyConstants = false, bool $checkDatabaseCredentials = true ): array {
 		$rawUser = $this->identity->user();
 		$profile = $this->profiles->load( $rawUser );
 		$settings = $profile['settings'];
+		$this->legacySettings = $settings;
 		if ( $publishLegacyConstants ) { LegacyConstants::publish( $settings ); }
 		$phpRuntime = new \AMPBoard\Php\Runtime();
 		$phpRuntime->apply( $profile['php'] );
@@ -56,7 +58,7 @@ final class Loader {
 		$phpErrorLogAvailable    = file_exists( $utilsDir . '/php_error_log.php' );
 
 		// Validate MySQL credentials (host, user, password)
-		$databaseStatus = $database->credentialStatus();
+		$databaseStatus = $checkDatabaseCredentials ? $database->credentialStatus() : [ 'host' => null, 'user' => null, 'pass' => null ];
 		$mySqlHostValid = $databaseStatus['host'];
 		$mySqlUserValid = $databaseStatus['user'];
 		$mySqlPassValid = $databaseStatus['pass'];
@@ -201,4 +203,6 @@ final class Loader {
 		return $config;
 	}
 
+	/** Explicit publication for the once-per-request legacy composition. */
+	public function publishLegacyConstants(): void { LegacyConstants::publish( $this->legacySettings ); }
 }

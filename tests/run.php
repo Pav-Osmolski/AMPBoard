@@ -1,8 +1,10 @@
 <?php
 if ( PHP_SAPI !== 'cli' ) { http_response_code( 404 ); exit; }
 $failed = false;
-passthru( escapeshellarg( PHP_BINARY ) . ' -n ' . escapeshellarg( __DIR__ . '/folder-opener.php' ), $code );
+passthru( escapeshellarg( PHP_BINARY ) . ' -n ' . escapeshellarg( __DIR__ . '/composition.php' ), $code );
 $failed = $code !== 0;
+passthru( escapeshellarg( PHP_BINARY ) . ' -n ' . escapeshellarg( __DIR__ . '/folder-opener.php' ), $code );
+$failed = $failed || $code !== 0;
 passthru( escapeshellarg( PHP_BINARY ) . ' -n ' . escapeshellarg( __DIR__ . '/demo-services.php' ), $code );
 $failed = $failed || $code !== 0;
 passthru( escapeshellarg( PHP_BINARY ) . ' -n ' . escapeshellarg( __DIR__ . '/request-services.php' ), $code );

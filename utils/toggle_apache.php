@@ -23,7 +23,7 @@ ob_start();
 error_reporting( E_ERROR | E_PARSE );
 ini_set( 'display_errors', 0 );
 
-require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../config/entry-apache-control.php';
 
 header( 'Content-Type: application/json' );
 

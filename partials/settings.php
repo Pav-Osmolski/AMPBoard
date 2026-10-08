@@ -43,7 +43,7 @@
  * @version 3.5
  */
 
-require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../config/entry-settings.php';
 
 // Explicit include context for embedded utility panels and the following phpinfo panel.
 $settingsView = true;

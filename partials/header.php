@@ -11,7 +11,7 @@
  * @version 1.5
  */
 
-require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../config/entry-server.php';
 ?>
 <header role="banner">
 	<?= $ui->renderCollapseToggle( 'header' ); ?>

@@ -26,7 +26,7 @@ $root = sys_get_temp_dir() . '/ampboard-system-' . bin2hex( random_bytes( 8 ) );
 $binary = $root . '/apache space/bin/httpd'; file_put_contents( $binary, 'fixture only' );
 register_shutdown_function( static function () use ( $root, $binary ): void {
 	unlink( $binary ); rmdir( dirname( $binary ) ); rmdir( dirname( dirname( $binary ) ) );
-	foreach ( glob( $root . '/request-*' ) as $dir ) { unlink( $dir . '/utils/system_stats.php' ); unlink( $dir . '/config/config.php' ); rmdir( $dir . '/utils' ); rmdir( $dir . '/config' ); rmdir( $dir ); }
+	foreach ( glob( $root . '/request-*' ) as $dir ) { unlink( $dir . '/utils/system_stats.php' ); unlink( $dir . '/config/entry-statistics.php' ); unlink( $dir . '/config/config.php' ); rmdir( $dir . '/utils' ); rmdir( $dir . '/config' ); rmdir( $dir ); }
 	rmdir( $root );
 } );
 $commands = new FixtureCommands(); $commands->output = 'Server version: Apache/2.4.62 (Fixture)';

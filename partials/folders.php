@@ -25,7 +25,7 @@
  * @version 2.0
  */
 
-require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../config/entry-folders.php';
 
 $folderView = $folderPresenter->prepare();
 $columnCounter = 0;

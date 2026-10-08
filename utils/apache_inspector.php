@@ -23,7 +23,7 @@
  * @license GPL-3.0-or-later https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../config/entry-apache-inspector.php';
 
 // Request policy stays at the HTTP boundary.
 $fastMode = $config['ui']['flags']['apacheFastMode'] ?? false;

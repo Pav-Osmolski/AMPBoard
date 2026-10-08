@@ -60,6 +60,8 @@ $root = sys_get_temp_dir() . '/ampboard-mysql-' . bin2hex( random_bytes( 8 ) );
 mkdir( $root . '/utils', 0700, true ); mkdir( $root . '/config' );
 copy( __DIR__ . '/../utils/mysql_inspector.php', $root . '/utils/mysql_inspector.php' );
 file_put_contents( $root . '/config/config.php', '<?php /* Supplied fixture dependencies. */' );
+file_put_contents( $root . '/config/entry-mysql.php', '<?php require_once __DIR__ . "/config.php";' );
+
 try {
 	foreach ( [ [ false, null, false, false ], [ true, null, false, true ], [ false, '1', false, true ], [ true, '0', false, false ], [ false, '0', true, true ] ] as [ $saved, $query, $demo, $expected ] ) {
 		$c = new InspectionConnection();
@@ -73,7 +75,7 @@ try {
 		if ( $demo ) { check( ! str_contains( $out, 'alice' ), 'Endpoint demo masking' ); }
 	}
 } finally {
-	unlink( $root . '/utils/mysql_inspector.php' ); unlink( $root . '/config/config.php' );
+	unlink( $root . '/utils/mysql_inspector.php' ); unlink( $root . '/config/entry-mysql.php' ); unlink( $root . '/config/config.php' );
 	rmdir( $root . '/utils' ); rmdir( $root . '/config' ); rmdir( $root );
 }
 echo "PASS MySQL inspection services and endpoint\n";

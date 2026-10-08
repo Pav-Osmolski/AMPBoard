@@ -22,7 +22,7 @@
  * @license GPL-3.0-or-later https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../config/entry-statistics.php';
 
 if ( ! $config['ui']['flags']['systemStats'] ) {
 	header( 'Content-Type: application/json' );

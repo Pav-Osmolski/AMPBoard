@@ -62,6 +62,8 @@ $fixturePanels = [ 'amp_paths', 'user_interface', 'php_manager', 'folders_config
 	'vhosts_manager', 'export_files', 'apache_control', 'settings_manager' ];
 foreach ( $fixturePanels as $panel ) { file_put_contents( $root . '/partials/settings/' . $panel . '.php', '<?php /* Panels tested independently. */' ); }
 file_put_contents( $root . '/config/config.php', '<?php /* Dependencies supplied by fixture. */' );
+file_put_contents( $root . '/config/entry-settings.php', '<?php require_once __DIR__ . "/config.php";' );
+file_put_contents( $root . '/config/entry-vhosts.php', '<?php require_once __DIR__ . "/config.php";' );
 file_put_contents( $root . '/vhosts.conf', 'fixture' );
 $vhosts = new class( $root ) {
 	private string $root;
@@ -91,7 +93,7 @@ try {
 } finally {
 	foreach ( $fixturePanels as $panel ) { unlink( $root . '/partials/settings/' . $panel . '.php' ); }
 	unlink( $root . '/partials/settings.php' ); rmdir( $root . '/partials/settings' ); rmdir( $root . '/partials' );
-	unlink( $root . '/vhosts.conf' ); unlink( $root . '/utils/vhosts_manager.php' ); unlink( $root . '/config/config.php' );
+	unlink( $root . '/vhosts.conf' ); unlink( $root . '/utils/vhosts_manager.php' ); unlink( $root . '/config/entry-settings.php' ); unlink( $root . '/config/entry-vhosts.php' ); unlink( $root . '/config/config.php' );
 	rmdir( $root . '/utils' ); rmdir( $root . '/config' ); rmdir( $root );
 }
 require __DIR__ . '/../config/helpers/security.php';

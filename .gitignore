@@ -9,3 +9,10 @@ dist/exports
 config/local.php
 config/profiles/*
 !config/profiles/default/
+dashboard
+img
+projects
+webalizer
+xampp
+applications.html
+bitnami.css

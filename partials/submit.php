@@ -1,7 +1,7 @@
 <?php
 /** Validate the HTTP request, then save through the profile services. */
 
-require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../config/entry-submit.php';
 
 if ( $_SERVER['REQUEST_METHOD'] !== 'POST' ) {
 	// Safe no-op if included without a POST
@@ -15,24 +15,24 @@ if ( $_SERVER['REQUEST_METHOD'] !== 'POST' ) {
 $ct = $_SERVER['CONTENT_TYPE'] ?? '';
 if ( stripos( $ct, 'application/x-www-form-urlencoded' ) !== 0
 	 && stripos( $ct, 'multipart/form-data' ) !== 0 ) {
-	submit_fail( 'Invalid content type: ' . $ct );
+	\AMPBoard\Http\BadRequest::send( 'Invalid content type: ' . $ct );
 }
 
 $len = (int) ( $_SERVER['CONTENT_LENGTH'] ?? 0 );
 if ( $len <= 0 ) {
-	submit_fail( 'Empty POST body.' );
+	\AMPBoard\Http\BadRequest::send( 'Empty POST body.' );
 }
 if ( $len > 2 * 1024 * 1024 ) {
-	submit_fail( 'POST too large.' );
+	\AMPBoard\Http\BadRequest::send( 'POST too large.' );
 }
 
 if ( ! $requestOrigin->isSameOrigin() ) {
-	submit_fail( 'Failed same-origin check.' );
+	\AMPBoard\Http\BadRequest::send( 'Failed same-origin check.' );
 }
 
 $csrf = $_POST['csrf'] ?? null;
 if ( ! $csrfTokens->verify( is_string( $csrf ) ? $csrf : null ) ) {
-	submit_fail( 'Invalid CSRF token.' );
+	\AMPBoard\Http\BadRequest::send( 'Invalid CSRF token.' );
 }
 
 /* ------------------------------------------------------------------ */
@@ -48,7 +48,7 @@ try {
 	$data = ( new \AMPBoard\Config\SettingsInput() )->normalise( $_POST );
 	$profiles->save( $identity->user(), $data );
 } catch ( \Throwable $error ) {
-	submit_fail( $error->getMessage() );
+	\AMPBoard\Http\BadRequest::send( $error->getMessage() );
 }
 
 // Optional php.ini editing remains best-effort, as before; profile saving is complete.

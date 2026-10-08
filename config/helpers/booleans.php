@@ -8,6 +8,8 @@
  * @version 1.1
  */
 
+require_once __DIR__ . '/../autoload.php';
+
 /**
  * Normalises a boolean from various HTML input forms.
  *
@@ -16,7 +18,5 @@
  * @return string "true" or "false"
  */
 function normalise_bool( mixed $v ): string {
-	$truthy = [ '1', 1, true, 'true', 'on', 'yes' ];
-
-	return in_array( $v, $truthy, true ) ? 'true' : 'false';
+	return \AMPBoard\Config\BooleanInput::value( $v ) ? 'true' : 'false';
 }
