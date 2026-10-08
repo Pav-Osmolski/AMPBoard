@@ -22,7 +22,8 @@ $commands = new class( $scenario ) implements \AMPBoard\Apache\CommandRunner {
 };
 $apacheControl = new \AMPBoard\Apache\Controller( $scenario === 'unknown' ? '' : 'C:/Apache', 'Windows', $commands, static function () { return true; } );
 $_POST['action'] = $scenario === 'invalid' ? 'stop' : 'restart';
-define( 'DEMO_MODE', $scenario === 'demo' );
+$config = [ 'user' => [ 'isDemo' => $scenario === 'demo' ] ];
+define( 'DEMO_MODE', $scenario !== 'demo' );
 $inspection = str_starts_with( $scenario, 'inspect' );
 if ( $inspection ) {
 	$apacheCommands = $commands;

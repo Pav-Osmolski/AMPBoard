@@ -40,7 +40,7 @@ $pageClasses = $ui->buildPageViewClasses( $settingsView ?? null );
 
 	if ( ! file_exists( $vhostsPath ) ) {
 		echo '<p><strong>Warning:</strong> The <code>httpd-vhosts.conf</code> file was not found at <code>' .
-		     obfuscate_value( htmlspecialchars( $vhostsPath ) ) .
+		     $demoMask->value( htmlspecialchars( $vhostsPath ) ) .
 		     '</code>. Please ensure your Apache setup is correct and virtual hosts are enabled.</p>';
 	} else {
 		$serverData = $vhosts->getVhostServerData();
@@ -112,7 +112,7 @@ $pageClasses = $ui->buildPageViewClasses( $settingsView ?? null );
 							<?= ! empty( $info['certValid'] )
 								? '<span class="tick">✔️</span>'
 								: (
-								( defined( 'DEMO_MODE' ) && DEMO_MODE )
+								( $config['user']['isDemo'] )
 									? '<span class="cross">❌</span>'
 									: '<span class="cross">❌</span> <button data-generate-cert="' . htmlspecialchars( $host ) . '">Generate Cert</button>'
 								)

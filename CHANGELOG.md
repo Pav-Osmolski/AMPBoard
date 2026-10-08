@@ -4,6 +4,12 @@ Published entries below are imported from the project's GitHub releases. Their w
 
 ## Unreleased
 
+- Step 15: give demo display masking an explicit `Ui\DemoMask` service, shared by settings, exports, and diagnostic reports.
+- Move remaining settings, restart, and certificate-button demo guards to the loaded config flag.
+- Preserve mask lengths, byte-length semantics, escaping order, existing redaction scope, disabled actions, and legacy helper signatures.
+- Audit and retain constants at the legacy profile/integration boundary; application demo consumers no longer read `DEMO_MODE` directly.
+- Add independent-mode panel fixtures and handler checks with deliberately conflicting legacy constants.
+
 ## [v3.18](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.18) — 2026-10-08
 
 Sessions get a helping hand... and forms keep their tokens close 🍪

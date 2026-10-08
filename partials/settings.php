@@ -32,10 +32,11 @@
  *
  * Security Notes:
  * - CSRF token output with `$csrfTokens->token()`
- * - Sensitive values are obfuscated for display via `obfuscate_value()`
+ * - Sensitive values are obfuscated for display via `$demoMask->value()`
  *
  * @var array $themeTypes Theme type metadata for client-side use
  * @var \AMPBoard\Ui\Renderer $ui
+ * @var \AMPBoard\Ui\DemoMask $demoMask
  * @var array<string, mixed> $config
  *
  * @author  Pawel Osmolski
@@ -69,7 +70,7 @@ $settingsView = true;
 
 	<?= $ui->renderWidthControls( 'width_settings', 'Accordion', 'accordion-controls' ); ?>
 
-	<?php if ( defined( 'DEMO_MODE' ) && DEMO_MODE ): ?>
+	<?php if ( $config['user']['isDemo'] ): ?>
 		<div class="demo-mode" role="alert">
 			<p><strong>Demo Mode:</strong> Saving is disabled and credentials are obfuscated in this environment.</p>
 			<br>

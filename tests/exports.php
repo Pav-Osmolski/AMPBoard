@@ -128,7 +128,7 @@ echo "PASS export services\n";
 
 $tar = ( new ArchiveWriter( false, false ) )->create( $selection['entries'], $root . '/plain.zip' );
 checkExport( str_ends_with( $tar, '.tar' ) && archiveFiles( $tar ) === $expected, 'Uncompressed TAR fallback' );
-foreach ( [ 'scan', 'dbs', 'token', 'zip', 'dumpdb', 'demo', 'session', 'csrf', 'input', 'get', 'unknown' ] as $scenario ) {
+foreach ( [ 'scan', 'dbs', 'dbs-demo', 'token', 'zip', 'dumpdb', 'demo', 'session', 'csrf', 'input', 'get', 'unknown' ] as $scenario ) {
 	$args = [ PHP_BINARY, '-n', '-d', 'phar.readonly=0' ];
 	// Phar is built in on Windows but packaged as a shared extension on CI Linux.
 	$phar = rtrim( ini_get( 'extension_dir' ), '/\\' ) . '/' . ( PHP_OS_FAMILY === 'Windows' ? 'php_phar.dll' : 'phar.so' );

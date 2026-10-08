@@ -1,4 +1,4 @@
-# PHP modernization: steps 1–14
+# PHP modernization: steps 1–15
 
 This follows the central config migration beginning at `a54ac0d` and retains the behavior on `bb62f14`. The published releases, now copied into `CHANGELOG.md`, remain the source for historical changes. The frontend bundles and HTTP URLs are unchanged.
 
@@ -27,6 +27,7 @@ Pages continue to `require_once config/config.php`. That file loads the small `A
 | `$phpInfo` | `Php\InfoPage`, captures PHP-info output using the selected full/demo flags. |
 | `$phpIni` | `Php\IniFile`, constructed with the loaded INI path captured during configuration. |
 | `$folderPresenter` | `Ui\FolderPresenter`, prepares folder columns through explicit directory, template, rule, and vhost dependencies. |
+| `$demoMask` | `Ui\DemoMask`, applies historical display masks using the captured demo flag. |
 | `$ui` | `AMPBoard\Ui\Renderer`, constructed from the config snapshot. |
 | `$serverInspector` | `System\ServerInspector`, collects header status through supplied Apache and database probes and PHP runtime metadata. |
 | `$systemStatistics` | `System\Statistics`, receives platform, disk target, command runner, and measurement callback. |
@@ -224,6 +225,28 @@ Settings forms and saves, export forms/actions/token responses, and the config-r
 
 `tests/request-services.php` checks independent snapshots/stores, default/custom/IPv6 ports, malformed headers, replay rejection, token repair, unavailable storage, rotation/entropy failures, real temporary session persistence, cookie policy, ID regeneration, and compatibility wrappers. The actual config reader runs without security helpers. Submit/export integration includes native session-start failures, and submit integration covers a matching custom port. No installed profiles or session paths are changed.
 
+## Demo presentation and constant audit (step 15)
+
+`Ui\DemoMask` receives an explicit boolean and returns either the supplied string or the historical asterisk mask: 4 characters for byte lengths up to 4, 12 for lengths up to 12, and 16 otherwise. Empty strings remain masked in demo mode. It performs no HTML escaping and retains byte-length semantics for Unicode. Composition captures `config['user']['isDemo']` in `$demoMask`; report renderers construct a mask from their existing explicit render argument, so their public signatures remain unchanged.
+
+Settings credentials/paths, Apache-control warnings, missing-vhost warnings, export database lists, and Apache/MySQL report fields use the same service. Existing escaping order is preserved, including usernames and database names masked after escaping. Masking scope is unchanged: vhost names/document roots, other diagnostic fields, and process SQL are not newly redacted. This is display masking, not comprehensive anonymisation.
+
+Settings saving, the settings notice, Apache restart, and vhost certificate buttons now read the supplied configuration flag. Existing endpoints already using that flag retain their guards. CSRF rotation, redirects, HTTP statuses, action ordering, and response fields remain. `obfuscate_value()` delegates to `DemoMask` while retaining its constant-based mode for custom integrations; application views and handlers no longer call it or read `DEMO_MODE` directly.
+
+The remaining constant boundary was audited, not removed:
+
+| Constant/input | Why it remains |
+| --- | --- |
+| `DEMO_MODE` | Trusted legacy profile/override input, published compatibility value, and the legacy masking wrapper. Application consumers use the loaded config flag. |
+| `HTDOCS_PATH` | Legacy profile/override input and `normalise_subdir()` compatibility wrapper. Namespaced directory services receive an explicit root. |
+| `DB_HOST`, `DB_USER`, `DB_PASSWORD`, `APACHE_PATH`, `PHP_PATH`, `EXPORT_EXCLUDE` | Existing profile field names and published/accepted compatibility inputs. Credential wrappers still resolve allowed legacy database constants (including `DB_NAME` if supplied by an integration). Application services use composed credentials, paths, and export exclusions. |
+| `CRYPTO_KEY_FILE` | Existing key-file override used at composition and by credential wrappers; retiring it could select a different key for an existing installation. |
+| `AMPBOARD_NO_HELPERS` | Existing include-policy switch for integrations and fixtures. |
+
+`Config\LegacyConstants::read()`/`publish()` therefore remain at the compatibility boundary. Field-name strings in profile schemas and forms are not runtime constant reads, and PHP's built-in error-level/session/MySQL constants are not candidates for this migration. Removing default constant publication would be a separate compatibility decision, rather than an incidental cleanup.
+
+`tests/demo-services.php` checks independent normal/demo masks, byte boundaries, Unicode, escaping order, actual settings and vhost panels, and legacy wrapper modes. Submit and restart fixtures deliberately supply config opposite to `DEMO_MODE` and verify normal actions proceed through their existing service path while demo actions perform no save/restart. Export fixtures cover masked database lists and unchanged demo export rejection. Existing report fixtures cover normal/demo rendering. No installed profiles, commands, or certificates are used.
+
 ## Validation
 
 Run `php -n tests/run.php`. Each scenario gets a fresh process because legacy profiles define constants. The suite uses a deterministic MySQLi double, temporary profiles, and read-only request fixtures. It checks profile fallback and overrides, false/default values, config isolation, theme and tooltip rendering, accessibility markup, asset paths, embedded versus standalone panels, connection credentials, report-mode restoration, and rendered entry points. It does not write real profiles, restart Apache, generate certificates, or export real data.
@@ -242,7 +265,7 @@ Run `php -d phar.readonly=0 tests/exports.php` with ZIP and Phar enabled for fix
 
 ## Next increments
 
-1. Extract remaining demo presentation helpers and audit compatibility constants. Remove compatibility constants only after all consumers have moved.
+1. Review default helper loading and constant publication as an explicit compatibility decision. Keep legacy profile and integration entry points until a separately documented migration is ready.
 2. Consider PHP version discovery/switching separately if desired; it is not an existing workflow awaiting extraction.
 
 Avoid a service locator or static global config accessor: it would preserve the hidden dependencies under a new name. Each increment should retain the existing URLs and saved profiles until a separately documented migration is ready.

@@ -41,7 +41,7 @@ if ( $action ) {
 		elseif ( $action === 'scan' ) { $response = [ 'ok' => true, 'groups' => $exports->scan() ]; }
 		elseif ( $action === 'dbs' ) {
 			$dbs = $exports->databases();
-			if ( $config['user']['isDemo'] ) { $dbs = array_map( 'obfuscate_value', $dbs ); }
+			if ( $config['user']['isDemo'] ) { $dbs = array_map( [ $demoMask, 'value' ], $dbs ); }
 			$response = [ 'ok' => true, 'databases' => $dbs ];
 		} elseif ( $method === 'POST' && in_array( $action, [ 'zip', 'dumpdb' ], true ) ) {
 			foreach ( [ 'group', 'folder', 'uploadsMode', 'engine', 'db' ] as $field ) {

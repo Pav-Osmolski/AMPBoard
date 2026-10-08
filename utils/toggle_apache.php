@@ -35,7 +35,7 @@ if ( ! in_array( $action, [ 'restart' ] ) ) {
 	exit;
 }
 
-if ( defined( 'DEMO_MODE' ) && DEMO_MODE ) {
+if ( $config['user']['isDemo'] ) {
 	http_response_code( 403 );
 	ob_end_clean();
 	echo json_encode( [

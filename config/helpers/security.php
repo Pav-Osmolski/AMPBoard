@@ -176,13 +176,5 @@ function defineEncrypted( string $name, string $value ): string {
  * @return string The obfuscated value if demo mode is enabled, or the original value otherwise.
  */
 function obfuscate_value( string $value ): string {
-	if ( defined( 'DEMO_MODE' ) && DEMO_MODE ) {
-		$len = strlen( $value );
-
-		if ( $len <= 4 )  return '****';
-		if ( $len <= 12 ) return '************';
-		return '****************';
-	}
-
-	return $value;
+	return ( new \AMPBoard\Ui\DemoMask( defined( 'DEMO_MODE' ) && DEMO_MODE ) )->value( $value );
 }

@@ -5,6 +5,7 @@
  *
  * @var bool $apacheToggle True if Apache restart endpoint is available
  * @var \AMPBoard\Ui\Renderer $ui
+ * @var \AMPBoard\Ui\DemoMask $demoMask
  * @var array<string, mixed> $config
  */
 
@@ -29,7 +30,7 @@ $ui->renderAccordionSectionStart(
 		<?php
 		if ( ! $config['status']['apachePathValid'] ) {
 			if ( ! empty( $config['paths']['apache'] ) ) {
-				echo ' The Apache path <code>' . obfuscate_value( $config['paths']['apache'] ) . '</code> is invalid.';
+				echo ' The Apache path <code>' . $demoMask->value( $config['paths']['apache'] ) . '</code> is invalid.';
 			} else {
 				echo ' The Apache path is not set.';
 			}

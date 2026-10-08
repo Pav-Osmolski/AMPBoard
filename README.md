@@ -84,6 +84,8 @@ It is intended to be used with AMP stacks such as:
 
 The modernization is incremental. See [architecture and migration notes](docs/architecture.md) for the new namespaced services, compatibility boundaries, and next steps. Published release history is recorded in [CHANGELOG.md](CHANGELOG.md).
 
+Demo fixtures (`tests/demo-services.php`) check independent display masks, settings/vhost panels, and legacy wrappers. Handler fixtures verify guards use the supplied config flag even when a legacy constant differs.
+
 Request fixtures (`tests/request-services.php`) check origins, custom ports, session failures, CSRF rotation, and legacy wrappers using temporary session storage.
 
 JSON fixtures (`tests/json-services.php`) check formatting compatibility, malformed/unreadable data, independent config readers, and legacy wrappers without changing installed profiles.
