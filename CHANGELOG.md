@@ -4,11 +4,32 @@ Published entries below are imported from the project's GitHub releases. Their w
 
 ## Unreleased
 
-- Shares one per-request database observation between dashboard/settings credential indicators and header version/status, including both consumer orders and failed probes.
-- Keeps operational connections and legacy status calls independent, consolidates historical credential heuristics, and closes connections after error results or failed initialization.
-- Handles unavailable drivers and retains collected diagnostic results when cleanup fails.
-- Adds focused/shared-composition and real-driver coverage, records the step 24 completion audit, and tidies stale dependency/architecture descriptions.
-- Marks the architecture modernization complete through steps 23–24. PHP discovery/switching (step 25), measurements and speculative optimization remain parked.
+## [v3.23](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.23) — 2026-10-08
+
+One request, one database check... and a completed architecture to celebrate 🎉
+
+Steps 23–24 complete the agreed architecture modernisation: from the central config migration to namespaced services, explicit request composition, and a deliberate legacy compatibility boundary. The final shared-diagnostics increment and completion audit bring this chapter to its milestone release.
+
+**PHP 8.0+ remains the supported minimum.** Existing profiles, settings, and utility URLs remain compatible.
+
+- Adds `Database\Observation` to share one diagnostic attempt between dashboard/settings credential indicators and the header's database version/status.
+- Supports header-first and dashboard-first composition, repeated reads, and failed probes without reconnecting.
+- Retains result data only and closes the diagnostic connection immediately; no open connection or cross-request cache is shared.
+- Keeps export/MySQL-inspector connections, separate observations, and existing `credentialStatus()` calls independent.
+- Consolidates the historical host/access-denied heuristics in `Database\CredentialStatus`, preserving existing indicator meanings and version/error labels.
+- Closes opened connections after charset/database-selection failures and returned connection-error results, while restoring MySQLi reporting flags.
+- Turns missing drivers into invalid credential indicators and unavailable header diagnostics, and preserves collected results when cleanup fails.
+- Keeps existing three-argument `System\ServerInspector` integrations working with their independent fresh probes.
+- Adds focused success/failure, normalization, resource-cleanup, missing-driver, operational-independence, and real-MySQL observation coverage.
+- Extends actual dashboard/header/settings wiring checks in both orders alongside all 17 entry-composition contracts.
+- Records the step 24 completion audit and tidies stale dependency annotations and architecture guidance.
+- Passes Windows/Linux checks on PHP 8.0, 8.2, 8.3, and 8.4, plus real MySQL integration, with manual testing completed before release.
+
+**Architecture milestone complete.** Legacy helpers, constants, trusted profiles, and native runtime observations remain intentional supported boundaries. Measurements and speculative optimization are parked, and PHP discovery/switching remains a separate, parked step 25 feature. The services have their places, the compatibility boundary has its purpose, and this chapter gets its applause 🤓🎉
+
+**For custom PHP integrations:** the complete config composition exposes `$databaseObservation`. Use its `credentials()` and `database()` results to share diagnostics within one request, or construct a separate `Database\Observation($connect)` for another lifetime. `ConnectionFactory::credentialStatus()` still performs a fresh check on every call. `System\ServerInspector` accepts an optional observation as its fourth constructor argument; existing calls retain their fresh-probe behavior. Operational connections are never served from the observation.
+
+**Full Changelog**: https://github.com/Pav-Osmolski/AMPBoard/compare/v3.22...v3.23
 
 ## [v3.22](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.22) — 2026-10-08
 
