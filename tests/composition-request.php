@@ -25,6 +25,7 @@ $_SERVER['USERNAME'] = 'composition-fixture';
 $_SERVER['REQUEST_METHOD'] = 'GET';
 $_SERVER['HTTP_HOST'] = 'localhost';
 $_SERVER['HTTP_ORIGIN'] = 'http://localhost';
+$_SERVER['SCRIPT_NAME'] = '/fixture/utils/phpinfo.php';
 $GLOBALS['profileReads'] = 0;
 file_put_contents( $root . '/config/profiles/default/user_config.php', '<?php ++$GLOBALS["profileReads"]; return ["version"=>1,"settings"=>["DB_HOST"=>"fixture-host","DB_USER"=>"fixture-user","DB_PASSWORD"=>"fixture-pass","theme"=>"default"],"php"=>[]];' );
 file_put_contents( $root . '/config/profiles/default/folders.json', '[{"title":"Fixture"}]' );
@@ -87,5 +88,9 @@ if ( $mode === 'modern' || $mode === 'upgrade' ) {
 	checkComposition( function_exists( 'normalise_bool' ) === ! $withoutHelpers, $mode . ' honors the helper compatibility switch' );
 }
 checkComposition( $GLOBALS['profileReads'] === 1 && session_status() === PHP_SESSION_NONE, 'Composition reads the profile once and never starts a session' );
+if ( isset( $ui ) ) {
+	$_SERVER['SCRIPT_NAME'] = '/changed/utils/phpinfo.php';
+	checkComposition( str_contains( $ui->renderVersionedAssetsWithBase( null, null ), json_encode( '/fixture/' ) ), 'Real UI composition captures its request script before later changes' );
+}
 if ( $mode !== 'modern' ) { checkComposition( defined( 'DB_HOST' ) && DB_HOST === $config['db']['host'], 'Legacy constants are still explicitly published' ); }
 echo 'PASS composition ' . $mode . ( $withoutHelpers ? ' without helpers' : '' ) . "\n";
