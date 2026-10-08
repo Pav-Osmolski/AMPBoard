@@ -3,6 +3,7 @@
 if ( PHP_SAPI !== 'cli' ) { http_response_code( 404 ); exit; }
 require __DIR__ . '/../config/autoload.php';
 use AMPBoard\Database\ConnectionFactory;
+use AMPBoard\Database\Observation;
 
 function verify( bool $value, string $message ): void {
 	if ( ! $value ) { throw new RuntimeException( $message ); }
@@ -38,6 +39,13 @@ try {
 			verify( $driver->report_mode === $mode, 'Failure restores report mode' );
 		}
 	}
+	$calls = 0;
+	$observation = new Observation( static function () use ( $factory, &$calls ) { ++$calls; return $factory->connect( [ 'strictMode' => false ] ); } );
+	$credentials = $observation->credentials();
+	$header = $observation->database();
+	verify( $header['available'] === ! $failureOnly && $credentials['pass'] === ! $failureOnly && $calls === 1, 'Real-driver diagnostic consumers share one attempt' );
+	$observation->credentials(); $observation->database();
+	verify( $calls === 1 && $driver->report_mode === 3, 'Repeated observations preserve driver reporting and do not reconnect' );
 } finally {
 	mysqli_report( $originalMode );
 }

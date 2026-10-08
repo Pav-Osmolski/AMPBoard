@@ -16,8 +16,10 @@ function mysqli_report( int $flags ): bool { mysqli_driver::$mode = $flags; retu
 function mysqli_get_client_info(): string { return 'test-client'; }
 class mysqli {
 	public static array $connections = [];
+	public static array $instances = [];
 	public static string $error = '';
 	public static bool $failCharset = false;
+	public static bool $failSelection = false;
 	public int $connect_errno = 0;
 	public string $connect_error = '';
 	public string $server_info = '8.0.36';
@@ -25,6 +27,7 @@ class mysqli {
 	public ?string $database = null;
 	public bool $closed = false;
 	public function __construct( string $host, string $user, string $pass ) {
+		self::$instances[] = $this;
 		self::$connections[] = [ $host, $user, $pass ];
 		$this->connect_error = self::$error;
 		$this->connect_errno = self::$error === '' ? 0 : 1;
@@ -36,6 +39,9 @@ class mysqli {
 		if ( self::$failCharset ) { throw new mysqli_sql_exception( 'charset failed' ); }
 		$this->charset = $charset;
 	}
-	public function select_db( string $database ): void { $this->database = $database; }
+	public function select_db( string $database ): void {
+		if ( self::$failSelection ) { throw new mysqli_sql_exception( 'selection failed' ); }
+		$this->database = $database;
+	}
 	public function close(): void { $this->closed = true; }
 }

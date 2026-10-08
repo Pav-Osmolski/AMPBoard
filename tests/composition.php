@@ -27,7 +27,7 @@ $covered = array_keys( $contracts );
 sort( $entries );
 sort( $covered );
 checkCompositionPolicy( $entries === $covered, 'Every real entry has an explicit composition contract' );
-$modes = array_merge( [ 'modern', 'upgrade', 'compatibility', 'no-helpers', 'legacy-profile', 'embedded', 'embedded-reverse', 'embedded:no-helpers', 'embedded-reverse:no-helpers' ], $covered );
+$modes = array_merge( [ 'modern', 'upgrade', 'compatibility', 'no-helpers', 'legacy-profile', 'dashboard-header', 'header-dashboard', 'embedded', 'embedded-reverse', 'embedded:no-helpers', 'embedded-reverse:no-helpers' ], $covered );
 foreach ( $covered as $entry ) { $modes[] = $entry . ':no-helpers'; }
 foreach ( $modes as $mode ) {
 	passthru( escapeshellarg( PHP_BINARY ) . ' -n ' . escapeshellarg( __DIR__ . '/composition-request.php' ) . ' ' . escapeshellarg( $mode ), $code );

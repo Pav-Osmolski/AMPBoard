@@ -32,6 +32,10 @@ file_put_contents( $root . '/config/profiles/default/folders.json', '[{"title":"
 function checkComposition( bool $ok, string $message ): void {
 	if ( ! $ok ) { throw new RuntimeException( $message ); }
 }
+if ( $mode === 'dashboard-header' || $mode === 'header-dashboard' ) {
+	// Replace only native command execution; exercise the real entries and server wiring.
+	file_put_contents( $root . '/config/services-apache-commands.php', '<?php require_once __DIR__ . "/application.php"; $apacheCommands = new class implements \\AMPBoard\\Apache\\CommandRunner { public function run(string $command): array { return ["success"=>false,"output"=>""]; } };' );
+}
 if ( $mode === 'legacy-profile' ) {
 	file_put_contents( $root . '/config/local.php', '<?php define("DB_HOST", "legacy-host"); $displayHeader = normalise_bool("on") === "true";' );
 	file_put_contents( $root . '/config/profiles/default/user_config.php', '<?php ++$GLOBALS["profileReads"]; $theme="dracula"; $displayHeader=false;' );
@@ -56,6 +60,13 @@ if ( $mode === 'modern' || $mode === 'upgrade' ) {
 	if ( $mode === 'legacy-profile' ) {
 		checkComposition( $config['db']['host'] === 'legacy-host' && $config['ui']['themes']['theme'] === 'dracula' && ! $config['ui']['flags']['header'], 'Helper-dependent legacy local input and profile precedence remain supported' );
 	}
+} elseif ( $mode === 'dashboard-header' || $mode === 'header-dashboard' ) {
+	if ( $mode === 'dashboard-header' ) { require $root . '/config/entry-dashboard.php'; }
+	require $root . '/config/entry-server.php';
+	checkComposition( $serverInspector->inspect()['database']['available'], 'Real header composition returns the shared database result' );
+	require $root . '/config/entry-dashboard.php';
+	require $root . '/config/entry-settings.php';
+	checkComposition( $config['status']['mySqlHostValid'] === true && $serverInspector->inspect()['database']['label'] === '8.0.36' && count( mysqli::$connections ) === 1, 'Dashboard, settings and repeated header inspection share exactly one connection attempt in either order' );
 } elseif ( $mode === 'embedded' || $mode === 'embedded-reverse' ) {
 	// Dashboard panels share the caller's scope. Exercise both eager-first and lazy-first composition.
 	$sequence = [ 'dashboard', 'submit', 'server', 'folders', 'settings', 'vhosts', 'exports', 'php-info', 'ui', 'statistics', 'apache-inspector', 'apache-control', 'certificates', 'mysql', 'apache-log', 'php-log', 'read-config' ];
@@ -73,6 +84,7 @@ if ( $mode === 'modern' || $mode === 'upgrade' ) {
 		checkComposition( count( mysqli::$connections ) === ( $diagnosticsLoaded ? 1 : 0 ), $entry . ' reuses credential diagnostics without operational connections' );
 		checkComposition( $GLOBALS['profileReads'] === 1 && session_status() === PHP_SESSION_NONE, $entry . ' reuses the profile and keeps session startup lazy' );
 	}
+	checkComposition( $databaseObservation->database()['available'] && count( mysqli::$connections ) === 1, 'Embedded header data reuses credential diagnostics' );
 	checkComposition( function_exists( 'normalise_bool' ) === ! $withoutHelpers, 'Embedded composition honors the helper compatibility switch' );
 } else {
 	checkComposition( isset( $contracts[$mode] ), 'Known entry contract' );

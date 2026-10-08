@@ -21,7 +21,7 @@
  * - Dynamic theme metadata injected into JS context
  *
  * Dependencies:
- * - `config.php` for headings, helpers, theme detection, display flags, path constants, tooltip data, access control
+ * - `config/entry-settings.php` for rendering, request, PHP INI, and shared database diagnostics
  * - `utils/vhosts_manager.php` for virtual host listing
  * - `utils/export_files.php` for export features
  *

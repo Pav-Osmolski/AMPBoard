@@ -1,7 +1,7 @@
 <?php
 /**
  * Complete compatibility composition for existing PHP integrations.
- * Existing profile files and constants remain supported during the migration.
+ * Existing profile files and constants remain supported by the compatibility boundary.
  *
  * @var array<string, mixed> $config
  * @var \AMPBoard\Http\RequestOrigin $requestOrigin
@@ -12,6 +12,7 @@
  * @var \AMPBoard\Filesystem\FolderOpener $folderOpener
  * @var \AMPBoard\Filesystem\DirectoryCatalog $directories
  * @var \AMPBoard\Database\ConnectionFactory $database
+ * @var \AMPBoard\Database\Observation $databaseObservation
  * @var \AMPBoard\Database\Inspector $mysqlInspector
  * @var \AMPBoard\Ui\DemoMask $demoMask
  * @var \AMPBoard\Ui\Renderer $ui
