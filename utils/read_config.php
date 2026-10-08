@@ -24,7 +24,7 @@ if ( $_SERVER['REQUEST_METHOD'] !== 'GET' ) {
 	exit;
 }
 
-if ( ! function_exists( 'request_is_same_origin' ) || ! request_is_same_origin() ) {
+if ( ! $requestOrigin->isSameOrigin() ) {
 	http_response_code( 403 );
 	echo json_encode( [ 'error' => 'Forbidden' ] );
 	exit;

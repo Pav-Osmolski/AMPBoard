@@ -44,94 +44,17 @@ function getDecrypted( string $const, bool $allowFallback = true ): string {
 	return ( new \AMPBoard\Security\CredentialCipher( CRYPTO_KEY_FILE ) )->resolveLegacy( constant( $const ), $allowFallback );
 }
 
-/**
- * Returns a CSRF token for the current session, creating one if needed.
- *
- * @return string The current CSRF token, or empty string if session cannot start.
- */
+/** Compatibility wrappers for trusted profiles and custom integrations. */
 function csrf_get_token(): string {
-	if ( session_status() !== PHP_SESSION_ACTIVE ) {
-		if ( headers_sent() ) {
-			error_log( '[csrf_get_token] Headers already sent; session not active.' );
-
-			return '';
-		}
-		session_start();
-	}
-
-	if ( empty( $_SESSION['csrf_token'] ) || ! is_string( $_SESSION['csrf_token'] ) ) {
-		$_SESSION['csrf_token'] = bin2hex( _secure_random_bytes( 32 ) );
-	}
-
-	return $_SESSION['csrf_token'];
+	$request = new \AMPBoard\Http\RequestOrigin( $_SERVER );
+	return ( new \AMPBoard\Security\CsrfToken( new \AMPBoard\Http\NativeSession( $request->isSecure() ) ) )->token();
 }
-
-/**
- * Verifies a CSRF token from user input against the session token and rotates on success.
- *
- * @param string|null $token The user-supplied token.
- *
- * @return bool True if token is valid; false otherwise.
- */
 function csrf_verify( ?string $token ): bool {
-	if ( session_status() !== PHP_SESSION_ACTIVE ) {
-		session_start();
-	}
-
-	$valid = (
-		is_string( $token )
-		&& isset( $_SESSION['csrf_token'] )
-		&& is_string( $_SESSION['csrf_token'] )
-		&& hash_equals( $_SESSION['csrf_token'], $token )
-	);
-
-	if ( $valid ) {
-		$_SESSION['csrf_token'] = bin2hex( _secure_random_bytes( 32 ) );
-	}
-
-	return $valid;
+	$request = new \AMPBoard\Http\RequestOrigin( $_SERVER );
+	return ( new \AMPBoard\Security\CsrfToken( new \AMPBoard\Http\NativeSession( $request->isSecure() ) ) )->verify( $token );
 }
-
-/**
- * Determine whether the HTTP request was submitted from the same origin.
- *
- * Validates Origin/Referer strictly by decomposing and comparing scheme, host, and port.
- * Fails closed: if headers are malformed, missing or mismatched, returns false.
- *
- * @return bool True only if request originates from the exact same origin.
- */
 function request_is_same_origin(): bool {
-	$hostHeader = $_SERVER['HTTP_HOST'] ?? '';
-	if ( $hostHeader === '' ) {
-		return false;
-	}
-
-	$scheme       = ( ! empty( $_SERVER['HTTPS'] ) && $_SERVER['HTTPS'] !== 'off' ) ? 'https' : 'http';
-	$expectedHost = strtolower( $hostHeader );
-	$expectedPort = parse_url( $scheme . '://' . $hostHeader, PHP_URL_PORT );
-	if ( $expectedPort === null ) {
-		$expectedPort = ( $scheme === 'https' ) ? 443 : 80;
-	}
-
-	foreach ( [ $_SERVER['HTTP_ORIGIN'] ?? null, $_SERVER['HTTP_REFERER'] ?? null ] as $h ) {
-		if ( ! $h ) {
-			continue;
-		}
-		$parts = @parse_url( $h );
-		if ( ! is_array( $parts ) ) {
-			return false;
-		}
-
-		$hScheme = strtolower( $parts['scheme'] ?? '' );
-		$hHost   = strtolower( $parts['host'] ?? '' );
-		$hPort   = isset( $parts['port'] ) ? (int) $parts['port'] : ( ( $hScheme === 'https' ) ? 443 : 80 );
-
-		if ( $hScheme !== $scheme || $hHost !== $expectedHost || $hPort !== $expectedPort ) {
-			return false;
-		}
-	}
-
-	return true;
+	return ( new \AMPBoard\Http\RequestOrigin( $_SERVER ) )->isSameOrigin();
 }
 
 /**

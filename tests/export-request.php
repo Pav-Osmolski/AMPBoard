@@ -18,18 +18,23 @@ $exports = new \AMPBoard\Export\Workflow(
 $ui = new class { public function buildPageViewClasses( $view ) { return ''; } };
 $config = [ 'user' => [ 'isDemo' => $scenario === 'demo' ] ];
 session_save_path( $root ); session_start(); $_SESSION['csrf_token'] = 'fixture';
+$session = new \AMPBoard\Http\NativeSession();
+$csrfTokens = new \AMPBoard\Security\CsrfToken( $session );
 $_SERVER['REQUEST_METHOD'] = 'POST';
 $_GET = [];
 $_POST = [ 'action' => $scenario, 'csrf' => 'fixture', 'group' => '0', 'folder' => 'site', 'db' => 'fixture' ];
-if ( in_array( $scenario, [ 'demo', 'csrf', 'input', 'get' ], true ) ) { $_POST['action'] = 'zip'; }
+if ( in_array( $scenario, [ 'demo', 'session', 'csrf', 'input', 'get' ], true ) ) { $_POST['action'] = 'zip'; }
 if ( $scenario === 'csrf' ) { $_POST['csrf'] = [ 'invalid' ]; }
 if ( $scenario === 'input' ) { $_POST['folder'] = [ 'invalid' ]; }
 if ( $scenario === 'get' ) { $_SERVER['REQUEST_METHOD'] = 'GET'; }
+if ( $scenario === 'session' ) { session_write_close(); session_save_path( $root . '/missing' ); }
 ob_start();
 register_shutdown_function( static function () use ( $root, $scenario ): void {
 	$body = ob_get_clean(); $data = json_decode( $body, true );
 	$success = in_array( $scenario, [ 'scan', 'dbs', 'token', 'zip', 'dumpdb' ], true );
 	$ok = is_array( $data ) && $data['ok'] === $success;
+	$rotated = in_array( $scenario, [ 'zip', 'dumpdb', 'input', 'get' ], true );
+	$ok = $ok && ( $scenario === 'session' ? session_status() !== PHP_SESSION_ACTIVE : ( ( $_SESSION['csrf_token'] ?? '' ) !== 'fixture' ) === $rotated );
 	if ( $success && in_array( $scenario, [ 'zip', 'dumpdb' ], true ) ) {
 		$ok = $ok && $data['href'] === 'dist/exports/' . $data['name'] && is_file( $root . '/public/' . $data['name'] );
 	}

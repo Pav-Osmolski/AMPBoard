@@ -4,6 +4,12 @@ Published entries below are imported from the project's GitHub releases. Their w
 
 ## Unreleased
 
+- Step 14: extract request-origin checks, native session operations, and CSRF tokens into explicit namespaced services.
+- Migrate settings, exports, bootstrap, and the read-only config endpoint while keeping legacy helper wrappers and existing URLs/response fields.
+- Fix matching same-origin requests with explicit ports, including IPv6 and default ports; retain the existing absent-header policy.
+- Reject empty tokens and fail closed when session startup, token storage, or random generation fails; retain token rotation and settings session-ID regeneration.
+- Add isolated request/session fixtures and actual-handler checks for custom ports and session failures.
+
 ## [v3.17](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.17) — 2026-10-07
 
 JSON gets its house in order... one profile at a time 🧾

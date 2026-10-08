@@ -4,6 +4,9 @@
  * Existing profile files and constants remain supported during the migration.
  *
  * @var array<string, mixed> $config
+ * @var \AMPBoard\Http\RequestOrigin $requestOrigin
+ * @var \AMPBoard\Http\SessionStore $session
+ * @var \AMPBoard\Security\CsrfToken $csrfTokens
  * @var \AMPBoard\System\Identity $identity
  * @var \AMPBoard\Filesystem\JsonReader $jsonReader
  * @var \AMPBoard\Filesystem\DirectoryCatalog $directories
@@ -28,6 +31,10 @@ require_once __DIR__ . '/autoload.php';
 if ( ! defined( 'AMPBOARD_NO_HELPERS' ) ) {
 	require_once __DIR__ . '/helpers.php';
 }
+
+$requestOrigin = new \AMPBoard\Http\RequestOrigin( $_SERVER );
+$session = $session ?? new \AMPBoard\Http\NativeSession( $requestOrigin->isSecure() );
+$csrfTokens = new \AMPBoard\Security\CsrfToken( $session );
 
 $identity = new \AMPBoard\System\Identity( $_SERVER, static function () { return safe_shell_exec( 'whoami' ); } );
 $cipher = new \AMPBoard\Security\CredentialCipher( defined( 'CRYPTO_KEY_FILE' ) ? CRYPTO_KEY_FILE : dirname( __DIR__ ) . '/.key' );

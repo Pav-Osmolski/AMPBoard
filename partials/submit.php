@@ -26,12 +26,12 @@ if ( $len > 2 * 1024 * 1024 ) {
 	submit_fail( 'POST too large.' );
 }
 
-if ( ! function_exists( 'request_is_same_origin' ) || ! request_is_same_origin() ) {
+if ( ! $requestOrigin->isSameOrigin() ) {
 	submit_fail( 'Failed same-origin check.' );
 }
 
 $csrf = $_POST['csrf'] ?? null;
-if ( ! function_exists( 'csrf_verify' ) || ! csrf_verify( is_string( $csrf ) ? $csrf : null ) ) {
+if ( ! $csrfTokens->verify( is_string( $csrf ) ? $csrf : null ) ) {
 	submit_fail( 'Invalid CSRF token.' );
 }
 
@@ -54,7 +54,6 @@ try {
 // Optional php.ini editing remains best-effort, as before; profile saving is complete.
 ( $data['iniPath'] !== '' ? new \AMPBoard\Php\IniFile( $data['iniPath'] ) : $phpIni )->patch( $data['ini'] );
 
-if ( session_status() !== PHP_SESSION_ACTIVE ) { session_start(); }
-session_regenerate_id( true );
+$session->regenerate();
 header( 'Location: ?view=settings&saved=1', true, 303 );
 exit;
