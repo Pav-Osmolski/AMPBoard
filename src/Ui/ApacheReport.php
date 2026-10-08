@@ -4,6 +4,7 @@ namespace AMPBoard\Ui;
 /** Formats supplied Apache diagnostics without commands, filesystem reads, or globals. */
 final class ApacheReport {
 	public function render( array $report, bool $demo ): string {
+		$mask = new DemoMask( $demo );
 		$text = '🖥️ Operating System: ' . self::escape( $report['os'] ) . ' (' . self::escape( $report['architecture'] ) . ")\n";
 		$text .= '🚀 Fast Mode: ' . ( $report['fastMode'] ? 'Enabled (some checks skipped)' : 'Disabled (full inspection)' ) . "\n";
 		$text .= '🧠 Apache Context Detected: ' . ( $report['isApache'] ? 'Yes' : 'No' ) . "\n";
@@ -32,13 +33,10 @@ final class ApacheReport {
 		} else { $text .= "  None detected.\n"; }
 		$text .= "\n⚙️ PHP Configuration:\n";
 		foreach ( $report['ini'] as $key => $value ) {
-			if ( $key === 'Loaded php.ini' && $demo ) { $value = self::mask( (string) $value ); }
+			if ( $key === 'Loaded php.ini' && $demo ) { $value = $mask->value( (string) $value ); }
 			$text .= '  ' . self::escape( $key ) . ': ' . self::escape( $value ) . "\n";
 		}
 		return '<pre>' . $text . "\n📅 Inspection complete.</pre>";
 	}
 	private static function escape( $value ): string { return htmlspecialchars( (string) $value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8' ); }
-	private static function mask( string $value ): string {
-		return strlen( $value ) <= 4 ? '****' : ( strlen( $value ) <= 12 ? '************' : '****************' );
-	}
 }

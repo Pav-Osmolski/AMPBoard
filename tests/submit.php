@@ -34,7 +34,8 @@ if ( $scenario === 'port' ) { $_SERVER['HTTP_HOST'] = 'localhost:8080'; $_SERVER
 if ( $scenario === 'origin' ) { $_SERVER['HTTP_ORIGIN'] = 'https://other.example'; }
 if ( $scenario === 'json' ) { $_POST['folders_json'] = '{broken'; }
 if ( $scenario === 'type' ) { $_SERVER['CONTENT_TYPE'] = 'application/json'; }
-if ( $scenario === 'demo' ) { define( 'DEMO_MODE', true ); }
+$config = [ 'user' => [ 'isDemo' => $scenario === 'demo' ] ];
+define( 'DEMO_MODE', $scenario !== 'demo' );
 if ( $scenario === 'write' ) { file_put_contents( $root . '/config/profiles', 'blocked destination' ); }
 $requestOrigin = new \AMPBoard\Http\RequestOrigin( $_SERVER );
 $session = new \AMPBoard\Http\NativeSession();

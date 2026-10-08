@@ -16,7 +16,9 @@ $exports = new \AMPBoard\Export\Workflow(
 	new \AMPBoard\Export\DatabaseExporter( static function ( $name ) { return new ExportConnection(); } ),
 	new \AMPBoard\Export\ArchiveWriter(), new \AMPBoard\Export\ExternalArchiver( $runner, [] ), [], $root . '/public', 'dist/exports', $root );
 $ui = new class { public function buildPageViewClasses( $view ) { return ''; } };
-$config = [ 'user' => [ 'isDemo' => $scenario === 'demo' ] ];
+$config = [ 'user' => [ 'isDemo' => $scenario === 'demo' || $scenario === 'dbs-demo' ] ];
+$demoMask = new \AMPBoard\Ui\DemoMask( $config['user']['isDemo'] );
+define( 'DEMO_MODE', ! $config['user']['isDemo'] );
 session_save_path( $root ); session_start(); $_SESSION['csrf_token'] = 'fixture';
 $session = new \AMPBoard\Http\NativeSession();
 $csrfTokens = new \AMPBoard\Security\CsrfToken( $session );
@@ -24,6 +26,7 @@ $_SERVER['REQUEST_METHOD'] = 'POST';
 $_GET = [];
 $_POST = [ 'action' => $scenario, 'csrf' => 'fixture', 'group' => '0', 'folder' => 'site', 'db' => 'fixture' ];
 if ( in_array( $scenario, [ 'demo', 'session', 'csrf', 'input', 'get' ], true ) ) { $_POST['action'] = 'zip'; }
+if ( $scenario === 'dbs-demo' ) { $_POST['action'] = 'dbs'; }
 if ( $scenario === 'csrf' ) { $_POST['csrf'] = [ 'invalid' ]; }
 if ( $scenario === 'input' ) { $_POST['folder'] = [ 'invalid' ]; }
 if ( $scenario === 'get' ) { $_SERVER['REQUEST_METHOD'] = 'GET'; }
@@ -31,7 +34,7 @@ if ( $scenario === 'session' ) { session_write_close(); session_save_path( $root
 ob_start();
 register_shutdown_function( static function () use ( $root, $scenario ): void {
 	$body = ob_get_clean(); $data = json_decode( $body, true );
-	$success = in_array( $scenario, [ 'scan', 'dbs', 'token', 'zip', 'dumpdb' ], true );
+	$success = in_array( $scenario, [ 'scan', 'dbs', 'dbs-demo', 'token', 'zip', 'dumpdb' ], true );
 	$ok = is_array( $data ) && $data['ok'] === $success;
 	$rotated = in_array( $scenario, [ 'zip', 'dumpdb', 'input', 'get' ], true );
 	$ok = $ok && ( $scenario === 'session' ? session_status() !== PHP_SESSION_ACTIVE : ( ( $_SESSION['csrf_token'] ?? '' ) !== 'fixture' ) === $rotated );
@@ -40,6 +43,7 @@ register_shutdown_function( static function () use ( $root, $scenario ): void {
 	}
 	if ( $scenario === 'scan' ) { $ok = $ok && $data['groups'][0]['subfolders'][0]['name'] === 'site'; }
 	if ( $scenario === 'dbs' ) { $ok = $ok && $data['databases'] === [ 'site2', 'site10' ]; }
+	if ( $scenario === 'dbs-demo' ) { $ok = $ok && $data['databases'] === [ '************', '************' ]; }
 	if ( $scenario === 'token' ) { $ok = $ok && is_string( $data['token'] ); }
 	if ( ! $success ) { $ok = $ok && ! is_dir( $root . '/public' ) && isset( $data['error'] ); }
 	$ok = $ok && glob( $root . '/ampboard-export-*' ) === [];

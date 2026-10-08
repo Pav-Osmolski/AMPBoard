@@ -39,7 +39,7 @@ if ( ! $csrfTokens->verify( is_string( $csrf ) ? $csrf : null ) ) {
 /* DEMO MODE guard                                                    */
 /* ------------------------------------------------------------------ */
 
-if ( defined( 'DEMO_MODE' ) && DEMO_MODE ) {
+if ( $config['user']['isDemo'] ) {
 	header( 'Location: ?view=settings&saved=0', true, 303 );
 	exit;
 }

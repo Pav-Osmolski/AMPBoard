@@ -4,6 +4,30 @@ Published entries below are imported from the project's GitHub releases. Their w
 
 ## Unreleased
 
+## [v3.19](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.19) — 2026-10-08
+
+Demo mode finds its place... and the masks follow the settings 🎭
+
+Step 15 of the modernisation gives demo display masking one namespaced home. Settings, exports, and diagnostic reports now share an explicit policy, while the remaining demo guards follow the loaded configuration.
+
+**PHP 8.0+ remains the supported minimum.** Existing profiles, settings, and utility URLs remain compatible.
+
+- Adds `Ui\DemoMask` with an explicit demo flag, shared by settings, export database lists, vhost warnings, and Apache/MySQL report fields.
+- Preserves the historical asterisk lengths, empty-value masking, and byte-length handling of Unicode.
+- Keeps existing escaping order and display-masking scope, including fields that remain visible in diagnostic and vhost views.
+- Makes settings saving, the settings notice, Apache restart, and certificate buttons use `$config['user']['isDemo']`.
+- Removes direct `DEMO_MODE` reads and `obfuscate_value()` calls from application views and handlers.
+- Retains the legacy masking helper as a compatibility wrapper with its existing constant-based policy.
+- Preserves disabled actions, CSRF rotation, redirects, HTTP statuses, action ordering, and response fields.
+- Audits the remaining profile and integration constants and documents why their compatibility boundary stays available.
+- Adds independent normal/demo panel fixtures and handler checks with deliberately conflicting legacy constants.
+- Passes Windows/Linux checks on PHP 8.0, 8.2, 8.3, and 8.4, with manual testing completed before release.
+- Updates the architecture notes and migration guidance. One less global cue for the demo to remember 🤓
+
+**For custom PHP integrations:** use `$demoMask->value($value)` after loading config, or construct `Ui\DemoMask($enabled)` for an independent display policy. The service does not escape HTML; keep escaping at the view boundary in the appropriate order. Existing helper signatures and profile constants remain available. Demo masking retains its historical limited scope; it is not complete anonymisation.
+
+**Full Changelog**: https://github.com/Pav-Osmolski/AMPBoard/compare/v3.18...v3.19
+
 ## [v3.18](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.18) — 2026-10-08
 
 Sessions get a helping hand... and forms keep their tokens close 🍪
@@ -660,4 +684,5 @@ This release includes a modern, responsive interface with the following features
 Feedback is welcome! Feel free to open issues or pull requests.
 
 **Full Changelog**: https://github.com/Pav-Osmolski/Custom-XAMPP-LAMP-MAMP-localhost-Page/commits/v1.0.0
+
 

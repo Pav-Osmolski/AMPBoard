@@ -12,6 +12,7 @@
  * @var \AMPBoard\Filesystem\DirectoryCatalog $directories
  * @var \AMPBoard\Database\ConnectionFactory $database
  * @var \AMPBoard\Database\Inspector $mysqlInspector
+ * @var \AMPBoard\Ui\DemoMask $demoMask
  * @var \AMPBoard\Ui\Renderer $ui
  * @var \AMPBoard\Ui\FolderPresenter $folderPresenter
  * @var \AMPBoard\Apache\CommandRunner $apacheCommands
@@ -44,6 +45,7 @@ $config = ( new \AMPBoard\Config\Loader( __DIR__, $identity, $profiles, $jsonRea
 $database = new \AMPBoard\Database\ConnectionFactory( $config['db'] );
 $directories = new \AMPBoard\Filesystem\DirectoryCatalog( $config['paths']['htdocs'] );
 $ui = new \AMPBoard\Ui\Renderer( $config );
+$demoMask = new \AMPBoard\Ui\DemoMask( $config['user']['isDemo'] );
 
 $apacheCommands = new \AMPBoard\Apache\ShellCommandRunner();
 $apacheControl = new \AMPBoard\Apache\Controller( $config['paths']['apache'], PHP_OS_FAMILY, $apacheCommands );

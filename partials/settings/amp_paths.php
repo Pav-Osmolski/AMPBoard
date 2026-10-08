@@ -4,6 +4,7 @@
  * Included as part of `partials/settings.php`
  *
  * @var \AMPBoard\Ui\Renderer $ui
+ * @var \AMPBoard\Ui\DemoMask $demoMask
  * @var array<string, mixed> $config
  */
 
@@ -25,14 +26,14 @@ $ui->renderAccordionSectionStart(
 	<div class="settings-features-group settings-xs-label">
 		<div class="settings-row">
 			<label><span>DB Host:</span>
-				<input type="text" name="DB_HOST" value="<?= obfuscate_value( $config['db']['host'] ) ?>">
+				<input type="text" name="DB_HOST" value="<?= $demoMask->value( $config['db']['host'] ) ?>">
 				<?= $config['status']['mySqlHostValid'] ? '✔️' : '❌' ?>
 			</label>
 		</div>
 
 		<div class="settings-row">
 			<label><span>DB User:</span>
-				<input type="text" name="DB_USER" value="<?= obfuscate_value( htmlspecialchars( $config['db']['user'] ) ) ?>">
+				<input type="text" name="DB_USER" value="<?= $demoMask->value( htmlspecialchars( $config['db']['user'] ) ) ?>">
 				<?= $config['status']['mySqlUserValid'] ? '✔️' : '❌' ?>
 			</label>
 		</div>
@@ -40,28 +41,28 @@ $ui->renderAccordionSectionStart(
 		<div class="settings-row">
 			<label><span>DB Password:</span>
 				<input type="password" name="DB_PASSWORD"
-				       value="<?= obfuscate_value( htmlspecialchars( $config['db']['pass'] ) ) ?>">
+				       value="<?= $demoMask->value( htmlspecialchars( $config['db']['pass'] ) ) ?>">
 				<?= $config['status']['mySqlPassValid'] ? '✔️' : '❌' ?>
 			</label>
 		</div>
 
 		<div class="settings-row">
 			<label><span>Apache Path:</span>
-				<input type="text" name="APACHE_PATH" value="<?= obfuscate_value( $config['paths']['apache'] ) ?>">
+				<input type="text" name="APACHE_PATH" value="<?= $demoMask->value( $config['paths']['apache'] ) ?>">
 				<?= $config['status']['apachePathValid'] ? '✔️' : '❌' ?>
 			</label>
 		</div>
 
 		<div class="settings-row">
 			<label><span>HTDocs Path:</span>
-				<input type="text" name="HTDOCS_PATH" value="<?= obfuscate_value( $config['paths']['htdocs'] ) ?>">
+				<input type="text" name="HTDOCS_PATH" value="<?= $demoMask->value( $config['paths']['htdocs'] ) ?>">
 				<?= $config['paths']['htdocs'] ? '✔️' : '❌' ?>
 			</label>
 		</div>
 
 		<div class="settings-row">
 			<label><span>PHP Path:</span>
-				<input type="text" name="PHP_PATH" value="<?= obfuscate_value( $config['paths']['php'] ) ?>">
+				<input type="text" name="PHP_PATH" value="<?= $demoMask->value( $config['paths']['php'] ) ?>">
 				<?= $config['status']['phpPathValid'] ? '✔️' : '❌' ?>
 			</label>
 		</div>
