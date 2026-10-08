@@ -4,6 +4,12 @@ Published entries below are imported from the project's GitHub releases. Their w
 
 ## Unreleased
 
+- Step 16: extract folder opening into explicit directory-validation, process-launch, and JSON request services.
+- Pass macOS/Linux paths as separate arguments; use an encoded Windows wrapper to start Explorer with quoted path data.
+- Reject relative paths, regular files, malformed input, and unsupported Windows device paths; return errors for unavailable or failed launchers.
+- Preserve the folder-opening URL and response fields while removing its dependency on an unloaded global helper.
+- Add supplied-launcher, benign-process, Windows wrapper, and endpoint guard fixtures; no automated test opens desktop folders.
+
 ## [v3.19](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.19) — 2026-10-08
 
 Demo mode finds its place... and the masks follow the settings 🎭

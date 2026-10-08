@@ -20,40 +20,13 @@
  * @license GPL-3.0-or-later https://www.gnu.org/licenses/gpl-3.0.html
  */
 
+require_once __DIR__ . '/../config/autoload.php';
+
+// This utility needs no profile, credentials, session, or database connection.
+$folderOpener = new \AMPBoard\Filesystem\FolderOpener( PHP_OS_FAMILY, new \AMPBoard\System\NativeProcessLauncher() );
+$folderOpenAction = new \AMPBoard\Http\FolderOpenAction( $folderOpener );
+$method = $_SERVER['REQUEST_METHOD'] ?? '';
+$response = $folderOpenAction->handle( $method, $method === 'POST' ? (string) file_get_contents( 'php://input' ) : '' );
 header( 'Content-Type: application/json' );
-
-if ( $_SERVER['REQUEST_METHOD'] !== 'POST' ) {
-	http_response_code( 405 );
-	echo json_encode( [ 'error' => 'Invalid request method.' ] );
-	exit;
-}
-
-$data = json_decode( file_get_contents( 'php://input' ), true );
-
-if ( ! isset( $data['path'] ) || ! is_string( $data['path'] ) || ! file_exists( $data['path'] ) ) {
-	http_response_code( 400 );
-	echo json_encode( [ 'error' => 'Invalid or missing folder path.' ] );
-	exit;
-}
-
-$rawPath = $data['path'];
-$path    = str_replace( '/', DIRECTORY_SEPARATOR, $rawPath );
-
-$os = PHP_OS_FAMILY;
-
-try {
-	if ( $os === 'Windows' ) {
-		pclose( popen( "start \"\" $path", 'r' ) );
-	} elseif ( $os === 'Darwin' ) {
-		safe_shell_exec( "open $path" );
-	} elseif ( $os === 'Linux' ) {
-		safe_shell_exec( "xdg-open $path" );
-	} else {
-		throw new Exception( "Unsupported OS: $os" );
-	}
-
-	echo json_encode( [ 'success' => true, 'message' => "Opened: {$data['path']}" ] );
-} catch ( Exception $e ) {
-	http_response_code( 500 );
-	echo json_encode( [ 'error' => $e->getMessage() ] );
-}
+http_response_code( $response['status'] );
+echo json_encode( $response['body'] );
