@@ -3,6 +3,10 @@
 if ( PHP_SAPI !== 'cli' ) { http_response_code( 404 ); exit; }
 require __DIR__ . '/fixtures/database.php';
 $mode = $argv[1];
+$contracts = require __DIR__ . '/fixtures/composition-contracts.php';
+$withoutHelpers = substr( $mode, -11 ) === ':no-helpers';
+if ( $withoutHelpers ) { $mode = substr( $mode, 0, -11 ); define( 'AMPBOARD_NO_HELPERS', true ); }
+$serviceNames = array_unique( array_merge( [ 'folderOpener' ], ...array_values( $contracts ) ) );
 $root = sys_get_temp_dir() . '/ampboard-composition-' . bin2hex( random_bytes( 8 ) );
 mkdir( $root . '/config/profiles/default', 0700, true );
 mkdir( $root . '/config/interface', 0700 );
@@ -51,14 +55,37 @@ if ( $mode === 'modern' || $mode === 'upgrade' ) {
 	if ( $mode === 'legacy-profile' ) {
 		checkComposition( $config['db']['host'] === 'legacy-host' && $config['ui']['themes']['theme'] === 'dracula' && ! $config['ui']['flags']['header'], 'Helper-dependent legacy local input and profile precedence remain supported' );
 	}
+} elseif ( $mode === 'embedded' || $mode === 'embedded-reverse' ) {
+	// Dashboard panels share the caller's scope. Exercise both eager-first and lazy-first composition.
+	$sequence = [ 'dashboard', 'submit', 'server', 'folders', 'settings', 'vhosts', 'exports', 'php-info', 'ui', 'statistics', 'apache-inspector', 'apache-control', 'certificates', 'mysql', 'apache-log', 'php-log', 'read-config' ];
+	if ( $mode === 'embedded-reverse' ) { $sequence = array_reverse( $sequence ); }
+	$instances = [];
+	$diagnosticsLoaded = false;
+	foreach ( array_merge( $sequence, $sequence ) as $entry ) {
+		require $root . '/config/entry-' . $entry . '.php';
+		foreach ( $instances as $name => $instance ) { checkComposition( $$name === $instance, $entry . ' retains the existing ' . $name ); }
+		foreach ( $contracts[$entry] as $name ) {
+			checkComposition( isset( $$name ) && is_object( $$name ), $entry . ' provides ' . $name );
+			$instances[$name] = $$name;
+		}
+		$diagnosticsLoaded = $diagnosticsLoaded || in_array( $entry, [ 'dashboard', 'settings' ], true );
+		checkComposition( count( mysqli::$connections ) === ( $diagnosticsLoaded ? 1 : 0 ), $entry . ' reuses credential diagnostics without operational connections' );
+		checkComposition( $GLOBALS['profileReads'] === 1 && session_status() === PHP_SESSION_NONE, $entry . ' reuses the profile and keeps session startup lazy' );
+	}
+	checkComposition( function_exists( 'normalise_bool' ) === ! $withoutHelpers, 'Embedded composition honors the helper compatibility switch' );
 } else {
+	checkComposition( isset( $contracts[$mode] ), 'Known entry contract' );
 	require $root . '/config/entry-' . $mode . '.php';
-	checkComposition( mysqli::$connections === [], 'Utility composition performs no dashboard credential probe' );
-	checkComposition( ! isset( $exports, $certificates, $folderPresenter, $mysqlInspector, $serverInspector, $folderOpener ), 'Unrelated services are absent from narrow utility composition' );
-	if ( $mode === 'read-config' ) { checkComposition( isset( $requestOrigin ) && ! isset( $session, $csrfTokens, $database, $ui ), 'Config reader receives origin policy without session or database initialization' ); }
-	if ( $mode === 'php-info' ) { checkComposition( isset( $phpInfo, $ui ) && ! isset( $session, $database ), 'PHP info receives only its rendering services' ); }
-	if ( $mode === 'statistics' ) { checkComposition( isset( $systemStatistics, $apacheCommands ) && ! isset( $database, $ui, $session ), 'Statistics has no database/session/rendering dependency' ); }
+	foreach ( $serviceNames as $name ) {
+		$required = in_array( $name, $contracts[$mode], true );
+		checkComposition( isset( $$name ) === $required, $mode . ( $required ? ' provides ' : ' excludes unrelated ' ) . $name );
+		if ( $required ) { checkComposition( is_object( $$name ), $mode . ' supplies a service object for ' . $name ); }
+	}
+	$diagnostics = in_array( $mode, [ 'dashboard', 'settings' ], true );
+	checkComposition( count( mysqli::$connections ) === ( $diagnostics ? 1 : 0 ), $mode . ' performs only its intentional credential probe' );
+	checkComposition( $config['status']['mySqlHostValid'] === ( $diagnostics ? true : null ), $mode . ' preserves probed versus unknown credential status' );
+	checkComposition( function_exists( 'normalise_bool' ) === ! $withoutHelpers, $mode . ' honors the helper compatibility switch' );
 }
 checkComposition( $GLOBALS['profileReads'] === 1 && session_status() === PHP_SESSION_NONE, 'Composition reads the profile once and never starts a session' );
 if ( $mode !== 'modern' ) { checkComposition( defined( 'DB_HOST' ) && DB_HOST === $config['db']['host'], 'Legacy constants are still explicitly published' ); }
-echo 'PASS composition ' . $mode . "\n";
+echo 'PASS composition ' . $mode . ( $withoutHelpers ? ' without helpers' : '' ) . "\n";
