@@ -4,6 +4,12 @@ Published entries below are imported from the project's GitHub releases. Their w
 
 ## Unreleased
 
+- Shares one per-request database observation between dashboard/settings credential indicators and header version/status, including both consumer orders and failed probes.
+- Keeps operational connections and legacy status calls independent, consolidates historical credential heuristics, and closes connections after error results or failed initialization.
+- Handles unavailable drivers and retains collected diagnostic results when cleanup fails.
+- Adds focused/shared-composition and real-driver coverage, records the step 24 completion audit, and tidies stale dependency/architecture descriptions.
+- Marks the architecture modernization complete through steps 23–24. PHP discovery/switching (step 25), measurements and speculative optimization remain parked.
+
 ## [v3.22](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.22) — 2026-10-08
 
 Every request keeps its own frame... and the services remember their cues 📸

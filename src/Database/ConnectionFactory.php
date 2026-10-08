@@ -16,7 +16,7 @@ final class ConnectionFactory {
 	}
 
 	/**
-	 * Create a secure MySQLi connection with utf8mb4 charset.
+	 * Create a MySQLi connection with utf8mb4 charset.
 	 *
 	 * @param array $opts {
 	 *   Optional connection options.
@@ -62,8 +62,11 @@ final class ConnectionFactory {
 
 			return $mysqli;
 
-		} catch ( mysqli_sql_exception $e ) {
-			throw new Exception( 'MySQL connection failed: ' . $e->getMessage() );
+		} catch ( \Throwable $e ) {
+			// Initialization failures must not leave a successfully opened connection behind.
+			if ( isset( $mysqli ) ) { try { $mysqli->close(); } catch ( \Throwable $ignored ) { /* Preserve the original failure. */ } }
+			if ( $e instanceof mysqli_sql_exception ) { throw new Exception( 'MySQL connection failed: ' . $e->getMessage() ); }
+			throw $e;
 		} finally {
 			mysqli_report( $prevFlags );
 		}
@@ -88,58 +91,16 @@ final class ConnectionFactory {
 	 * }
 	 */
 	public function credentialStatus( ?string $key = null ): array|bool {
-		$status = [
-			'host' => false,
-			'user' => false,
-			'pass' => false,
-		];
-
+		$status = [ 'host' => false, 'user' => false, 'pass' => false ];
+		$mysqli = null;
 		try {
 			$mysqli = $this->connect( [ 'strictMode' => false ] );
-
-			// Successful connection → all valid
-			if ( ! $mysqli->connect_errno ) {
-				$status = [ 'host' => true, 'user' => true, 'pass' => true ];
-				$mysqli->close();
-			} else {
-				$error = strtolower( $mysqli->connect_error );
-
-				// Host-level problems
-				if (
-					strpos( $error, 'unknown host' ) !== false ||
-					strpos( $error, 'no route to host' ) !== false ||
-					strpos( $error, 'can\'t connect to mysql server' ) !== false ||
-					strpos( $error, 'connection refused' ) !== false
-				) {
-					$status['host'] = false;
-				} // Access denied → host reachable. Apply heuristic for user vs pass.
-				elseif ( strpos( $error, 'access denied' ) !== false ) {
-					$status['host'] = true;
-
-					if ( strpos( $error, 'using password: no' ) !== false ) {
-						// Likely bad username, password not used
-						$status['user'] = false;
-						$status['pass'] = true;
-					} else {
-						// Password was provided. Assume username exists and password is wrong.
-						$status['user'] = true;
-						$status['pass'] = false;
-					}
-				} // Other errors: assume host reachable but credentials suspect
-				else {
-					$status['host'] = true;
-				}
-			}
-
-		} catch ( Exception $e ) {
-			// Strict mode or unexpected failure
-			$status = [ 'host' => false, 'user' => false, 'pass' => false ];
+			$status = CredentialStatus::fromError( $mysqli->connect_errno ? (string) $mysqli->connect_error : null );
+		} catch ( \Throwable $error ) {
+			// Unavailable drivers and initialization failures keep all indicators invalid.
+		} finally {
+			if ( $mysqli !== null ) { try { $mysqli->close(); } catch ( \Throwable $error ) { /* Keep the observed status. */ } }
 		}
-
-		if ( $key !== null ) {
-			return isset( $status[ $key ] ) ? $status[ $key ] : false;
-		}
-
-		return $status;
+		return $key !== null ? ( $status[$key] ?? false ) : $status;
 	}
 }

@@ -3,6 +3,8 @@ if ( PHP_SAPI !== 'cli' ) { http_response_code( 404 ); exit; }
 $failed = false;
 passthru( escapeshellarg( PHP_BINARY ) . ' -n ' . escapeshellarg( __DIR__ . '/composition.php' ), $code );
 $failed = $code !== 0;
+passthru( escapeshellarg( PHP_BINARY ) . ' -n ' . escapeshellarg( __DIR__ . '/database-observation.php' ), $code );
+$failed = $failed || $code !== 0;
 passthru( escapeshellarg( PHP_BINARY ) . ' -n ' . escapeshellarg( __DIR__ . '/request-snapshots.php' ), $code );
 $failed = $failed || $code !== 0;
 passthru( escapeshellarg( PHP_BINARY ) . ' -n ' . escapeshellarg( __DIR__ . '/folder-opener.php' ), $code );

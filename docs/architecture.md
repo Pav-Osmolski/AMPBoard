@@ -1,4 +1,4 @@
-# PHP modernization: steps 1–22
+# PHP modernization: steps 1–24 (complete)
 
 This follows the central config migration beginning at `a54ac0d` and retains the behavior on `bb62f14`. The published releases, now copied into `CHANGELOG.md`, remain the source for historical changes. The frontend bundles and HTTP URLs are unchanged.
 
@@ -20,6 +20,7 @@ Pages and utilities use `config/entry-*.php` to compose their required dependenc
 | `$config` | Existing nested array, returned by `AMPBoard\Config\Loader`. |
 | `$mysqlInspector` | `Database\Inspector`, collects read-only diagnostics through a supplied connection callback and client-version snapshot. |
 | `$database` | `AMPBoard\Database\ConnectionFactory`, constructed from `$config['db']`. |
+| `$databaseObservation` | `Database\Observation`, shares one closed-connection diagnostic result between credential indicators and header status. |
 | `$apacheCommands` | `Apache\CommandRunner`, implemented by `ShellCommandRunner` in normal requests. |
 | `$certificates` | `Certificates\Generator`, uses explicit Apache/script paths, platform, installer, and command runner. |
 | `$apacheControl` | `Apache\Controller`, constructed with the configured Apache path and OS. |
@@ -34,7 +35,7 @@ Pages and utilities use `config/entry-*.php` to compose their required dependenc
 | `$systemStatistics` | `System\Statistics`, receives platform, disk target, command runner, and measurement callback. |
 | `$apacheLog`, `$phpLog` | `Logs\Viewer`, each constructed with candidate paths, a shared tail reader, and its excerpt policy. |
 
-The renderer owns a config snapshot. Methods no longer read `global $config`, and separate renderers can use separate settings. Theme metadata and body classes live in `Ui\ThemeCatalog`, which takes an asset directory. Database connections use supplied credentials rather than `$dbUser`, `$dbPass`, or `DB_HOST`. Credential validation runs once when config loads. Both connection modes restore the caller's actual MySQLi report flags, including on failure.
+The renderer owns config and script-name snapshots. Methods no longer read `global $config`, and separate renderers can use separate settings. Theme metadata and body classes live in `Ui\ThemeCatalog`, which takes an asset directory. Database connections use supplied credentials rather than `$dbUser`, `$dbPass`, or `DB_HOST`. Dashboard/settings credential diagnostics and the header share one request observation; configuration-only/narrow utility composition does not probe credentials. Both connection modes restore the caller's actual MySQLi report flags, including on failure.
 
 `bootstrap.php` still starts the session before rendering and runs the submit handler. Utility URLs retain their existing entry points. Settings sets `$settingsView` explicitly for included panels; rendering an accordion no longer changes a global flag or defines `SETTINGS_VIEW`.
 
@@ -118,11 +119,11 @@ AMPBoard currently has no installed-version catalog or PHP-switching workflow. T
 
 ## System inspection services (step 6)
 
-The header explicitly calls `$serverInspector->inspect()` and supplies its snapshot to `$ui->renderServerInfo($snapshot)`. Renderer construction now takes only the configuration array. Header rendering no longer discovers binaries, reads runtime globals, executes commands, or opens database connections. It retains the same labels, links, status classes, and symbols, escaping version/error labels at the HTML boundary.
+The header explicitly calls `$serverInspector->inspect()` and supplies its snapshot to `$ui->renderServerInfo($snapshot)`. Renderer construction accepts configuration and an optional script-name snapshot. Rendering a supplied header snapshot no longer discovers binaries, reads runtime globals, executes commands, or opens database connections. It retains the same labels, links, status classes, and symbols, escaping version/error labels at the HTML boundary.
 
 `Apache\VersionProbe` owns the existing header-specific binary discovery and version parsing. It receives the Apache path, platform, server-software string, and existing `Apache\CommandRunner`. It quotes binary paths, ignores unsuccessful command output, reads multiple Windows discovery results, and treats directories as invalid binaries. Windows paths with shell-expansion characters are rejected. It only requests version information; it does not restart Apache. The fuller Apache inspector remains a separate diagnostic workflow.
 
-`System\ServerInspector` receives a connection callback and a PHP runtime snapshot. It normalizes database version labels through `Database\ServerVersion` and closes returned connections in a `finally` block, including connection-error results. Probe exceptions become unavailable display results. Construction is lazy and rendering a supplied snapshot performs no probes. Existing credential validation during config loading remains unchanged.
+`System\ServerInspector` receives a connection callback, a PHP runtime snapshot, and an optional shared `Database\Observation`. Application composition supplies the observation, so credential indicators and database version/status share one attempt and its closed-connection result. Existing three-argument integrations retain their independent, fresh header probes. Database labels use `Database\ServerVersion`; failed probes become unavailable display results. Construction is lazy and rendering a supplied snapshot performs no probes.
 
 `System\Statistics` receives the OS family, disk path, command runner, and measurement callback; `System\NativeMetrics` supplies native measurements in normal requests. Composition retains `/` as the disk target. Windows uses the existing typeperf command; Unix uses the existing load-average/core-count calculation and raw-load fallback when core discovery fails. Memory is PHP process peak allocation in MiB, not host RAM usage; disk is free capacity as a percentage. These historical meanings and frontend labels are retained, including percentage suffixes on the raw Unix fallback and `N/A` values. Missing, zero-capacity, negative, or nonfinite readings produce `N/A` instead of invalid JSON or division errors.
 
@@ -322,7 +323,11 @@ The fixture checks do not replace manual testing against XAMPP/LAMP/MAMP. Before
 
 Run `php -d phar.readonly=0 tests/exports.php` with ZIP and Phar enabled for fixture-only archive contents, uploads modes, SQL batching, command fallback, cleanup, and actual export-handler responses. Installed external archivers are exercised against temporary fixtures. CI also runs `tests/export-mysqli.php` against its disposable MySQL service: it creates a randomly named database, exports and restores 201 rows including NULL, Unicode, and binary values, compares them, and removes the fixture database. Never point this integration test at a production server.
 
-## Next increments
+## Final architecture increments
+
+Step 23 adds `Database\Observation` and `services-database-observation.php`. Dashboard/settings diagnostics eagerly request its credential result; the header requests its database label. Either order makes one attempt, including failures, and closes the connection immediately. Separate requests/observations and export/MySQL-inspector connections remain independent. `Database\CredentialStatus` preserves the existing access-denied/host-error heuristics. `ConnectionFactory::credentialStatus()` retains its signature, key lookup and fresh-per-call behavior; unavailable drivers now return invalid indicators, and cleanup errors do not erase collected results. Connection initialization failures close any opened connection before propagating the original/translated error.
+
+Step 24's [completion audit](architecture-audit.md) records reviewed boundaries, justified tidy-ups, and the retained compatibility contracts. The architecture modernization is complete. No PHP discovery/switching implementation or measurement-driven optimization is included.
 
 Step 22 gives `Ui\Renderer` an optional script-name snapshot and `Apache\Inspector` optional server data and an `Apache\RuntimeReader`. Application composition supplies the script name and the Apache utility supplies its server data explicitly. Existing constructor calls capture the current request once; later changes to `SCRIPT_NAME` or `SERVER_SOFTWARE` no longer alter those instances. Custom integrations that intentionally render another request should construct another instance. An explicit empty script name or empty server array suppresses ambient request fallback.
 
@@ -330,9 +335,8 @@ Step 22 gives `Ui\Renderer` an optional script-name snapshot and `Apache\Inspect
 
 Step 21 extends `tests/composition.php` to all 17 real entry compositions, both with and without legacy helpers. Each fresh process checks its public service contract, excludes unrelated operation services, and permits a credential probe only for dashboard/settings. Composing entries does not start a session; request handlers remain responsible for deliberately starting one. Repeated embedded sequences in forward and reverse order retain service instances and one profile snapshot, with only one credential diagnostic probe. Adding an entry without a contract fails the coverage check. Existing endpoint behavior fixtures remain separate.
 
-The completed step 20 [architecture review](architecture-review.md) records the remaining request inputs, initialization costs, compatibility guarantees, and a prioritized shortlist. Entry-composition coverage and explicit renderer/Apache request snapshots are complete. The next candidate is shared dashboard database observations, after characterizing the existing consumers' failure behavior; other performance changes should follow measurements.
+The historical step 20 [architecture review](architecture-review.md) records the original shortlist. Entry-composition coverage, explicit request snapshots, shared database observations, and the final audit are complete. Measurements and further optimization are parked.
 
-1. Review the completed migration against concrete maintenance and performance needs before adding more abstractions. Legacy helper loading remains an explicit compatibility choice, rather than an application requirement.
-2. Consider PHP version discovery/switching separately if desired; it is not an existing workflow awaiting extraction.
+Step 25, PHP version discovery/switching, is parked as a separate feature. Legacy helper loading remains an explicit compatibility choice, rather than an application requirement.
 
 Avoid a service locator or static global config accessor: it would preserve the hidden dependencies under a new name. Each increment should retain the existing URLs and saved profiles until a separately documented migration is ready.

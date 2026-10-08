@@ -82,11 +82,13 @@ It is intended to be used with AMP stacks such as:
 
 ## PHP development
 
-The modernization is incremental. See [architecture and migration notes](docs/architecture.md) for the new namespaced services, compatibility boundaries, and next steps. Published release history is recorded in [CHANGELOG.md](CHANGELOG.md).
+The architecture modernization is complete through step 24. See [architecture and migration notes](docs/architecture.md) for namespaced services and compatibility boundaries, and the [completion audit](docs/architecture-audit.md) for the final findings. Published release history is recorded in [CHANGELOG.md](CHANGELOG.md). PHP version discovery/switching remains a separate, parked feature.
 
 Application entry points now compose only their required services. Existing PHP integrations can still require `config/config.php` for the complete compatibility composition. `config/application.php` provides configuration without default helper loading, constant publication, session initialization, or database credential probes; select `config/services-*.php` dependencies explicitly. See the architecture notes for legacy profile support and credential diagnostics.
 
 Run `php -n tests/composition.php` to check all 17 real entry compositions with and without legacy helpers. Temporary profiles and a database double verify required services, absence of unrelated services, intentional credential probes, lazy session startup, and reuse when panels share one request. The check also requires every `entry-*.php` file to have a coverage contract.
+
+Dashboard/settings credential indicators and the header now share one `Database\Observation` per request. Run `php -n tests/database-observation.php` for credential heuristics, failure labels, connection cleanup, driver absence, and independent operational connections. The composition suite also checks actual header/dashboard wiring in both orders.
 
 Folder-opening fixtures (`tests/folder-opener.php`) check path validation, platform launch arguments, failures, and request responses. Native checks run benign PHP processes and a simulated Windows launcher; they never open desktop folders.
 
@@ -167,7 +169,7 @@ Classes are loaded by `config/autoload.php`; Composer is not required.
 | `legacy.php`             | Explicit helper and constant compatibility boundary for trusted profiles. |
 | `entry-*.php`, `services-*.php` | Explicit per-entry-point dependency composition. |
 | `autoload.php`           | Loads `AMPBoard\` classes from `src/` without Composer. |
-| `helpers.php`            | Loads remaining procedural helpers during the incremental migration. |
+| `helpers.php`            | Loads procedural compatibility helpers for trusted profiles and custom integrations. |
 | `debug.php`              | Logs raw shell commands (with optional context) to `logs/localhost-page.log`. |
 
 ---

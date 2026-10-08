@@ -11,10 +11,16 @@ final class ServerInspector {
 	private VersionProbe $apache;
 	private Closure $connect;
 	private array $runtime;
-	public function __construct( VersionProbe $apache, callable $connect, array $runtime ) {
+	private ?\AMPBoard\Database\Observation $observation;
+	public function __construct( VersionProbe $apache, callable $connect, array $runtime, ?\AMPBoard\Database\Observation $observation = null ) {
 		$this->apache = $apache; $this->connect = Closure::fromCallable( $connect ); $this->runtime = $runtime;
+		$this->observation = $observation;
 	}
 	public function inspect(): array {
+		$database = $this->observation !== null ? $this->observation->database() : $this->inspectDatabase();
+		return [ 'apache' => $this->apache->inspect(), 'php' => $this->runtime, 'database' => $database ];
+	}
+	private function inspectDatabase(): array {
 		$connection = null;
 		try {
 			$connection = ($this->connect)();
@@ -27,6 +33,6 @@ final class ServerInspector {
 				try { $connection->close(); } catch ( Throwable $error ) { /* Status was already collected. */ }
 			}
 		}
-		return [ 'apache' => $this->apache->inspect(), 'php' => $this->runtime, 'database' => $database ];
+		return $database;
 	}
 }

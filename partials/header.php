@@ -2,8 +2,7 @@
 /**
  * AMPBoard Header
  *
- * @var bool $displayClock
- * @var bool $displaySearch
+ * @var \AMPBoard\System\ServerInspector $serverInspector
  * @var \AMPBoard\Ui\Renderer $ui
  * @var array<string, mixed> $config
  *
