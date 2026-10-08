@@ -35,9 +35,9 @@ if ( $action ) {
 		if ( in_array( $action, [ 'zip', 'dumpdb' ], true ) ) {
 			if ( $config['user']['isDemo'] ) { throw new RuntimeException( 'Demo mode: export disabled.' ); }
 			$token = $_POST['csrf'] ?? '';
-			if ( ! is_string( $token ) || ! csrf_verify( $token ) ) { throw new RuntimeException( 'Invalid CSRF token.' ); }
+			if ( ! is_string( $token ) || ! $csrfTokens->verify( $token ) ) { throw new RuntimeException( 'Invalid CSRF token.' ); }
 		}
-		if ( $action === 'token' ) { $response = [ 'ok' => true, 'token' => csrf_get_token() ]; }
+		if ( $action === 'token' ) { $response = [ 'ok' => true, 'token' => $csrfTokens->token() ]; }
 		elseif ( $action === 'scan' ) { $response = [ 'ok' => true, 'groups' => $exports->scan() ]; }
 		elseif ( $action === 'dbs' ) {
 			$dbs = $exports->databases();
@@ -101,7 +101,7 @@ if ( $action ) {
 				<?php $ui->renderSeparatorLine( 'sm' ) ?>
 				<form id="export-files-form" method="post" aria-describedby="export-files-help export-files-status"
 				      novalidate>
-					<input type="hidden" name="csrf" value="<?= htmlspecialchars( csrf_get_token(), ENT_QUOTES ) ?>">
+					<input type="hidden" name="csrf" value="<?= htmlspecialchars( $csrfTokens->token(), ENT_QUOTES ) ?>">
 					<div class="row">
 						<label for="export-group">Group:</label>
 						<select
@@ -171,7 +171,7 @@ if ( $action ) {
 					archive.</p>
 				<?php $ui->renderSeparatorLine( 'sm' ) ?>
 				<form id="export-db-form" method="post" aria-describedby="export-db-help export-db-status" novalidate>
-					<input type="hidden" name="csrf" value="<?= htmlspecialchars( csrf_get_token(), ENT_QUOTES ) ?>">
+					<input type="hidden" name="csrf" value="<?= htmlspecialchars( $csrfTokens->token(), ENT_QUOTES ) ?>">
 					<div class="row">
 						<label for="export-db">Database:</label>
 						<select

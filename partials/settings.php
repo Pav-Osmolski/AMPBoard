@@ -31,7 +31,7 @@
  * - Inline server path validation indicators
  *
  * Security Notes:
- * - CSRF token output with `csrf_get_token()`
+ * - CSRF token output with `$csrfTokens->token()`
  * - Sensitive values are obfuscated for display via `obfuscate_value()`
  *
  * @var array $themeTypes Theme type metadata for client-side use
@@ -78,7 +78,7 @@ $settingsView = true;
 
 	<div class="settings width-resizable" data-width-key="width_settings">
 		<form method="post" action="" accept-charset="UTF-8" autocomplete="off">
-			<input type="hidden" name="csrf" value="<?= htmlspecialchars( csrf_get_token() ) ?>">
+			<input type="hidden" name="csrf" value="<?= htmlspecialchars( $csrfTokens->token() ) ?>">
 
 			<?php
 			$settingsFormPanels = [

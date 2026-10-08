@@ -30,18 +30,27 @@ if ( $scenario === 'ini-failure' ) {
 }
 if ( $scenario === 'ini-injection' ) { $_POST['error_reporting_value'] = "E_ALL\nextension=other"; }
 if ( $scenario === 'csrf' ) { $_POST['csrf'] = 'invalid'; }
+if ( $scenario === 'port' ) { $_SERVER['HTTP_HOST'] = 'localhost:8080'; $_SERVER['HTTP_ORIGIN'] = 'http://localhost:8080'; }
 if ( $scenario === 'origin' ) { $_SERVER['HTTP_ORIGIN'] = 'https://other.example'; }
 if ( $scenario === 'json' ) { $_POST['folders_json'] = '{broken'; }
 if ( $scenario === 'type' ) { $_SERVER['CONTENT_TYPE'] = 'application/json'; }
 if ( $scenario === 'demo' ) { define( 'DEMO_MODE', true ); }
 if ( $scenario === 'write' ) { file_put_contents( $root . '/config/profiles', 'blocked destination' ); }
+$requestOrigin = new \AMPBoard\Http\RequestOrigin( $_SERVER );
+$session = new \AMPBoard\Http\NativeSession();
+$csrfTokens = new \AMPBoard\Security\CsrfToken( $session );
+if ( $scenario === 'session' ) { session_write_close(); session_save_path( $root . '/missing' ); }
+$originalSessionId = session_id();
 ob_start();
-register_shutdown_function( static function () use ( $root, $scenario, $profiles ): void {
+register_shutdown_function( static function () use ( $root, $scenario, $profiles, $originalSessionId ): void {
 	$body = ob_get_clean();
-	$success = in_array( $scenario, [ 'valid', 'ini-default', 'ini-failure' ], true );
+	$success = in_array( $scenario, [ 'valid', 'port', 'ini-default', 'ini-failure' ], true );
 	$status = $success || $scenario === 'demo' ? 303 : 400;
 	$exists = is_file( $root . '/config/profiles/request-user/user_config.php' );
 	$ok = http_response_code() === $status && $exists === $success;
+	if ( $success ) { $ok = $ok && session_id() !== $originalSessionId; }
+	$rotated = ! in_array( $scenario, [ 'session', 'csrf', 'origin', 'type' ], true );
+	$ok = $ok && ( $scenario === 'session' ? session_status() !== PHP_SESSION_ACTIVE : ( ( $_SESSION['csrf_token'] ?? '' ) !== 'fixture-token' ) === $rotated );
 	$ok = $ok && ( $status === 400 ? $body === 'Bad request.' : $body === '' );
 	if ( $success ) {
 		$loaded = $profiles->load( 'request-user' );

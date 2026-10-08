@@ -1,4 +1,4 @@
-# PHP modernization: steps 1–13
+# PHP modernization: steps 1–14
 
 This follows the central config migration beginning at `a54ac0d` and retains the behavior on `bb62f14`. The published releases, now copied into `CHANGELOG.md`, remain the source for historical changes. The frontend bundles and HTTP URLs are unchanged.
 
@@ -8,6 +8,9 @@ Pages continue to `require_once config/config.php`. That file loads the small `A
 
 | Variable | Responsibility |
 | --- | --- |
+| `$requestOrigin` | `Http\RequestOrigin`, compares supplied request headers with host, scheme, and port. |
+| `$session` | `Http\SessionStore`, implemented by the lazy `NativeSession` adapter. |
+| `$csrfTokens` | `Security\CsrfToken`, issues and rotates form tokens through the supplied session. |
 | `$identity` | `System\Identity`, captures the request user and server label from supplied server data and a discovery callback. |
 | `$jsonReader` | `Filesystem\JsonReader`, shared tolerant JSON reads for profiles and interface metadata. |
 | `$directories` | `Filesystem\DirectoryCatalog`, lists dashboard folders under the supplied document root. |
@@ -209,6 +212,18 @@ Composition shares a reader between the profile repository and loader. `ProfileR
 
 `tests/json-services.php` checks strict formatting and rejection, tolerant reads and diagnostics, supplied read failures, independent loader/repository snapshots without JSON helpers, settings normalization, serialization failure before writes, and compatibility wrappers. All files are temporary. Existing profile integration continues to cover saved sidecar round trips and rejection of invalid form JSON.
 
+## Request, session, and CSRF services (step 14)
+
+`Http\RequestOrigin` captures an explicit server snapshot. It compares parsed HTTP(S) scheme, host, and effective port for every supplied Origin/Referer header. Matching explicit ports (including IPv6 and default ports) now work; mismatched ports, malformed URLs, user information, and invalid host authorities are rejected. The existing policy permitting absent Origin and Referer is retained. Forwarded headers are not used. This check does not provide authentication.
+
+`Http\SessionStore` separates CSRF state from PHP session operations. `NativeSession` starts lazily, retains the HTTPS/HttpOnly/SameSite=Lax cookie policy and existing lifetime/path/domain, and reports failed starts or headers already sent. Bootstrap starts the composed adapter before profiles and rendering; loading `config/config.php` directly only constructs it. Active sessions are reused without changing their cookie parameters. Successful settings saves still regenerate the session ID after persistence and retain their existing redirect behavior if regeneration fails.
+
+`Security\CsrfToken` receives a session store and optional random-byte generator. Tokens remain 32 random bytes encoded as 64 hex characters, stored under `csrf_token`, reused during rendering, and rotated after successful verification. Null, empty, malformed stored tokens, unavailable sessions, failed storage, and entropy failures cannot authorize a request. Failed verification does not rotate; failed generation leaves an existing token unchanged. Native PHP session-file durability remains the session handler's responsibility; the adapter cannot independently guarantee writes at shutdown.
+
+Settings forms and saves, export forms/actions/token responses, and the config-reader origin guard use the composed services. Existing URLs, fields, response shapes, demo guards, and export method policy remain. The export token action still returns the current token (an empty string if unavailable). Legacy `csrf_get_token()`, `csrf_verify()`, and `request_is_same_origin()` delegate to the same policies and native session for custom integrations. No service locator or global config lookup is introduced.
+
+`tests/request-services.php` checks independent snapshots/stores, default/custom/IPv6 ports, malformed headers, replay rejection, token repair, unavailable storage, rotation/entropy failures, real temporary session persistence, cookie policy, ID regeneration, and compatibility wrappers. The actual config reader runs without security helpers. Submit/export integration includes native session-start failures, and submit integration covers a matching custom port. No installed profiles or session paths are changed.
+
 ## Validation
 
 Run `php -n tests/run.php`. Each scenario gets a fresh process because legacy profiles define constants. The suite uses a deterministic MySQLi double, temporary profiles, and read-only request fixtures. It checks profile fallback and overrides, false/default values, config isolation, theme and tooltip rendering, accessibility markup, asset paths, embedded versus standalone panels, connection credentials, report-mode restoration, and rendered entry points. It does not write real profiles, restart Apache, generate certificates, or export real data.
@@ -227,7 +242,7 @@ Run `php -d phar.readonly=0 tests/exports.php` with ZIP and Phar enabled for fix
 
 ## Next increments
 
-1. Review remaining request/session helpers and demo presentation helpers. Remove compatibility constants only after all consumers have moved.
+1. Extract remaining demo presentation helpers and audit compatibility constants. Remove compatibility constants only after all consumers have moved.
 2. Consider PHP version discovery/switching separately if desired; it is not an existing workflow awaiting extraction.
 
 Avoid a service locator or static global config accessor: it would preserve the hidden dependencies under a new name. Each increment should retain the existing URLs and saved profiles until a separately documented migration is ready.

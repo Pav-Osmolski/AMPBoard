@@ -4,6 +4,32 @@ Published entries below are imported from the project's GitHub releases. Their w
 
 ## Unreleased
 
+## [v3.18](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.18) — 2026-10-08
+
+Sessions get a helping hand... and forms keep their tokens close 🍪
+
+Step 14 of the modernisation gives request-origin checks, PHP session operations, and CSRF tokens their own namespaced homes. Settings and exports keep their familiar flow, with session state and request data now passed through explicit services.
+
+**PHP 8.0+ remains the supported minimum.** Existing profiles, settings, and utility URLs remain compatible.
+
+- Adds `Http\RequestOrigin` to check supplied request headers against the request scheme, host, and effective port.
+- Fixes matching same-origin URLs with explicit ports, including IPv6 and default ports.
+- Preserves the existing policy for absent Origin/Referer headers and leaves forwarded headers outside the origin check.
+- Separates native PHP session operations behind `Http\SessionStore` and the lazy `Http\NativeSession` adapter.
+- Retains the HTTPS, HttpOnly, and SameSite=Lax cookie policy and reuses existing active sessions.
+- Gives `Security\CsrfToken` responsibility for token creation, reuse, verification, and rotation after successful verification.
+- Rejects empty tokens and fails closed when session startup, token storage, or random generation fails.
+- Migrates bootstrap, settings forms and saves, export forms and actions, and the read-only config reader to composed services.
+- Preserves settings redirects, session-ID regeneration after saving, demo guards, export request policy, and response fields.
+- Keeps procedural security helpers as compatibility wrappers for legacy profiles and custom integrations.
+- Adds isolated fixtures for origin matching, token replay, independent sessions, native session persistence, cookie policy, ID regeneration, and failure paths.
+- Passes Windows/Linux checks on PHP 8.0, 8.2, 8.3, and 8.4, with manual testing completed before release.
+- Updates the architecture notes and migration guidance. A little less global state in the cookie jar 🤓
+
+**For custom PHP integrations:** use `$requestOrigin->isSameOrigin()`, `$csrfTokens->token()`, and `$csrfTokens->verify($token)` after loading config. Standalone integrations can construct `Http\RequestOrigin($server)` and `Security\CsrfToken($session)` with a `Http\SessionStore`. Existing helper signatures remain available; origin checks do not provide authentication, and native session durability remains the session handler's responsibility.
+
+**Full Changelog**: https://github.com/Pav-Osmolski/AMPBoard/compare/v3.17...v3.18
+
 ## [v3.17](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.17) — 2026-10-07
 
 JSON gets its house in order... one profile at a time 🧾
@@ -634,3 +660,4 @@ This release includes a modern, responsive interface with the following features
 Feedback is welcome! Feel free to open issues or pull requests.
 
 **Full Changelog**: https://github.com/Pav-Osmolski/Custom-XAMPP-LAMP-MAMP-localhost-Page/commits/v1.0.0
+
