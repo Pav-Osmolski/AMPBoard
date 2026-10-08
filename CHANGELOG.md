@@ -4,12 +4,30 @@ Published entries below are imported from the project's GitHub releases. Their w
 
 ## Unreleased
 
-- Captures renderer script URLs and Apache inspector server metadata at construction, preserving ordinary asset paths and diagnostic labels while isolating service instances from later request-global changes.
-- Adds a lazy Apache runtime reader for native version, SAPI/module, environment, and INI observations, with supplied-reader coverage for precedence and unavailable probes. Existing constructor calls and PHP 8.0+ support remain available.
-- Adds step 22 request-snapshot fixtures, real UI composition checks, and integration guidance.
-- Records the step 20 architecture review and its prioritized follow-up work.
-- Extends real entry-composition coverage to all 17 entries, with and without legacy helpers, including required services, exclusion of unrelated services, intentional credential probes, and lazy session startup.
-- Checks embedded composition in both orders, retaining service instances and one profile snapshot while running credential diagnostics only once.
+## [v3.22](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.22) — 2026-10-08
+
+Every request keeps its own frame... and the services remember their cues 📸
+
+Steps 20–22 of the modernisation review the completed architecture, protect every entry composition, and give rendering and Apache diagnostics explicit request inputs.
+
+**PHP 8.0+ remains the supported minimum.** Existing profiles, settings, and utility URLs remain compatible.
+
+- Records an architecture review with concrete initialization costs, compatibility guarantees, and a prioritized shortlist for future work.
+- Covers all 17 real entry compositions with legacy helpers enabled and disabled, including required services and exclusion of unrelated services.
+- Checks repeated embedded composition in both orders, retaining service instances and one profile snapshot while running credential diagnostics only once.
+- Guards intentional dashboard/settings probes and lazy session startup without replacing the existing endpoint behavior fixtures.
+- Captures the renderer's script URL at construction, keeping root/subdirectory dashboard and utility asset paths independent of later request-global changes.
+- Captures the Apache inspector's server metadata at construction, so independent inspectors retain their own detection and version labels.
+- Adds `Apache\RuntimeReader` and `Apache\NativeRuntimeReader` for lazy native version, SAPI/module, environment, and INI observations.
+- Preserves native-version/header/PHP-info precedence, full/fast inspection, unavailable-probe fallbacks, report escaping, and demo masking.
+- Keeps existing constructor calls supported and supplies request metadata explicitly at application boundaries.
+- Adds request-snapshot, runtime-fallback, asset-path, and real UI-composition fixtures.
+- Passes Windows/Linux checks on PHP 8.0, 8.2, 8.3, and 8.4, plus real MySQL integration, with user validation before release.
+- Updates the architecture notes and integration guidance. One request, one frame, fewer global surprises 🤓
+
+**For custom PHP integrations:** existing `Ui\Renderer($config)` and `Apache\Inspector(...)` calls now capture request metadata when constructed. Supply the renderer's optional script-name argument or the inspector's optional server-data and runtime-reader arguments for independent instances. If an integration intentionally renders another request, construct another instance. Native runtime observations, proc environment files, and command probes remain lazy reads; this release does not introduce caching or change `AMPBOARD_DEMO_MODE` precedence.
+
+**Full Changelog**: https://github.com/Pav-Osmolski/AMPBoard/compare/v3.21...v3.22
 
 ## [v3.21](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.21) — 2026-10-08
 
