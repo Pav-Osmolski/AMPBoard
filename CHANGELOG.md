@@ -4,6 +4,32 @@ Published entries below are imported from the project's GitHub releases. Their w
 
 ## Unreleased
 
+## [v3.20](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.20) — 2026-10-08
+
+Folders get their opening cue... with every path in its place 📂
+
+Step 16 of the modernisation gives folder opening explicit directory-validation, process-launch, and request services. The familiar Open Folder action keeps its URL and responses, with safer path handling and honest launch results across platforms.
+
+**PHP 8.0+ remains the supported minimum.** Existing profiles, settings, and utility URLs remain compatible.
+
+- Adds `Filesystem\FolderOpener` with supplied platform, launcher, and directory-check dependencies.
+- Separates native process execution behind `System\ProcessLauncher` and `System\NativeProcessLauncher`.
+- Gives `Http\FolderOpenAction` responsibility for explicit method/body validation and the existing JSON response policy.
+- Passes macOS/Linux directory paths as separate arguments to `open` and `xdg-open`.
+- Starts Windows Explorer through a fixed encoded PowerShell wrapper, with independently encoded path data and correctly quoted trailing backslashes.
+- Handles spaces, punctuation, Unicode, drive roots, and UNC hostname/IP paths without evaluating paths as command source.
+- Rejects relative paths, regular files, malformed JSON, nonscalar paths, control characters, and Windows device namespaces before launching.
+- Reports unavailable tools, disabled process functions, failed launches, and exceptions instead of claiming success.
+- Removes the endpoint's dependency on an unloaded global helper and avoids unnecessary profile, session, or database initialization.
+- Preserves the folder-opening URL, JSON field names, supplied-path success message, and method/error statuses.
+- Adds supplied-launcher and temporary-directory fixtures, benign native-process checks, simulated Windows wrapper checks, and actual endpoint guards.
+- Passes Windows/Linux checks on PHP 8.0, 8.2, 8.3, and 8.4, with manual testing completed before release.
+- Updates the architecture notes and migration guidance. The folder knows its cue without a global stagehand 🤓
+
+**For custom PHP integrations:** call `$folderOpener->open($path)` after loading config, or construct `Filesystem\FolderOpener($platform, $launcher)` with a `System\ProcessLauncher`. Windows requires `powershell.exe`. Success confirms acceptance by the launch utility, not that a visible window opened; macOS/Linux handlers may wait, and no timeout is introduced. Folder opening still acts on the server machine. This increment does not add authentication, CSRF, origin, demo, or allowed-root policy.
+
+**Full Changelog**: https://github.com/Pav-Osmolski/AMPBoard/compare/v3.19...v3.20
+
 ## [v3.19](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.19) — 2026-10-08
 
 Demo mode finds its place... and the masks follow the settings 🎭
@@ -684,5 +710,6 @@ This release includes a modern, responsive interface with the following features
 Feedback is welcome! Feel free to open issues or pull requests.
 
 **Full Changelog**: https://github.com/Pav-Osmolski/Custom-XAMPP-LAMP-MAMP-localhost-Page/commits/v1.0.0
+
 
 

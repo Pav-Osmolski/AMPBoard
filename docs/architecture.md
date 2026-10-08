@@ -1,4 +1,4 @@
-# PHP modernization: steps 1–15
+# PHP modernization: steps 1–16
 
 This follows the central config migration beginning at `a54ac0d` and retains the behavior on `bb62f14`. The published releases, now copied into `CHANGELOG.md`, remain the source for historical changes. The frontend bundles and HTTP URLs are unchanged.
 
@@ -13,6 +13,7 @@ Pages continue to `require_once config/config.php`. That file loads the small `A
 | `$csrfTokens` | `Security\CsrfToken`, issues and rotates form tokens through the supplied session. |
 | `$identity` | `System\Identity`, captures the request user and server label from supplied server data and a discovery callback. |
 | `$jsonReader` | `Filesystem\JsonReader`, shared tolerant JSON reads for profiles and interface metadata. |
+| `$folderOpener` | `Filesystem\FolderOpener`, validates directories and invokes a supplied platform launcher. |
 | `$directories` | `Filesystem\DirectoryCatalog`, lists dashboard folders under the supplied document root. |
 | `$cipher` | `Security\CredentialCipher`, constructed with the existing key path. |
 | `$profiles` | `Config\ProfileRepository`, responsible for profile data and persistence. |
@@ -246,6 +247,20 @@ The remaining constant boundary was audited, not removed:
 `Config\LegacyConstants::read()`/`publish()` therefore remain at the compatibility boundary. Field-name strings in profile schemas and forms are not runtime constant reads, and PHP's built-in error-level/session/MySQL constants are not candidates for this migration. Removing default constant publication would be a separate compatibility decision, rather than an incidental cleanup.
 
 `tests/demo-services.php` checks independent normal/demo masks, byte boundaries, Unicode, escaping order, actual settings and vhost panels, and legacy wrapper modes. Submit and restart fixtures deliberately supply config opposite to `DEMO_MODE` and verify normal actions proceed through their existing service path while demo actions perform no save/restart. Export fixtures cover masked database lists and unchanged demo export rejection. Existing report fixtures cover normal/demo rendering. No installed profiles, commands, or certificates are used.
+
+## Folder-opening services (step 16)
+
+`Filesystem\FolderOpener` receives a platform, `System\ProcessLauncher`, and optional directory-check callback. Construction performs no reads or launches. `open($path)` rejects empty, relative, control-character, missing, and regular-file paths before launching. Windows accepts drive-absolute and UNC paths, normalizes separators, and rejects double quotes and device namespaces. Unix absolute paths retain their spelling and are passed as a single argument. Existing-directory symlinks remain eligible; this is not a document-root containment policy.
+
+macOS uses `open`; Linux uses `xdg-open`. Windows uses a fixed PowerShell wrapper to start Explorer and return without waiting for the Explorer window to close. Path data is base64-encoded independently of the ASCII script, decoded as UTF-8, and passed as one quoted Explorer argument; trailing backslashes are doubled before the closing quote. The script is encoded as UTF-16LE without requiring an optional PHP extension. No user path is evaluated as PowerShell source or passed through `cmd.exe`. Windows now requires `powershell.exe` to be available; unavailable launch tools return an error.
+
+`System\NativeProcessLauncher` invokes a separate argument array through `proc_open`, captures output away from the response, closes stdin, and reports the launch utility's exit status. Disabled process functions, missing tools, and nonzero exits cannot report success. Success means the launch utility accepted the request; it cannot confirm that a visible desktop window opened. macOS/Linux utilities may wait for their desktop handler, and this increment adds no launch timeout.
+
+`Http\FolderOpenAction` accepts explicit method/body data and maps results to the existing JSON fields. `utils/open_folder.php` keeps its POST JSON URL, successful `Opened: {supplied path}` message, 405 method error, 400 invalid-path error, and 500 launch error. It loads only the autoloader and these services, without profile/database/session initialization. Malformed JSON and nonscalar paths are rejected safely. File and relative-path rejection enforce the endpoint's documented directory/absolute-path contract. Configuration also composes `$folderOpener` for custom integrations.
+
+The frontend and bundle are unchanged. This extraction does not add authentication, CSRF, origin, demo, or allowed-root policy to the folder endpoint; those would be separate behavior decisions. The operation opens the folder on the server machine, as before, rather than downloading it or opening a folder on the remote browser's computer.
+
+`tests/folder-opener.php` covers platform commands, directory validation, spaces/Unicode/punctuation, drive roots/UNC paths, launch failures, exceptions, explicit request policy, and actual endpoint rejection responses. Native checks execute only benign PHP fixtures. On Windows a supplied PowerShell `Start-Process` function shadows the real cmdlet to validate the wrapper without opening Explorer. No automated check invokes a desktop folder launcher.
 
 ## Validation
 

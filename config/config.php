@@ -9,6 +9,7 @@
  * @var \AMPBoard\Security\CsrfToken $csrfTokens
  * @var \AMPBoard\System\Identity $identity
  * @var \AMPBoard\Filesystem\JsonReader $jsonReader
+ * @var \AMPBoard\Filesystem\FolderOpener $folderOpener
  * @var \AMPBoard\Filesystem\DirectoryCatalog $directories
  * @var \AMPBoard\Database\ConnectionFactory $database
  * @var \AMPBoard\Database\Inspector $mysqlInspector
@@ -44,6 +45,7 @@ $profiles = new \AMPBoard\Config\ProfileRepository( __DIR__, $cipher, null, \AMP
 $config = ( new \AMPBoard\Config\Loader( __DIR__, $identity, $profiles, $jsonReader ) )->load( true );
 $database = new \AMPBoard\Database\ConnectionFactory( $config['db'] );
 $directories = new \AMPBoard\Filesystem\DirectoryCatalog( $config['paths']['htdocs'] );
+$folderOpener = new \AMPBoard\Filesystem\FolderOpener( PHP_OS_FAMILY, new \AMPBoard\System\NativeProcessLauncher() );
 $ui = new \AMPBoard\Ui\Renderer( $config );
 $demoMask = new \AMPBoard\Ui\DemoMask( $config['user']['isDemo'] );
 
