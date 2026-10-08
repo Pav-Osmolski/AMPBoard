@@ -16,6 +16,6 @@ $session = new \AMPBoard\Http\NativeSession( $requestOrigin->isSecure() );
 $session->start();
 
 // Load core bits after session is up
-require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/entry-dashboard.php';
 //include __DIR__ . '/debug.php';
 include $config['paths']['partials'] . '/submit.php';

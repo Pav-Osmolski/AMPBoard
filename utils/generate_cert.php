@@ -17,7 +17,7 @@
  * @license GPL-3.0-or-later https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../config/entry-certificates.php';
 
 header( 'Content-Type: text/plain; charset=utf-8' );
 

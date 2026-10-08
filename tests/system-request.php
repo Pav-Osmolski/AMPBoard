@@ -5,6 +5,8 @@ $root = $argv[1]; $mode = $argv[2];
 mkdir( $root . '/utils', 0700, true ); mkdir( $root . '/config' );
 copy( __DIR__ . '/../utils/system_stats.php', $root . '/utils/system_stats.php' );
 file_put_contents( $root . '/config/config.php', '<?php /* fixture dependencies */' );
+file_put_contents( $root . '/config/entry-statistics.php', '<?php require_once __DIR__ . "/config.php";' );
+
 $config = [ 'ui' => [ 'flags' => [ 'systemStats' => $mode !== 'disabled', 'useAjaxForStats' => $mode === 'ajax' ] ] ];
 $calls = 0;
 $runner = new class implements \AMPBoard\Apache\CommandRunner {

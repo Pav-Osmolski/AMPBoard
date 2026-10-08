@@ -6,6 +6,10 @@ mkdir( $root . '/utils', 0700, true ); mkdir( $root . '/config' ); mkdir( $root 
 copy( __DIR__ . '/../utils/' . $kind . '_error_log.php', $root . '/utils/log.php' );
 copy( __DIR__ . '/../partials/info.php', $root . '/partials/info.php' );
 file_put_contents( $root . '/config/config.php', '<?php /* fixture services */' );
+file_put_contents( $root . '/config/entry-apache-log.php', '<?php require_once __DIR__ . "/config.php";' );
+file_put_contents( $root . '/config/entry-php-log.php', '<?php require_once __DIR__ . "/config.php";' );
+file_put_contents( $root . '/config/entry-ui.php', '<?php require_once __DIR__ . "/config.php";' );
+
 $source = "old\n<script>&unsafe</script>\ninvalid: \xff\n"; file_put_contents( $root . '/log', $source );
 $reader = new class extends \AMPBoard\Logs\TailReader {
 	public int $calls = 0;

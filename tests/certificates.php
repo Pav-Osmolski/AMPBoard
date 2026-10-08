@@ -94,6 +94,8 @@ check( ! $result['success'] && str_contains($result['output'],'fixture-example.t
 mkdir($root.'/utils'); mkdir($root.'/config');
 copy(__DIR__.'/../utils/generate_cert.php',$root.'/utils/generate_cert.php');
 file_put_contents($root.'/config/config.php','<?php /* fixture composition */');
+file_put_contents( $root . '/config/entry-certificates.php', '<?php require_once __DIR__ . "/config.php";' );
+
 foreach ( [ [null,false,400], ['',false,400], [[],false,400], ['../bad',false,400], ['valid.test',true,403], ['valid.test',false,500] ] as [ $name,$demo,$expected ] ) {
  $config=['user'=>['isDemo'=>$demo]]; $_GET=$name===null?[]:['name'=>$name]; $certificates=$g;
  $before=count($commands->calls); http_response_code(200);

@@ -22,7 +22,7 @@
  * @license GPL-3.0-or-later https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../config/entry-mysql.php';
 
 // Request policy stays at the HTTP boundary; inspection receives the resolved mode.
 $fastMode = $config['ui']['flags']['mysqlFastMode'] ?? false;

@@ -8,6 +8,8 @@ mkdir( $root . '/utils', 0700, true ); mkdir( $root . '/config' ); mkdir( $root 
 file_put_contents( $root . '/sites/site/file.txt', 'fixture only' );
 copy( __DIR__ . '/../utils/export_files.php', $root . '/utils/export_files.php' );
 file_put_contents( $root . '/config/config.php', '<?php /* isolated composition */' );
+file_put_contents( $root . '/config/entry-exports.php', '<?php require_once __DIR__ . "/config.php";' );
+
 $runner = new class implements \AMPBoard\Export\ProcessRunner {
 	public function run( array $arguments, string $directory, string $input = '' ): array { throw new RuntimeException( 'No external commands in request fixtures.' ); }
 };

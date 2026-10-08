@@ -4,6 +4,12 @@ Published entries below are imported from the project's GitHub releases. Their w
 
 ## Unreleased
 
+- Completes modernisation steps 17–19: namespaced identity discovery, settings-error responses, and strict boolean input normalization remove remaining application helper dependencies.
+- Separates modern configuration from explicit legacy helper loading and constant publication, retaining the complete `config/config.php` compatibility composition and existing profile/key behavior.
+- Composes pages and utilities from explicit dependency groups; profile-backed utilities no longer run dashboard credential probes or construct unrelated services.
+- Preserves URLs, request/response policies, session/CSRF behavior, demo guards, saved profiles, and the PHP 8.0 minimum.
+- Adds real-composition fixtures for helper-free operation, legacy profiles, service reuse, constant publication, and absence of unintended database/session initialization.
+
 ## [v3.20](https://github.com/Pav-Osmolski/AMPBoard/releases/tag/v3.20) — 2026-10-08
 
 Folders get their opening cue... with every path in its place 📂
@@ -710,6 +716,5 @@ This release includes a modern, responsive interface with the following features
 Feedback is welcome! Feel free to open issues or pull requests.
 
 **Full Changelog**: https://github.com/Pav-Osmolski/Custom-XAMPP-LAMP-MAMP-localhost-Page/commits/v1.0.0
-
 
 

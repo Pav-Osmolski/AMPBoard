@@ -97,7 +97,7 @@ final class SettingsInput {
 			$profile[$key] = json_decode( Json::canonicalise( (string) ( $in[$field] ?? '' ) ), true );
 		}
 		$settings = [ 'theme' => $theme ];
-		foreach ( ProfileSchema::FLAGS as $field ) { $settings[$field] = normalise_bool( $in[$field] ?? null ) === 'true'; }
+		foreach ( ProfileSchema::FLAGS as $field ) { $settings[$field] = BooleanInput::value( $in[$field] ?? null ); }
 		foreach ( [ 'DB_HOST' => $DB_HOST, 'DB_USER' => $DB_USER, 'DB_PASSWORD' => $DB_PASS ] as $field => $value ) {
 			if ( $value !== '' ) { $settings[$field] = $value; }
 		}

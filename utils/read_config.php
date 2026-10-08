@@ -13,7 +13,7 @@
  * @license GPL-3.0-or-later https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../config/entry-read-config.php';
 
 header( 'Content-Type: application/json; charset=utf-8' );
 header( 'Cache-Control: no-store' );
