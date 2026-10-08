@@ -98,6 +98,8 @@ JSON fixtures (`tests/json-services.php`) check formatting compatibility, malfor
 
 Apache report fixtures (`tests/apache-report.php`) check full/fast snapshots, unavailable probes, escaped output, and demo masking; endpoint fixtures verify saved/query/demo mode selection.
 
+Request-snapshot fixtures (`tests/request-snapshots.php`) check independent renderer asset bases and Apache request labels, constructor defaults, runtime fallback precedence, and unavailable native observations. Composition supplies request metadata explicitly; native diagnostics remain lazy through the Apache runtime reader.
+
 Folder-presentation fixtures (`tests/folder-presentation.php`) check URL rules, template fallbacks, combined filters, escaping, and the rendered panel as part of the isolated suite.
 
 Certificate fixtures (`tests/certificates.php`) use temporary scripts and folders. Run `node tests/cert-ui.cjs` for certificate response handling; no installed certificates are changed by these tests.

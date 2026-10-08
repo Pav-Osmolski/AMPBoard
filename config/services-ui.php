@@ -2,5 +2,5 @@
 /** Explicit ui dependencies; constructed once per request. */
 require_once __DIR__ . "/application.php";
 
-$ui = new \AMPBoard\Ui\Renderer( $config );
+$ui = new \AMPBoard\Ui\Renderer( $config, (string) ( $_SERVER['SCRIPT_NAME'] ?? '' ) );
 $demoMask = new \AMPBoard\Ui\DemoMask( $config['user']['isDemo'] );

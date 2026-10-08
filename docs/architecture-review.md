@@ -2,7 +2,7 @@
 
 Reviewed on 8 October 2026 against v3.21, commit `d6b4b0c0f2df79740287a29d2ba81653c3f10356`.
 
-Follow-up: step 21 implements shortlist item 1 in `tests/composition.php`, `tests/composition-request.php`, and `tests/fixtures/composition-contracts.php`. All 17 real entries now have explicit contracts, with helper-enabled/disabled checks and repeated embedded sequences in both orders. The findings below retain the reviewed v3.21 baseline; request snapshots and performance changes remain future work.
+Follow-up: step 21 implements shortlist item 1 in `tests/composition.php`, `tests/composition-request.php`, and `tests/fixtures/composition-contracts.php`. All 17 real entries now have explicit contracts, with helper-enabled/disabled checks and repeated embedded sequences in both orders. Step 22 implements item 2's renderer/Apache request snapshots and native diagnostic reader, with independent-instance and fallback checks. `AMPBOARD_DEMO_MODE` retains its existing configuration behavior. The findings below retain the reviewed v3.21 baseline; performance changes remain future work.
 
 The original modernization objective is substantially achieved. Application callers use namespaced policies and explicit services, the centralized configuration remains intact, and legacy profile/helper/constant support has a named compatibility boundary. The next work should strengthen those guarantees and address demonstrated costs. Another container, service locator, or wholesale rewrite is not justified by this review.
 

@@ -52,6 +52,7 @@ if ( $scenario === 'database' ) {
 }
 
 if ( $scenario === 'renderer' ) {
+	$_SERVER['SCRIPT_NAME'] = '/amp/utils/export_files.php';
 	$config = [ 'paths' => [ 'assets' => $root . '/assets' ], 'ui' => [ 'flags' => [ 'folderBadges' => false ] ],
 		'interface' => [ 'headings' => [ 'Example' => [ 'key' => 'example' ] ], 'tooltips' => [ 'example' => '<safe & useful>' ] ] ];
 	$ui = new Renderer( $config );
@@ -68,7 +69,7 @@ if ( $scenario === 'renderer' ) {
 	expect( str_contains( $html, 'aria-controls="panel-sample"' ), 'Accordion semantics' );
 	expect( ! isset( $GLOBALS['settingsView'] ) && ! defined( 'SETTINGS_VIEW' ), 'Renderer does not mutate view context' );
 	expect( $ui->buildPageViewClasses( true ) === '' && $ui->buildPageViewClasses( null ) === 'page-view', 'Standalone/embedded classes' );
-	$_SERVER['SCRIPT_NAME'] = '/amp/utils/export_files.php';
+	$_SERVER['SCRIPT_NAME'] = '/changed/utils/export_files.php';
 	$assets = $ui->renderVersionedAssetsWithBase();
 	expect( str_contains( $assets, '/amp/dist/css/style.min.css?v=' . filemtime( $root . '/dist/css/style.min.css' ) ), 'Asset base and version' );
 	$themes = new ThemeCatalog( $root . '/assets' );

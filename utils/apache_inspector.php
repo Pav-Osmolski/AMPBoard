@@ -31,7 +31,7 @@ if ( isset( $_GET['fast'] ) ) { $fastMode = filter_var( $_GET['fast'], FILTER_VA
 $demo = $config['user']['isDemo'];
 if ( $demo ) { $fastMode = true; }
 
-$apacheInspector = new \AMPBoard\Apache\Inspector( $config['paths']['apache'], $apacheCommands, (bool) $fastMode );
+$apacheInspector = new \AMPBoard\Apache\Inspector( $config['paths']['apache'], $apacheCommands, (bool) $fastMode, '/proc/self/environ', $_SERVER, new \AMPBoard\Apache\NativeRuntimeReader() );
 $report = $apacheInspector->inspect( PHP_OS_FAMILY, PHP_INT_SIZE === 8 ? '64-bit' : '32-bit' );
 echo '<div class="heading">' . $ui->renderHeading( 'Apache Inspector', 'h2', true ) . '</div>';
 echo ( new \AMPBoard\Ui\ApacheReport() )->render( $report, $demo );

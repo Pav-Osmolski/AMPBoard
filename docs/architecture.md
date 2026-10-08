@@ -1,4 +1,4 @@
-# PHP modernization: steps 1–21
+# PHP modernization: steps 1–22
 
 This follows the central config migration beginning at `a54ac0d` and retains the behavior on `bb62f14`. The published releases, now copied into `CHANGELOG.md`, remain the source for historical changes. The frontend bundles and HTTP URLs are unchanged.
 
@@ -324,9 +324,13 @@ Run `php -d phar.readonly=0 tests/exports.php` with ZIP and Phar enabled for fix
 
 ## Next increments
 
+Step 22 gives `Ui\Renderer` an optional script-name snapshot and `Apache\Inspector` optional server data and an `Apache\RuntimeReader`. Application composition supplies the script name and the Apache utility supplies its server data explicitly. Existing constructor calls capture the current request once; later changes to `SCRIPT_NAME` or `SERVER_SOFTWARE` no longer alter those instances. Custom integrations that intentionally render another request should construct another instance. An explicit empty script name or empty server array suppresses ambient request fallback.
+
+`Apache\NativeRuntimeReader` keeps native Apache-version availability, SAPI/module output, the four selected environment keys, and INI observations behind a lazy boundary. Runtime observations, proc environment files, binary/config discovery, and commands are still collected when requested; they are not cached as request metadata. Native version → server header → PHP-info version precedence, full/fast behavior, report fallbacks, masking, and escaping remain unchanged. `tests/request-snapshots.php` checks supplied request data and runtime readers without running commands; real composition tests also prove the renderer retains its supplied script. `AMPBOARD_DEMO_MODE` remains an existing configuration input with unchanged override precedence.
+
 Step 21 extends `tests/composition.php` to all 17 real entry compositions, both with and without legacy helpers. Each fresh process checks its public service contract, excludes unrelated operation services, and permits a credential probe only for dashboard/settings. Composing entries does not start a session; request handlers remain responsible for deliberately starting one. Repeated embedded sequences in forward and reverse order retain service instances and one profile snapshot, with only one credential diagnostic probe. Adding an entry without a contract fails the coverage check. Existing endpoint behavior fixtures remain separate.
 
-The completed step 20 [architecture review](architecture-review.md) records the remaining request inputs, initialization costs, compatibility guarantees, and a prioritized shortlist. With entry-composition coverage completed, explicit renderer/Apache request snapshots are the next production refactor; further performance changes should follow measurements.
+The completed step 20 [architecture review](architecture-review.md) records the remaining request inputs, initialization costs, compatibility guarantees, and a prioritized shortlist. Entry-composition coverage and explicit renderer/Apache request snapshots are complete. The next candidate is shared dashboard database observations, after characterizing the existing consumers' failure behavior; other performance changes should follow measurements.
 
 1. Review the completed migration against concrete maintenance and performance needs before adding more abstractions. Legacy helper loading remains an explicit compatibility choice, rather than an application requirement.
 2. Consider PHP version discovery/switching separately if desired; it is not an existing workflow awaiting extraction.

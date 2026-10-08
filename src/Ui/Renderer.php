@@ -6,9 +6,12 @@ namespace AMPBoard\Ui;
 /** Renders dashboard components from an explicit configuration snapshot. */
 final class Renderer {
 	private array $config;
+	private string $scriptName;
 
-	public function __construct( array $config ) {
+	/** Omitting the script name captures the current request for existing integrations. */
+	public function __construct( array $config, ?string $scriptName = null ) {
 		$this->config = $config;
+		$this->scriptName = $scriptName ?? (string) ( $_SERVER['SCRIPT_NAME'] ?? '' );
 	}
 
 	/**
@@ -344,8 +347,7 @@ final class Renderer {
 		$projectRoot = $projectRoot ?: dirname( __DIR__, 2 );
 
 		// Compute BASE_URL once
-		$scriptName = isset( $_SERVER['SCRIPT_NAME'] ) ? (string) $_SERVER['SCRIPT_NAME'] : '';
-		$scriptDir  = rtrim( dirname( $scriptName ), '/\\' );
+		$scriptDir  = rtrim( dirname( $this->scriptName ), '/\\' );
 
 		if ( $stripSuffix !== '' && $stripSuffix[0] === '/' && preg_match( '~' . preg_quote( $stripSuffix, '~' ) . '$~', $scriptDir ) ) {
 			$baseUrl = rtrim( substr( $scriptDir, 0, - strlen( $stripSuffix ) ), '/' );

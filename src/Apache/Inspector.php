@@ -8,12 +8,18 @@ final class Inspector {
 	private CommandRunner $commands;
 	private bool $fastMode;
 	private string $procEnvironment;
+	private ?string $serverSoftware;
+	private RuntimeReader $runtime;
 
-	public function __construct( string $apachePath, CommandRunner $commands, bool $fastMode = false, string $procEnvironment = '/proc/self/environ' ) {
+	/** Missing server data captures the current request; an empty array means no server header. */
+	public function __construct( string $apachePath, CommandRunner $commands, bool $fastMode = false, string $procEnvironment = '/proc/self/environ', ?array $server = null, ?RuntimeReader $runtime = null ) {
 		$this->apachePath = rtrim( $apachePath, '/\\' );
 		$this->commands = $commands;
 		$this->fastMode = $fastMode;
 		$this->procEnvironment = $procEnvironment;
+		$server = $server ?? $_SERVER;
+		$this->serverSoftware = isset( $server['SERVER_SOFTWARE'] ) ? (string) $server['SERVER_SOFTWARE'] : null;
+		$this->runtime = $runtime ?? new NativeRuntimeReader();
 	}
 
 
@@ -57,23 +63,18 @@ final class Inspector {
 	}
 
 	public function isApache(): bool {
-		return (
-			strpos( $_SERVER['SERVER_SOFTWARE'] ?? '', 'Apache' ) !== false ||
-			php_sapi_name() === 'apache2handler' ||
-			function_exists( 'apache_get_version' )
-		);
+		return strpos( $this->serverSoftware ?? '', 'Apache' ) !== false || $this->runtime->isApache();
 	}
 
 	public function getApacheVersion(): string {
-		if ( function_exists( 'apache_get_version' ) ) {
-			return "via apache_get_version: " . apache_get_version();
+		$nativeVersion = $this->runtime->apacheVersion();
+		if ( $nativeVersion !== null ) {
+			return "via apache_get_version: " . $nativeVersion;
 		}
-		if ( isset( $_SERVER['SERVER_SOFTWARE'] ) ) {
-			return "via SERVER_SOFTWARE: " . $_SERVER['SERVER_SOFTWARE'];
+		if ( $this->serverSoftware !== null ) {
+			return "via SERVER_SOFTWARE: " . $this->serverSoftware;
 		}
-		ob_start();
-		phpinfo( INFO_MODULES );
-		$data = ob_get_clean();
+		$data = $this->runtime->moduleInfo();
 		if ( preg_match( '/Apache\/[\d.]+/', $data, $m ) ) {
 			return "via phpinfo: " . $m[0];
 		}
@@ -210,9 +211,7 @@ final class Inspector {
 	}
 
 	public function detectApacheSAPI(): ?string {
-		ob_start();
-		phpinfo( INFO_MODULES );
-		$data = ob_get_clean();
+		$data = $this->runtime->moduleInfo();
 		if ( strpos( $data, 'apache2handler' ) !== false ) {
 			return 'apache2handler (Apache SAPI)';
 		}
@@ -221,13 +220,7 @@ final class Inspector {
 	}
 
 	public function getApacheEnvVars(): array {
-		$envVars = [];
-		foreach ( [ 'APACHE_RUN_DIR', 'APACHE_PID_FILE', 'APACHE_LOCK_DIR', 'INVOCATION_ID' ] as $var ) {
-			$val = getenv( $var );
-			if ( $val ) {
-				$envVars[ $var ] = $val;
-			}
-		}
+		$envVars = $this->runtime->environment();
 		if ( ! $this->fastMode ) {
 			$procPath = $this->procEnvironment;
 			if ( file_exists( $procPath ) && is_readable( $procPath ) ) {
@@ -246,9 +239,6 @@ final class Inspector {
 	}
 
 	public function getIniFilesInfo(): array {
-		return [
-			'Loaded php.ini'     => php_ini_loaded_file() ?: 'N/A',
-			'Scanned .ini files' => php_ini_scanned_files() ?: 'N/A'
-		];
+		return $this->runtime->iniFiles();
 	}
 }
